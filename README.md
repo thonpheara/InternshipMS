@@ -8,6 +8,7 @@ Internship Management System is a modern, comprehensive web application built wi
 
 ## 📋 Table of Contents
 - [Key Features & Roles](#-key-features--roles)
+- [System Architecture](#-system-architecture)
 - [System Requirements](#-system-requirements)
 - [Step-by-Step Installation & Setup](#-step-by-step-installation--setup)
 - [Running the Application Locally](#-running-the-application-locally)
@@ -37,6 +38,105 @@ Internship Management System is a modern, comprehensive web application built wi
   - Supervise student eligibility and track cohort placement statuses.
   - Assign faculty supervisors to active placements.
   - System-wide dashboard analytics.
+
+---
+
+## 🏗️ System Architecture
+
+Internship Management System implements a multi-tier **Model-View-Controller (MVC)** architectural pattern built on top of the Laravel 12 framework. The architecture enforces separation of concerns across presentation, routing & middleware, application controllers, domain models, and relational persistence.
+
+For an in-depth technical specification, see [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md).
+
+### 1. High-Level Architectural Diagram
+
+```mermaid
+flowchart TD
+    subgraph ClientLayer ["Client / Presentation Layer"]
+        A1["🎓 Student Portal (Web Browser)"]
+        A2["🏢 Company Portal (Web Browser)"]
+        A3["🛡️ Admin & Coordinator Portal"]
+    end
+
+    subgraph SecurityLayer ["Security & Routing Layer"]
+        B1["HTTP / HTTPS Request"]
+        B2["CSRF Protection (VerifyCsrfToken)"]
+        B3["Authentication & RBAC Middleware<br/>(auth, role:student/company/admin)"]
+    end
+
+    subgraph ControllerLayer ["Application / Controller Layer (Laravel 12)"]
+        C1["Student Controllers<br/>(Browse, Apply, WeeklyLogs, Messaging)"]
+        C2["Company Controllers<br/>(Postings, Applicants, LogReview, Evaluations)"]
+        C3["Admin Controllers<br/>(Approvals, Eligibility, Placements)"]
+        C4["AuthController<br/>(Login, Registration, Session)"]
+    end
+
+    subgraph DomainLayer ["Domain & ORM Layer (Eloquent ORM)"]
+        D1["User & Profiles<br/>(StudentProfile, CompanyProfile)"]
+        D2["Internship & Applications<br/>(InternshipPost, Application)"]
+        D3["Placements & Logs<br/>(Placement, WeeklyLog)"]
+        D4["Evaluations & Messaging<br/>(Evaluation, Conversation, Message)"]
+    end
+
+    subgraph DataLayer ["Data & Storage Layer"]
+        E1[("MySQL / MariaDB<br/>Relational Database")]
+        E2["Local Storage Disk<br/>(Resumes, PDF, Avatars, Logos)"]
+    end
+
+    A1 --> B1
+    A2 --> B1
+    A3 --> B1
+
+    B1 --> B2
+    B2 --> B3
+
+    B3 -->|role: student| C1
+    B3 -->|role: company| C2
+    B3 -->|role: admin,coordinator| C3
+    B3 -->|public / guest| C4
+
+    C1 --> DomainLayer
+    C2 --> DomainLayer
+    C3 --> DomainLayer
+    C4 --> DomainLayer
+
+    DomainLayer --> E1
+    C1 -->|Upload / Download| E2
+    C2 -->|Logo Upload / Resume View| E2
+```
+
+### 2. Core Business Workflow Lifecycle
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Company as 🏢 Host Company
+    actor Admin as 🛡️ University Admin
+    actor Student as 🎓 Student
+
+    Company->>Admin: 1. Submit Internship Post (Status: Pending Approval)
+    Admin->>Admin: 2. Review and Approve Post (Status: Approved)
+    Student->>Company: 3. Discover Post & Submit Application (CV + Cover Letter)
+    Company->>Student: 4. Review Application & Accept Student
+    Admin->>Admin: 5. Generate Placement & Assign Faculty Supervisor
+    
+    loop Weekly Internship Progression
+        Student->>Company: 6. Submit Weekly Log (Hours & Completed Tasks)
+        Company->>Company: 7. Review & Approve / Request Revision
+    end
+
+    Company->>Admin: 8. Submit Final Performance & Competency Evaluation
+    Admin->>Student: 9. Complete Placement & Record Credit Hours
+```
+
+### 3. Layered Components Breakdown
+
+| Layer | Technologies & Components | Core Responsibility |
+| :--- | :--- | :--- |
+| **Presentation Tier** | Blade Templates, Tailwind CSS 4, Vite, Alpine.js / Vanilla JS | Responsive role-specific dashboards, dynamic modals, data tables, resume previews, and real-time form validations. |
+| **Routing & Middleware** | Laravel Web Router (`routes/web.php`), RBAC Middleware | Request dispatching, session state validation, CSRF verification, and strict role guards (`role:student`, `role:company`, `role:admin,coordinator`). |
+| **Application Tier** | PHP 8.2+, Laravel 12 Controllers | Request validation, file processing (resumes & images), business logic orchestration, and response view rendering. |
+| **Domain & Data Tier** | Eloquent ORM Models (`User`, `Application`, `Placement`, etc.) | Domain relationships (hasOne, hasMany, belongsTo), cascading constraints, soft deletes, and timestamp management. |
+| **Storage & Persistence** | MySQL 8.x / MariaDB, Filesystem (`storage/app/public`) | Relational transaction integrity, foreign key relations, and secure document storage for student resumes and company logos. |
 
 ---
 
