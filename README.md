@@ -12,7 +12,6 @@ Internship Management System is a modern, comprehensive web application built wi
 - [Step-by-Step Installation & Setup](#-step-by-step-installation--setup)
 - [Running the Application Locally](#-running-the-application-locally)
 - [Default Login Credentials](#-default-login-credentials)
-- [Deploying Online (Free Cloud Hosting)](#-deploying-online-free-cloud-hosting)
 - [Updating the Project After Changes](#-updating-the-project-after-changes)
 - [Useful Commands & Troubleshooting](#-useful-commands--troubleshooting)
 - [License](#-license)
@@ -177,28 +176,6 @@ composer run dev
 ### 2. Student & Company Accounts
 - Both students and host companies can register directly via the self-service signup portal:
 - **Registration URL:** `http://127.0.0.1:8000/register`
-
----
-
-## ☁️ Deploying Online (Free Cloud Hosting)
-
-You can host this project 100% free using **Render.com** (Web Service) and **Aiven.io** (Free MySQL):
-
-1. **Database (Aiven.io):**
-   - Create a free MySQL database on [Aiven.io](https://aiven.io).
-   - Copy `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`.
-
-2. **Web Service (Render.com):**
-   - Create a new **Web Service** on [Render.com](https://render.com) linked to your GitHub repository `thonpheara/InternshipMS`.
-   - **Build Command:**
-     ```bash
-     composer install --no-dev --optimize-autoloader && npm install && npm run build && php artisan storage:link
-     ```
-   - **Start Command:**
-     ```bash
-     php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
-     ```
-   - **Environment Variables:** Add `APP_KEY`, `APP_URL`, and the database credentials from Aiven.
 
 ---
 
