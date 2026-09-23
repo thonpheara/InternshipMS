@@ -22,17 +22,18 @@ class InternshipPostController extends Controller
         $posts = InternshipPost::where('company_profile_id', $company?->id)
             ->withCount('applications')
             ->latest()
-            ->paginate(10);
+            ->paginate(6)
+            ->withQueryString();
 
         return view('company.posts.index', compact('posts'));
     }
 
     /**
-     * Show create job post form.
+     * Show create job post form (redirects to listings with modal open flag).
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        return view('company.posts.create');
+        return redirect()->route('company.posts.index', ['create' => 1]);
     }
 
     /**
@@ -49,7 +50,7 @@ class InternshipPostController extends Controller
             'responsibilities'=> ['nullable', 'string'],
             'requirements'    => ['nullable', 'string'],
             'location'        => ['required', 'string', 'max:255'],
-            'type'            => ['required', 'in:remote,on_site,hybrid'],
+            'type'            => ['nullable', 'in:remote,on_site,hybrid'],
             'duration_weeks'  => ['required', 'integer', 'min:4', 'max:52'],
             'stipend'         => ['nullable', 'numeric', 'min:0'],
             'slots'           => ['required', 'integer', 'min:1', 'max:50'],
@@ -60,6 +61,7 @@ class InternshipPostController extends Controller
         $validated['slug'] = Str::slug($validated['title']) . '-' . rand(1000, 9999);
         $validated['status'] = 'pending_approval'; // Admin moderates new postings
         $validated['is_stipend_disclosed'] = !empty($validated['stipend']);
+        $validated['type'] = $validated['type'] ?? 'on_site';
 
         InternshipPost::create($validated);
 
@@ -68,13 +70,13 @@ class InternshipPostController extends Controller
     }
 
     /**
-     * Show edit form.
+     * Show edit form (redirects to listings with edit modal flag).
      */
-    public function edit(InternshipPost $post): View|RedirectResponse
+    public function edit(InternshipPost $post): RedirectResponse
     {
         $this->authorizeCompanyPost($post);
 
-        return view('company.posts.edit', compact('post'));
+        return redirect()->route('company.posts.index', ['edit' => $post->id]);
     }
 
     /**
@@ -91,13 +93,17 @@ class InternshipPostController extends Controller
             'responsibilities'=> ['nullable', 'string'],
             'requirements'    => ['nullable', 'string'],
             'location'        => ['required', 'string', 'max:255'],
-            'type'            => ['required', 'in:remote,on_site,hybrid'],
+            'type'            => ['nullable', 'in:remote,on_site,hybrid'],
             'duration_weeks'  => ['required', 'integer', 'min:4', 'max:52'],
             'stipend'         => ['nullable', 'numeric', 'min:0'],
             'slots'           => ['required', 'integer', 'min:1', 'max:50'],
             'deadline'        => ['required', 'date'],
             'status'          => ['required', 'in:draft,pending_approval,approved,rejected,closed'],
         ]);
+
+        if (empty($validated['type'])) {
+            unset($validated['type']);
+        }
 
         $validated['is_stipend_disclosed'] = !empty($validated['stipend']);
 

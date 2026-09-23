@@ -53,6 +53,7 @@ class User extends Authenticatable
         ];
     }
 
+
     /**
      * Get the student profile associated with the user.
      */

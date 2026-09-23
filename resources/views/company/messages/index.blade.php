@@ -1,4 +1,4 @@
-<x-layout>
+﻿<x-layout>
     <div class="space-y-6">
         
         <!-- Header -->
@@ -8,7 +8,7 @@
                 <p class="text-xs text-slate-600 mt-1">Communicate directly with applicants, schedule interviews, and clarify requirements.</p>
             </div>
             <a href="{{ route('company.applicants.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition-colors">
-                <i data-lucide="users" class="w-4 h-4"></i>
+                <i class="fa-solid fa-users w-4 h-4"></i>
                 <span>Applicant Pipeline</span>
             </a>
         </div>
@@ -17,7 +17,7 @@
             <!-- Empty State -->
             <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-12 text-center max-w-lg mx-auto my-12">
                 <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="message-square" class="w-8 h-8"></i>
+                    <i class="fa-solid fa-comment w-8 h-8"></i>
                 </div>
                 <h3 class="text-lg font-bold text-slate-900">No active conversations</h3>
                 <p class="text-xs text-slate-600 mt-2 leading-relaxed">
@@ -25,7 +25,7 @@
                 </p>
                 <div class="mt-6">
                     <a href="{{ route('company.applicants.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all">
-                        <i data-lucide="users" class="w-4 h-4"></i>
+                        <i class="fa-solid fa-users w-4 h-4"></i>
                         <span>Go to Applicant Pipeline</span>
                     </a>
                 </div>
@@ -140,7 +140,7 @@
                                 </div>
                             @empty
                                 <div class="text-center py-16 text-slate-600 text-xs">
-                                    <i data-lucide="message-circle" class="w-8 h-8 mx-auto text-slate-300 mb-2"></i>
+                                    <i class="fa-solid fa-comment-dots w-8 h-8 mx-auto text-slate-300 mb-2"></i>
                                     <p>No messages yet in this candidate conversation.</p>
                                     <p class="text-[11px] text-slate-600 mt-1">Send a message below to schedule an interview or ask questions.</p>
                                 </div>
@@ -161,7 +161,7 @@
                                 </div>
                                 <button type="submit" class="h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 shrink-0 hover:translate-y-[-1px] cursor-pointer">
                                     <span>Send</span>
-                                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                    <i class="fa-solid fa-paper-plane w-3.5 h-3.5"></i>
                                 </button>
                             </form>
                         </div>

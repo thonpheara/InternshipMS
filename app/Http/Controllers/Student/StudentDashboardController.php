@@ -20,7 +20,9 @@ class StudentDashboardController extends Controller
     public function index(): View
     {
         $user = Auth::user();
-        $student = $user->studentProfile;
+        $student = $user->studentProfile ?? $user->studentProfile()->create([
+            'eligibility_status' => 'eligible',
+        ]);
 
         // Active placement
         $activePlacement = Placement::with(['companyProfile', 'internshipPost', 'supervisor', 'weeklyLogs'])
@@ -28,11 +30,11 @@ class StudentDashboardController extends Controller
             ->where('status', 'active')
             ->first();
 
-        // Recent applications
+        // Recent applications (show 3)
         $recentApplications = Application::with(['internshipPost.companyProfile'])
             ->where('student_profile_id', $student?->id)
             ->latest()
-            ->take(5)
+            ->take(3)
             ->get();
 
         // Recent weekly logs
@@ -56,7 +58,9 @@ class StudentDashboardController extends Controller
     public function profile(): View
     {
         $user = Auth::user();
-        $student = $user->studentProfile;
+        $student = $user->studentProfile ?? $user->studentProfile()->create([
+            'eligibility_status' => 'eligible',
+        ]);
 
         return view('student.profile', compact('user', 'student'));
     }
@@ -67,7 +71,9 @@ class StudentDashboardController extends Controller
     public function updateProfile(Request $request): RedirectResponse
     {
         $user = Auth::user();
-        $student = $user->studentProfile;
+        $student = $user->studentProfile ?? $user->studentProfile()->create([
+            'eligibility_status' => 'eligible',
+        ]);
 
         $validated = $request->validate([
             'student_id_number' => ['nullable', 'string', 'max:50', Rule::unique('student_profiles', 'student_id_number')->ignore($student->id)],

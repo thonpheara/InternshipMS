@@ -55,10 +55,27 @@ class CompanyProfileController extends Controller
 
         // Process logo upload
         if ($request->hasFile('logo')) {
-            if ($company->logo_path && Storage::disk('public')->exists($company->logo_path)) {
-                Storage::disk('public')->delete($company->logo_path);
+            if ($company->logo_path) {
+                if (Storage::disk('public')->exists($company->logo_path)) {
+                    Storage::disk('public')->delete($company->logo_path);
+                }
+                $oldPublicFile = public_path('storage/' . $company->logo_path);
+                if (file_exists($oldPublicFile)) {
+                    @unlink($oldPublicFile);
+                }
             }
             $updateData['logo_path'] = $request->file('logo')->store('company-logos', 'public');
+
+            // Mirror to public/storage for instant static web server compatibility
+            try {
+                $targetDir = public_path('storage/company-logos');
+                if (!file_exists($targetDir)) {
+                    @mkdir($targetDir, 0755, true);
+                }
+                @copy(storage_path('app/public/' . $updateData['logo_path']), public_path('storage/' . $updateData['logo_path']));
+            } catch (\Throwable $e) {
+                // Ignore mirror failure; fallback route in web.php handles it
+            }
         }
 
         $company->update($updateData);

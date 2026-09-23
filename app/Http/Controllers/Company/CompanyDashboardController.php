@@ -34,11 +34,11 @@ class CompanyDashboardController extends Controller
             'pending_logs' => WeeklyLog::whereIn('placement_id', $placementIds)->where('status', 'submitted')->count(),
         ];
 
-        // Recent applications to review
+        // Recent applications to review (show 4)
         $recentApplicants = Application::with(['studentProfile.user', 'internshipPost'])
             ->whereIn('internship_post_id', $postIds)
             ->latest('applied_at')
-            ->take(5)
+            ->take(4)
             ->get();
 
         // Recent weekly logs needing approval

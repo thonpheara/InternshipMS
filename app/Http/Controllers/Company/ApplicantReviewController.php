@@ -34,7 +34,7 @@ class ApplicantReviewController extends Controller
             $query->where('internship_post_id', $postId);
         }
 
-        $applications = $query->latest('applied_at')->paginate(12)->withQueryString();
+        $applications = $query->latest('applied_at')->paginate(6)->withQueryString();
         $companyPosts = InternshipPost::where('company_profile_id', $company?->id)->get();
 
         return view('company.applicants.index', compact('applications', 'companyPosts'));
@@ -62,20 +62,6 @@ class ApplicantReviewController extends Controller
             'company_notes' => $validated['company_notes'] ?? $application->company_notes,
             'reviewed_at' => now(),
         ]);
-
-        // When status is 'accepted', auto-create the formal placement if not already created
-        if ($validated['status'] === 'accepted' && !$application->placement) {
-            Placement::create([
-                'student_profile_id' => $application->student_profile_id,
-                'company_profile_id' => $company->id,
-                'internship_post_id' => $application->internship_post_id,
-                'application_id' => $application->id,
-                'start_date' => now()->toDateString(),
-                'end_date' => now()->addWeeks($application->internshipPost->duration_weeks ?? 12)->toDateString(),
-                'total_hours_required' => 480,
-                'status' => 'active',
-            ]);
-        }
 
         return back()->with('success', "Candidate status updated to " . ucfirst(str_replace('_', ' ', $validated['status'])) . ".");
     }

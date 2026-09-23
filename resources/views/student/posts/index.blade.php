@@ -1,4 +1,4 @@
-<x-layout title="Browse Approved Internships — Internship Management System">
+<x-layout>
     <div class="space-y-6">
 
         <!-- Page Header & Filters -->
@@ -12,23 +12,25 @@
             <form action="{{ route('student.posts.index') }}" method="GET" class="flex flex-wrap items-center gap-2.5">
                 <div class="relative min-w-[240px]">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                        <i data-lucide="search" class="w-4 h-4"></i>
+                        <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
                     </div>
                     <input type="text" 
                            name="search" 
                            value="{{ request('search') }}" 
                            placeholder="Search role, skills, company..."
-                           class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                           class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
                 </div>
 
-                <select name="type" onchange="this.form.submit()" class="py-2 pl-3 pr-8 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700">
-                    <option value="">All Work Modes</option>
-                    <option value="remote" {{ request('type') === 'remote' ? 'selected' : '' }}>Remote</option>
-                    <option value="on_site" {{ request('type') === 'on_site' ? 'selected' : '' }}>On-Site</option>
-                    <option value="hybrid" {{ request('type') === 'hybrid' ? 'selected' : '' }}>Hybrid</option>
+                <select name="category" onchange="this.form.submit()" class="py-2 pl-3 pr-8 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
+                    <option value="">All Categories</option>
+                    <option value="General IT" {{ request('category') === 'General IT' ? 'selected' : '' }}>General IT</option>
+                    <option value="Software Engineering" {{ request('category') === 'Software Engineering' ? 'selected' : '' }}>Software Engineering</option>
+                    <option value="Networking & Security" {{ request('category') === 'Networking & Security' ? 'selected' : '' }}>Networking & Security</option>
+                    <option value="Design & UI/UX" {{ request('category') === 'Design & UI/UX' ? 'selected' : '' }}>Design & UI/UX</option>
+                    <option value="Business Administration" {{ request('category') === 'Business Administration' ? 'selected' : '' }}>Business Administration</option>
                 </select>
 
-                <button type="submit" class="px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors">
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors">
                     Filter
                 </button>
             </form>
@@ -41,9 +43,13 @@
                     <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
                         <div class="space-y-3">
                             <div class="flex items-center justify-between gap-2">
-                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
-                                    {{ ucfirst($post->type) }}
-                                </span>
+                                @if ($post->category)
+                                    <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        {{ $post->category }}
+                                    </span>
+                                @else
+                                    <div></div>
+                                @endif
                                 <span class="text-xs font-bold text-emerald-600">
                                     @if ($post->stipend)
                                         ${{ number_format($post->stipend, 0) }}/mo
@@ -54,7 +60,7 @@
                             </div>
 
                             <div>
-                                <h3 class="text-base font-extrabold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                                <h3 class="text-base font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
                                     {{ $post->title }}
                                 </h3>
                                 <p class="text-xs font-semibold text-slate-600 mt-0.5">
@@ -69,13 +75,13 @@
 
                         <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
                             <div class="text-[11px] text-slate-600">
-                                <span><i data-lucide="map-pin" class="w-3.5 h-3.5 inline text-slate-400"></i> {{ $post->location }}</span>
+                                <span><i class="fa-solid fa-location-dot w-3.5 h-3.5 inline text-slate-400"></i> {{ $post->location }}</span>
                                 <span class="block text-slate-600 font-medium mt-0.5">Deadline: {{ \Carbon\Carbon::parse($post->deadline)->format('M d') }}</span>
                             </div>
 
-                            <a href="{{ route('student.posts.show', $post) }}" class="px-3 py-1.5 rounded-xl bg-slate-100 group-hover:bg-indigo-600 group-hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1">
+                            <a href="{{ route('student.posts.show', $post) }}" class="px-3 py-1.5 rounded-xl bg-slate-100 group-hover:bg-emerald-600 group-hover:text-white text-slate-700 text-xs font-bold transition-all flex items-center gap-1">
                                 <span>Details</span>
-                                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                <i class="fa-solid fa-chevron-right w-3.5 h-3.5"></i>
                             </a>
                         </div>
                     </div>
@@ -88,9 +94,9 @@
             </div>
         @else
             <div class="p-12 rounded-3xl bg-white border border-slate-200/80 text-center space-y-3">
-                <i data-lucide="search-x" class="w-10 h-10 mx-auto text-slate-300"></i>
+                <i class="fa-solid fa-magnifying-glass-minus w-10 h-10 mx-auto text-slate-300"></i>
                 <h3 class="text-base font-bold text-slate-800">No internship listings match your filter</h3>
-                <p class="text-xs text-slate-600 max-w-sm mx-auto">Try clearing your search query or selecting "All Work Modes" to view available positions.</p>
+                <p class="text-xs text-slate-600 max-w-sm mx-auto">Try clearing your search query or selecting "All Categories" to view available positions.</p>
                 <a href="{{ route('student.posts.index') }}" class="inline-block px-4 py-2 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 hover:bg-slate-200">
                     Reset Filter
                 </a>

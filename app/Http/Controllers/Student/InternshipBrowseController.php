@@ -33,11 +33,9 @@ class InternshipBrowseController extends Controller
             });
         }
 
-        // Filter by type
-        if ($type = $request->input('type')) {
-            if (in_array($type, ['remote', 'on_site', 'hybrid'], true)) {
-                $query->where('type', $type);
-            }
+        // Filter by category
+        if ($category = $request->input('category')) {
+            $query->where('category', $category);
         }
 
         $posts = $query->latest()->paginate(9)->withQueryString();
@@ -69,10 +67,6 @@ class InternshipBrowseController extends Controller
 
         if (!$student) {
             return back()->with('error', 'Student profile not found.');
-        }
-
-        if (!$student->isEligible()) {
-            return back()->with('error', 'Your internship eligibility status is currently ' . ucfirst($student->eligibility_status) . '. Please consult your faculty coordinator.');
         }
 
         // Prevent duplicate application

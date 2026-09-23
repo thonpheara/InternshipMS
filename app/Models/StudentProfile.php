@@ -70,7 +70,12 @@ class StudentProfile extends Model
 
     public function isEligible(): bool
     {
-        return $this->eligibility_status === 'eligible';
+        return true;
+    }
+
+    public function getEligibilityStatusAttribute($value): string
+    {
+        return $value === 'pending' || empty($value) ? 'eligible' : $value;
     }
 
     public function conversations(): HasMany

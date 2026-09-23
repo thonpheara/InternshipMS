@@ -1,4 +1,4 @@
-<x-layout title="Job Post Moderation — Internship Management System">
+<x-layout>
     <div class="space-y-6">
 
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -31,7 +31,7 @@
                             <tr class="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                                 <th class="py-3.5 px-6">Post Details</th>
                                 <th class="py-3.5 px-4">Company Organization</th>
-                                <th class="py-3.5 px-4">Mode / Stipend</th>
+                                <th class="py-3.5 px-4">Stipend</th>
                                 <th class="py-3.5 px-4">Status</th>
                                 <th class="py-3.5 px-6 text-right">Moderator Decision</th>
                             </tr>
@@ -50,7 +50,9 @@
                                         <span class="block text-[11px] text-slate-600">{{ $post->location }}</span>
                                     </td>
                                     <td class="py-4 px-4 text-slate-600">
-                                        <span class="font-bold uppercase text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">{{ ucfirst($post->type) }}</span>
+                                        @if ($post->category)
+                                            <span class="font-bold text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">{{ $post->category }}</span>
+                                        @endif
                                         <span class="block font-bold text-emerald-600 mt-1">{{ $post->stipend ? '$' . number_format($post->stipend, 0) . '/mo' : 'Standard Stipend' }}</span>
                                     </td>
                                     <td class="py-4 px-4">
@@ -107,7 +109,7 @@
                 </div>
             @else
                 <div class="py-16 text-center text-slate-600 space-y-3">
-                    <i data-lucide="inbox" class="w-12 h-12 mx-auto text-slate-300"></i>
+                    <i class="fa-solid fa-inbox w-12 h-12 mx-auto text-slate-300"></i>
                     <h3 class="text-base font-bold text-slate-800">No posts under this filter</h3>
                     <p class="text-xs text-slate-600 max-w-sm mx-auto">All postings in this status bucket have been processed.</p>
                 </div>

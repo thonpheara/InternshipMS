@@ -2,176 +2,145 @@
     $user = Auth::user();
     $role = $user?->role ?? 'student';
 
-    $roleTheme = match($role) {
-        'admin', 'coordinator' => [
-            'badge' => 'bg-amber-100 text-amber-800 border-amber-200',
-            'label' => $role === 'admin' ? 'University Admin' : 'Faculty Coordinator',
-            'accent' => 'text-amber-500',
-            'active_bg' => 'bg-amber-500/10 text-amber-600 font-semibold',
-        ],
-        'company' => [
-            'badge' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-            'label' => 'Host Company',
-            'accent' => 'text-emerald-500',
-            'active_bg' => 'bg-emerald-500/10 text-emerald-600 font-semibold',
-        ],
-        default => [
-            'badge' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
-            'label' => 'Student Intern',
-            'accent' => 'text-indigo-500',
-            'active_bg' => 'bg-indigo-500/10 text-indigo-600 font-semibold',
-        ],
+    $roleLabel = match($role) {
+        'admin' => 'University Admin',
+        'coordinator' => 'Faculty Coordinator',
+        'company' => 'Host Company',
+        default => 'Student Intern',
     };
+
+    $activeClass = 'bg-[#059669] text-white font-semibold shadow-xs';
+    $inactiveClass = 'text-gray-700 hover:text-[#111827] hover:bg-gray-200/70 font-medium transition-all';
 @endphp
 
 <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-       class="fixed inset-y-0 left-0 z-50 w-68 bg-white border-r border-slate-200/80 flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0">
+       class="fixed inset-y-0 left-0 z-50 w-68 bg-[#F3F4F6] border-r border-[#E5E7EB] flex flex-col transition-transform duration-200 ease-in-out lg:translate-x-0 shadow-sm text-[#111827]">
     
     <!-- Brand Logo -->
-    <div class="h-16 px-6 flex items-center justify-between border-b border-slate-100">
+    <div class="h-16 px-6 flex items-center justify-between border-b border-[#E5E7EB] bg-white/60">
         <a href="/" class="flex items-center gap-2.5 group">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-sky-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-                <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+            <div class="w-10 h-10 rounded-xl bg-[#059669] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-graduation-cap w-5 h-5 text-base font-bold"></i>
             </div>
             <div>
-                <span class="text-lg font-extrabold tracking-tight text-slate-900 flex items-center gap-1">
-                    Intern<span class="text-indigo-600">ship</span>
+                <span class="text-lg font-extrabold tracking-tight text-[#111827] flex items-center gap-1">
+                    Intern<span class="text-[#059669]">ship</span>
                 </span>
-                <span class="block text-[10px] font-semibold text-slate-600 tracking-wider uppercase">Management System</span>
+                <span class="block text-[10px] font-semibold text-gray-500 tracking-wider uppercase">Management System</span>
             </div>
         </a>
-        <button @click="sidebarOpen = false" class="lg:hidden text-slate-600 hover:text-slate-900 p-1.5 rounded-lg hover:bg-slate-100">
-            <i data-lucide="x" class="w-5 h-5"></i>
+        <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-[#111827] p-1.5 rounded-lg hover:bg-gray-200 transition-colors">
+            <i class="fa-solid fa-xmark w-5 h-5"></i>
         </button>
     </div>
 
     <!-- Active User Role Indicator -->
-    <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/50">
+    <div class="px-5 py-3 border-b border-[#E5E7EB] bg-white/30">
         <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-600">Workspace</span>
-            <span class="px-2 py-0.5 text-[11px] font-bold rounded-md border {{ $roleTheme['badge'] }}">
-                {{ $roleTheme['label'] }}
+            <span class="text-xs font-medium text-gray-500">Workspace</span>
+            <span class="px-2.5 py-0.5 text-[11px] font-semibold rounded-full bg-[#D1FAE5] text-[#065F46] border border-[#A7F3D0]">
+                {{ $roleLabel }}
             </span>
         </div>
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         @if ($role === 'student')
             <!-- Student Navigation -->
             <a href="{{ route('student.dashboard') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('student.dashboard') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="layout-dashboard" class="w-4.5 h-4.5"></i>
-                Dashboard
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.dashboard') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-chart-pie w-4.5 h-4.5"></i>
+                Overview Dashboard
             </a>
             <a href="{{ route('student.posts.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('student.posts.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="briefcase" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.posts.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-briefcase w-4.5 h-4.5"></i>
                 Browse Internships
             </a>
             <a href="{{ route('student.applications.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('student.applications.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="send" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.applications.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-file-circle-check w-4.5 h-4.5"></i>
                 My Applications
             </a>
-            <a href="{{ route('student.logs.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('student.logs.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="calendar-check" class="w-4.5 h-4.5"></i>
-                Weekly Logs & Hours
-            </a>
             <a href="{{ route('student.messages.index') }}" 
-               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('student.messages.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.messages.*') ? $activeClass : $inactiveClass }}">
                 <div class="flex items-center gap-3">
-                    <i data-lucide="message-square" class="w-4.5 h-4.5"></i>
-                    <span>Messages</span>
+                    <i class="fa-solid fa-comment w-4.5 h-4.5"></i>
+                    <span>Direct Messages</span>
                 </div>
                 @php $unread = $user->unreadMessagesCount(); @endphp
                 @if($unread > 0)
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-indigo-600 text-white">
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ request()->routeIs('student.messages.*') ? 'bg-[#D1FAE5] text-[#065F46]' : 'bg-[#059669] text-white' }}">
                         {{ $unread }}
                     </span>
                 @endif
             </a>
             <a href="{{ route('student.profile') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('student.profile') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="user-check" class="w-4.5 h-4.5"></i>
-                Profile & Resume
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.profile*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-user-graduate w-4.5 h-4.5"></i>
+                Student Profile
             </a>
 
         @elseif ($role === 'company')
             <!-- Company Navigation -->
             <a href="{{ route('company.dashboard') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.dashboard') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="layout-dashboard" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.dashboard') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-chart-pie w-4.5 h-4.5"></i>
                 Overview Dashboard
             </a>
             <a href="{{ route('company.posts.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.posts.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="file-plus" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.posts.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-file-circle-plus w-4.5 h-4.5"></i>
                 Manage Listings
             </a>
             <a href="{{ route('company.applicants.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.applicants.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="users" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.applicants.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-users w-4.5 h-4.5"></i>
                 Applicant Pipeline
             </a>
-            <a href="{{ route('company.logs.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.logs.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="clock" class="w-4.5 h-4.5"></i>
-                Approve Intern Logs
-            </a>
             <a href="{{ route('company.messages.index') }}" 
-               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.messages.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.messages.*') ? $activeClass : $inactiveClass }}">
                 <div class="flex items-center gap-3">
-                    <i data-lucide="message-square" class="w-4.5 h-4.5"></i>
+                    <i class="fa-solid fa-comment w-4.5 h-4.5"></i>
                     <span>Messages</span>
                 </div>
                 @php $unread = $user->unreadMessagesCount(); @endphp
                 @if($unread > 0)
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-600 text-white">
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full {{ request()->routeIs('company.messages.*') ? 'bg-[#D1FAE5] text-[#065F46]' : 'bg-[#059669] text-white' }}">
                         {{ $unread }}
                     </span>
                 @endif
             </a>
-            <a href="{{ route('company.evaluations.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.evaluations.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="award" class="w-4.5 h-4.5"></i>
-                Evaluations
-            </a>
             <a href="{{ route('company.profile') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('company.profile') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="building-2" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.profile') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-city w-4.5 h-4.5"></i>
                 Company Profile
             </a>
 
         @else
             <!-- Admin & Coordinator Navigation -->
             <a href="{{ route('admin.dashboard') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.dashboard') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="gauge" class="w-4.5 h-4.5"></i>
-                Institution KPIs
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.dashboard') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-gauge w-4.5 h-4.5"></i>
+                Dashboard
             </a>
             <a href="{{ route('admin.approvals.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.approvals.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="check-square" class="w-4.5 h-4.5"></i>
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.approvals.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-square-check w-4.5 h-4.5"></i>
                 Job Post Moderation
             </a>
-            <a href="{{ route('admin.students.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.students.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="user-check" class="w-4.5 h-4.5"></i>
-                Student Eligibility
-            </a>
-            <a href="{{ route('admin.placements.index') }}" 
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.placements.*') ? $roleTheme['active_bg'] : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
-                <i data-lucide="git-pull-request" class="w-4.5 h-4.5"></i>
-                Placements & Faculty
+            <a href="{{ route('admin.users.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.users.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-users-gear w-4.5 h-4.5"></i>
+                User Management
             </a>
         @endif
     </nav>
 
     <!-- Bottom User Section & Logout -->
-    <div class="p-3 border-t border-slate-100">
-        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+    <div class="p-3 border-t border-[#E5E7EB] bg-white/50">
+        <div class="p-2 rounded-xl bg-white border border-[#E5E7EB] shadow-xs flex items-center justify-between">
             @php
                 $profileRoute = match($role) {
                     'student' => route('student.profile'),
@@ -181,29 +150,29 @@
             @endphp
             @if($profileRoute)
                 <a href="{{ $profileRoute }}" title="View Profile" class="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-80 transition-opacity">
-                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                         {{ strtoupper(substr($user->name, 0, 2)) }}
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-slate-900 truncate">{{ $user->name }}</p>
-                        <p class="text-[11px] text-slate-600 truncate">{{ $user->email }}</p>
+                        <p class="text-xs font-semibold text-[#111827] truncate">{{ $user->name }}</p>
+                        <p class="text-[11px] text-gray-500 truncate">{{ $user->email }}</p>
                     </div>
                 </a>
             @else
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                         {{ strtoupper(substr($user->name, 0, 2)) }}
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-slate-900 truncate">{{ $user->name }}</p>
-                        <p class="text-[11px] text-slate-600 truncate">{{ $user->email }}</p>
+                        <p class="text-xs font-semibold text-[#111827] truncate">{{ $user->name }}</p>
+                        <p class="text-[11px] text-gray-500 truncate">{{ $user->email }}</p>
                     </div>
                 </div>
             @endif
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" title="Sign out" class="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                <button type="submit" title="Sign out" class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
+                    <i class="fa-solid fa-right-from-bracket w-4 h-4"></i>
                 </button>
             </form>
         </div>

@@ -1,84 +1,100 @@
 <x-layout>
-    <div class="min-h-screen flex items-center justify-center p-6 sm:p-12 bg-slate-50">
-        <div class="w-full max-w-md space-y-8">
+    <div class="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-[#f0f2f5]">
+        <div class="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 p-8 sm:p-10">
             
-            <!-- Header -->
-            <div class="text-center">
-                <a href="/" class="inline-flex items-center gap-2.5 mb-6 group">
-                    <div class="w-11 h-11 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition-transform">
-                        <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-                    </div>
-                    <span class="text-2xl font-black tracking-tight text-slate-900">Intern<span class="text-indigo-600">ship</span></span>
-                </a>
-                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Sign in to your portal</h2>
-                <p class="mt-2 text-sm text-slate-600">Enter your university or company credentials to continue.</p>
+            <!-- Top Brand & Header -->
+            <div class="text-center space-y-1.5">
+                <!-- Squircle Icon -->
+                <div class="w-12 h-12 rounded-2xl bg-[#059669] flex items-center justify-center text-white mx-auto shadow-md shadow-[#059669]/20">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+
+                <!-- Subtitle Pill / System Title -->
+                <p class="pt-2 text-[11px] font-bold uppercase tracking-wider text-[#059669]">
+                    INTERNSHIP MANAGEMENT SYSTEM
+                </p>
+
+                <!-- Page Heading -->
+                <h1 class="text-2xl font-black tracking-tight text-slate-900 uppercase">
+                    LOGIN
+                </h1>
+
+                <!-- Helper Text -->
+                <p class="text-xs text-slate-500">
+                    Welcome back! Please enter your credentials
+                </p>
             </div>
 
             <!-- Error Alerts -->
             @if ($errors->any())
-                <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-                    <div class="flex items-center gap-2 font-bold mb-1">
-                        <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
-                        <span>Authentication failed</span>
+                <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs space-y-1">
+                    <div class="flex items-center gap-2 font-bold text-rose-800">
+                        <i class="fa-solid fa-circle-exclamation w-3.5 h-3.5 shrink-0"></i>
+                        <span>Login failed</span>
                     </div>
-                    <ul class="list-disc list-inside space-y-0.5 text-rose-700">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                    @foreach ($errors->all() as $error)
+                        <p class="pl-5">{{ $error }}</p>
+                    @endforeach
                 </div>
             @endif
 
             <!-- Login Form -->
-            <form action="{{ route('login.submit') }}" method="POST" class="space-y-5 bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/90 shadow-sm">
+            <form action="{{ route('login.submit') }}" method="POST" class="mt-6 space-y-4" x-data="{ showPass: false }">
                 @csrf
 
+                <!-- Username / Email Field -->
                 <div>
-                    <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Email Address</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                            <i data-lucide="mail" class="w-4 h-4"></i>
-                        </div>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               value="{{ old('email') }}" 
-                               required 
-                               autofocus
-                               placeholder="email@gmail.com"
-                               class="block w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50/60 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all text-slate-900">
-                    </div>
+                    <label for="email" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                        USERNAME
+                    </label>
+                    <input type="text" 
+                           id="email" 
+                           name="email" 
+                           value="{{ old('email') }}" 
+                           required 
+                           autofocus
+                           placeholder="Enter your username"
+                           class="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 text-slate-800 placeholder-slate-400 transition-all">
                 </div>
 
+                <!-- Password Field with Show/Hide Toggle -->
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700">Password</label>
-                    </div>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                            <i data-lucide="lock" class="w-4 h-4"></i>
-                        </div>
-                        <input type="password" 
+                    <label for="password" class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                        PASSWORD
+                    </label>
+                    <div class="relative flex items-center">
+                        <input :type="showPass ? 'text' : 'password'" 
                                id="password" 
                                name="password" 
                                required 
-                               placeholder="••••••••"
-                               class="block w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50/60 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all text-slate-900">
+                               placeholder="Enter your password"
+                               class="w-full pl-4 pr-16 py-2.5 sm:py-3 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:border-[#059669] focus:ring-2 focus:ring-[#059669]/20 text-slate-800 placeholder-slate-400 transition-all">
+                        <button type="button" 
+                                @click="showPass = !showPass" 
+                                class="absolute right-4 text-xs font-semibold text-slate-400 hover:text-slate-600 select-none cursor-pointer transition-colors" 
+                                x-text="showPass ? 'Hide' : 'Show'">
+                            Show
+                        </button>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2 hover:translate-y-[-1px]">
-                    <span>Sign In</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </button>
+                <!-- Submit Button -->
+                <div class="pt-2">
+                    <button type="submit" 
+                            class="w-full py-3 px-4 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-bold text-xs sm:text-sm shadow-md shadow-[#059669]/20 transition-all cursor-pointer">
+                        Login
+                    </button>
+                </div>
 
-                <p class="text-center text-xs text-slate-600">
+                <!-- Register Link -->
+                <p class="pt-2 text-center text-xs text-slate-500">
                     Don't have an account? 
-                    <a href="{{ route('register') }}" class="font-bold text-indigo-600 hover:underline">
-                        Register as Student or Host Company
+                    <a href="{{ route('register') }}" class="font-bold text-[#059669] hover:underline">
+                        Register
                     </a>
                 </p>
             </form>
+
         </div>
     </div>
 </x-layout>

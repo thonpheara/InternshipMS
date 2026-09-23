@@ -98,7 +98,7 @@ class AuthController extends Controller
             if ($role === 'student') {
                 StudentProfile::create([
                     'user_id' => $newUser->id,
-                    'eligibility_status' => 'pending',
+                    'eligibility_status' => 'eligible',
                 ]);
             } else {
                 CompanyProfile::create([

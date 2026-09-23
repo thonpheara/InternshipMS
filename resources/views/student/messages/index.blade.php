@@ -7,8 +7,8 @@
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">Messages & Inquiries</h1>
                 <p class="text-xs text-slate-600 mt-1">Direct communication with host company recruiters and hiring managers.</p>
             </div>
-            <a href="{{ route('student.posts.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition-colors">
-                <i data-lucide="briefcase" class="w-4 h-4"></i>
+            <a href="{{ route('student.posts.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition-colors">
+                <i class="fa-solid fa-briefcase w-4 h-4"></i>
                 <span>Explore More Opportunities</span>
             </a>
         </div>
@@ -16,16 +16,16 @@
         @if($conversations->isEmpty())
             <!-- Empty State -->
             <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-12 text-center max-w-lg mx-auto my-12">
-                <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="message-square" class="w-8 h-8"></i>
+                <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-comment w-8 h-8"></i>
                 </div>
                 <h3 class="text-lg font-bold text-slate-900">No active conversations</h3>
                 <p class="text-xs text-slate-600 mt-2 leading-relaxed">
                     You can message host companies directly from your submitted applications to inquire about interview statuses or internship details.
                 </p>
                 <div class="mt-6">
-                    <a href="{{ route('student.applications.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition-all">
-                        <i data-lucide="send" class="w-4 h-4"></i>
+                    <a href="{{ route('student.applications.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all">
+                        <i class="fa-solid fa-paper-plane w-4 h-4"></i>
                         <span>View My Applications</span>
                     </a>
                 </div>
@@ -39,7 +39,7 @@
                     <div class="p-4 border-b border-slate-200/80 bg-white shrink-0">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Conversations</span>
-                            <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-extrabold text-[11px] border border-indigo-100">
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-extrabold text-[11px] border border-emerald-100">
                                 {{ $conversations->count() }} active
                             </span>
                         </div>
@@ -53,9 +53,9 @@
                                 $companyName = $convo->companyProfile->company_name ?? 'Host Company';
                             @endphp
                             <a href="{{ route('student.messages.index', ['conversation_id' => $convo->id]) }}" 
-                               class="block p-4 transition-colors {{ $isActive ? 'bg-indigo-50/80 border-l-4 border-indigo-600' : 'hover:bg-slate-100/70' }}">
+                               class="block p-4 transition-colors {{ $isActive ? 'bg-emerald-50/80 border-l-4 border-emerald-600' : 'hover:bg-slate-100/70' }}">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
                                         {{ strtoupper(substr($companyName, 0, 2)) }}
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -66,7 +66,7 @@
                                             </span>
                                         </div>
                                         @if($convo->application && $convo->application->internshipPost)
-                                            <span class="inline-block text-[10px] font-semibold text-indigo-700 bg-indigo-100/60 px-1.5 py-0.5 rounded mb-1 truncate max-w-full">
+                                            <span class="inline-block text-[10px] font-semibold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded mb-1 truncate max-w-full">
                                                 {{ $convo->application->internshipPost->title }}
                                             </span>
                                         @endif
@@ -75,7 +75,7 @@
                                         </p>
                                     </div>
                                     @if($unreadCount > 0)
-                                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                                        <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                                             {{ $unreadCount }}
                                         </span>
                                     @endif
@@ -91,7 +91,7 @@
                         <!-- Chat Header -->
                         <div class="p-4 border-b border-slate-200/80 flex items-center justify-between bg-white shrink-0">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
                                     {{ strtoupper(substr($activeConversation->companyProfile->company_name ?? 'CO', 0, 2)) }}
                                 </div>
                                 <div>
@@ -102,13 +102,13 @@
                                         <span>{{ $activeConversation->companyProfile->contact_person ?? 'Recruiter' }}</span>
                                         @if($activeConversation->application && $activeConversation->application->internshipPost)
                                             <span>•</span>
-                                            <span class="font-medium text-indigo-600">{{ $activeConversation->application->internshipPost->title }}</span>
+                                            <span class="font-medium text-emerald-600">{{ $activeConversation->application->internshipPost->title }}</span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                             @if($activeConversation->application)
-                                <a href="{{ route('student.applications.index') }}" class="text-[11px] font-bold text-indigo-600 hover:underline">
+                                <a href="{{ route('student.applications.index') }}" class="text-[11px] font-bold text-emerald-600 hover:underline">
                                     View Application
                                 </a>
                             @endif
@@ -127,19 +127,19 @@
                                             <span>{{ $msg->created_at->format('h:i A') }}</span>
                                             @if($isMe)
                                                 <span>•</span>
-                                                <span class="{{ $msg->is_read ? 'text-indigo-600 font-bold' : 'text-slate-600' }}">
+                                                <span class="{{ $msg->is_read ? 'text-emerald-600 font-bold' : 'text-slate-600' }}">
                                                     {{ $msg->is_read ? 'Read' : 'Sent' }}
                                                 </span>
                                             @endif
                                         </div>
-                                        <div class="p-3.5 rounded-2xl text-xs leading-relaxed {{ $isMe ? 'bg-indigo-600 text-white rounded-br-xs shadow-sm shadow-indigo-600/10' : 'bg-white border border-slate-200/90 text-slate-800 rounded-bl-xs shadow-xs' }}">
+                                        <div class="p-3.5 rounded-2xl text-xs leading-relaxed {{ $isMe ? 'bg-emerald-600 text-white rounded-br-xs shadow-sm shadow-emerald-600/10' : 'bg-white border border-slate-200/90 text-slate-800 rounded-bl-xs shadow-xs' }}">
                                             {{ $msg->body }}
                                         </div>
                                     </div>
                                 </div>
                             @empty
                                 <div class="text-center py-16 text-slate-600 text-xs">
-                                    <i data-lucide="message-circle" class="w-8 h-8 mx-auto text-slate-300 mb-2"></i>
+                                    <i class="fa-solid fa-comment-dots w-8 h-8 mx-auto text-slate-300 mb-2"></i>
                                     <p>No messages yet in this conversation.</p>
                                     <p class="text-[11px] text-slate-600 mt-1">Send a message below to reach out to the recruiter.</p>
                                 </div>
@@ -156,11 +156,11 @@
                                            required 
                                            autocomplete="off"
                                            placeholder="Type your message to {{ $activeConversation->companyProfile->company_name ?? 'the recruiter' }}..."
-                                           class="w-full h-11 px-4 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all text-slate-900">
+                                           class="w-full h-11 px-4 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition-all text-slate-900">
                                 </div>
-                                <button type="submit" class="h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 shrink-0 hover:translate-y-[-1px] cursor-pointer">
+                                <button type="submit" class="h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 shrink-0 hover:translate-y-[-1px] cursor-pointer">
                                     <span>Send</span>
-                                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                                    <i class="fa-solid fa-paper-plane w-3.5 h-3.5"></i>
                                 </button>
                             </form>
                         </div>

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->json('skills')->nullable();
             $table->text('bio')->nullable();
-            $table->enum('eligibility_status', ['pending', 'eligible', 'ineligible'])->default('pending')->index();
+            $table->enum('eligibility_status', ['pending', 'eligible', 'ineligible'])->default('eligible')->index();
             $table->text('eligibility_notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

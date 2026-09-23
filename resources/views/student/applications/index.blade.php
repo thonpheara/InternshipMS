@@ -1,4 +1,4 @@
-<x-layout title="My Applications — Internship Management System">
+<x-layout>
     <div class="space-y-6">
 
         <div class="flex items-center justify-between">
@@ -6,8 +6,8 @@
                 <h2 class="text-2xl font-black tracking-tight text-slate-900">My Internship Applications</h2>
                 <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Real-time status updates from host company recruiters.</p>
             </div>
-            <a href="{{ route('student.posts.index') }}" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-xs">
-                <i data-lucide="plus" class="w-4 h-4"></i>
+            <a href="{{ route('student.posts.index') }}" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-xs">
+                <i class="fa-solid fa-plus w-4 h-4"></i>
                 <span>Explore Open Roles</span>
             </a>
         </div>
@@ -30,7 +30,7 @@
                                 <tr class="hover:bg-slate-50/60 transition-colors">
                                     <td class="py-4 px-6">
                                         <div class="font-extrabold text-slate-900 text-sm">{{ $app->internshipPost->title }}</div>
-                                        <div class="text-slate-600 font-semibold">{{ $app->internshipPost->companyProfile->company_name }} • {{ ucfirst($app->internshipPost->type) }}</div>
+                                        <div class="text-slate-600 font-semibold">{{ $app->internshipPost->companyProfile->company_name }} • {{ $app->internshipPost->location }}</div>
                                     </td>
                                     <td class="py-4 px-4 text-slate-600">
                                         {{ \Carbon\Carbon::parse($app->applied_at)->format('M d, Y') }}
@@ -44,13 +44,13 @@
                                     </td>
                                     <td class="py-4 px-4 text-right">
                                         <div class="inline-flex items-center gap-2 justify-end">
-                                            <a href="{{ route('student.messages.start', $app) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-xl border border-slate-200/60 transition-all" title="Message Host Company">
-                                                <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                            <a href="{{ route('student.messages.start', $app) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-slate-200/60 transition-all" title="Message Host Company">
+                                                <i class="fa-solid fa-comment w-3.5 h-3.5"></i>
                                                 <span>Message</span>
                                             </a>
-                                            <a href="{{ route('student.posts.show', $app->internshipPost) }}" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800 px-2 py-1">
+                                            <a href="{{ route('student.posts.show', $app->internshipPost) }}" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-800 px-2 py-1">
                                                 <span>View Job</span>
-                                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                                <i class="fa-solid fa-up-right-from-square w-3.5 h-3.5"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -65,10 +65,10 @@
                 </div>
             @else
                 <div class="py-16 text-center text-slate-600 space-y-3">
-                    <i data-lucide="file-x" class="w-12 h-12 mx-auto text-slate-300"></i>
+                    <i class="fa-solid fa-file-circle-xmark w-12 h-12 mx-auto text-slate-300"></i>
                     <h3 class="text-base font-bold text-slate-800">No applications on record</h3>
                     <p class="text-xs text-slate-600 max-w-sm mx-auto">Browse through our accredited internship vacancies and submit your first application.</p>
-                    <a href="{{ route('student.posts.index') }}" class="inline-block px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700">
+                    <a href="{{ route('student.posts.index') }}" class="inline-block px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700">
                         Browse Positions
                     </a>
                 </div>

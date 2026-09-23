@@ -1,21 +1,17 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\PlacementSupervisorController;
 use App\Http\Controllers\Admin\PostApprovalController;
-use App\Http\Controllers\Admin\StudentEligibilityController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Company\ApplicantReviewController;
 use App\Http\Controllers\Company\CompanyDashboardController;
 use App\Http\Controllers\Company\CompanyProfileController;
-use App\Http\Controllers\Company\EvaluationController;
-use App\Http\Controllers\Company\InternLogReviewController;
 use App\Http\Controllers\Company\InternshipPostController;
 use App\Http\Controllers\Company\MessageController as CompanyMessageController;
 use App\Http\Controllers\Student\InternshipBrowseController;
 use App\Http\Controllers\Student\MessageController as StudentMessageController;
 use App\Http\Controllers\Student\StudentDashboardController;
-use App\Http\Controllers\Student\WeeklyLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -59,10 +55,6 @@ Route::prefix('student')->as('student.')->middleware(['auth', 'role:student'])->
     Route::post('/posts/{post}/apply', [InternshipBrowseController::class, 'apply'])->name('posts.apply');
     Route::get('/applications', [InternshipBrowseController::class, 'applications'])->name('applications.index');
 
-    // Weekly activity logs
-    Route::get('/logs', [WeeklyLogController::class, 'index'])->name('logs.index');
-    Route::post('/logs', [WeeklyLogController::class, 'store'])->name('logs.store');
-
     // Direct messaging
     Route::get('/messages', [StudentMessageController::class, 'index'])->name('messages.index');
     Route::post('/messages/{conversation}', [StudentMessageController::class, 'store'])->name('messages.store');
@@ -89,15 +81,6 @@ Route::prefix('company')->as('company.')->middleware(['auth', 'role:company'])->
     Route::put('/applicants/{application}', [ApplicantReviewController::class, 'updateStatus'])->name('applicants.update');
     Route::get('/applicants/{application}/resume', [ApplicantReviewController::class, 'resume'])->name('applicants.resume');
 
-    // Intern weekly logs approval
-    Route::get('/logs', [InternLogReviewController::class, 'index'])->name('logs.index');
-    Route::put('/logs/{log}', [InternLogReviewController::class, 'update'])->name('logs.update');
-
-    // Evaluations
-    Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
-    Route::get('/evaluations/create/{placement}', [EvaluationController::class, 'create'])->name('evaluations.create');
-    Route::post('/evaluations/{placement}', [EvaluationController::class, 'store'])->name('evaluations.store');
-
     // Direct messaging
     Route::get('/messages', [CompanyMessageController::class, 'index'])->name('messages.index');
     Route::post('/messages/{conversation}', [CompanyMessageController::class, 'store'])->name('messages.store');
@@ -114,18 +97,21 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin,coordinato
     Route::get('/approvals', [PostApprovalController::class, 'index'])->name('approvals.index');
     Route::put('/approvals/{post}', [PostApprovalController::class, 'update'])->name('approvals.update');
 
-    // Student eligibility management
-    Route::get('/students', [StudentEligibilityController::class, 'index'])->name('students.index');
-    Route::put('/students/{student}', [StudentEligibilityController::class, 'update'])->name('students.update');
-
-    // Placements and supervisor allocation
-    Route::get('/placements', [PlacementSupervisorController::class, 'index'])->name('placements.index');
-    Route::put('/placements/{placement}', [PlacementSupervisorController::class, 'update'])->name('placements.update');
+    // User Management (CRUD for Students & Companies)
+    Route::resource('users', UserManagementController::class);
 });
 
 // Public storage route fallback (ensures file preview/download works without relying on symlinks)
 Route::get('/storage/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/' . $path);
-    abort_if(!file_exists($fullPath), 404, 'File not found.');
-    return response()->file($fullPath);
+    $fullPath = storage_path('app/public/' . str_replace('/', DIRECTORY_SEPARATOR, $path));
+    if (!file_exists($fullPath) || !is_file($fullPath)) {
+        abort(404, 'File not found.');
+    }
+
+    $mimeType = mime_content_type($fullPath) ?: 'application/octet-stream';
+    return response(file_get_contents($fullPath), 200, [
+        'Content-Type' => $mimeType,
+        'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
 })->where('path', '.*');
