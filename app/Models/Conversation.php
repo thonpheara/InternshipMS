@@ -65,7 +65,7 @@ class Conversation extends Model
             return $this->company_profile_id === $user->companyProfile?->id;
         }
 
-        return $user->isAdminOrCoordinator();
+        return $user->isAdmin();
     }
 
     /**

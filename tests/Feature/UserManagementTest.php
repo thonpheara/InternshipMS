@@ -26,6 +26,22 @@ class UserManagementTest extends TestCase
     }
 
     /**
+     * Test admin can view dashboard with applicant growth analytics chart data.
+     */
+    public function test_admin_can_view_dashboard_with_chart_analytics(): void
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Application & Placement Trends', false);
+        $response->assertSee('Total Applied');
+        $response->assertSee('Accepted Placements');
+        $response->assertViewHas('chartData');
+    }
+
+    /**
      * Test admin can create a student user.
      */
     public function test_admin_can_create_student(): void
@@ -137,5 +153,20 @@ class UserManagementTest extends TestCase
 
         $response->assertSessionHas('error', 'You cannot delete your own administrator account.');
         $this->assertDatabaseHas('users', ['id' => $admin->id]);
+    }
+
+    /**
+     * Test non-admin users cannot access admin portal.
+     */
+    public function test_non_admin_cannot_access_admin_portal(): void
+    {
+        $student = User::factory()->create(['role' => 'student']);
+        $company = User::factory()->create(['role' => 'company']);
+
+        $studentResponse = $this->actingAs($student)->get(route('admin.dashboard'));
+        $studentResponse->assertRedirect(route('student.dashboard'));
+
+        $companyResponse = $this->actingAs($company)->get(route('admin.dashboard'));
+        $companyResponse->assertRedirect(route('company.dashboard'));
     }
 }

@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     if (Auth::check()) {
         return match (Auth::user()->role) {
-            'admin', 'coordinator' => redirect()->route('admin.dashboard'),
+            'admin' => redirect()->route('admin.dashboard'),
             'company' => redirect()->route('company.dashboard'),
             'student' => redirect()->route('student.dashboard'),
             default => redirect()->route('login'),
@@ -88,9 +88,9 @@ Route::prefix('company')->as('company.')->middleware(['auth', 'role:company'])->
 });
 
 // ==========================================
-// ADMIN & COORDINATOR PORTAL ROUTES
+// ADMIN PORTAL ROUTES
 // ==========================================
-Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin,coordinator'])->group(function () {
+Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Job post moderation queue
@@ -102,16 +102,27 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin,coordinato
 });
 
 // Public storage route fallback (ensures file preview/download works without relying on symlinks)
-Route::get('/storage/{path}', function (string $path) {
+Route::get('/storage/{path}', function (\Illuminate\Http\Request $request, string $path) {
     $fullPath = storage_path('app/public/' . str_replace('/', DIRECTORY_SEPARATOR, $path));
     if (!file_exists($fullPath) || !is_file($fullPath)) {
         abort(404, 'File not found.');
     }
 
+    $filename = basename($fullPath);
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+    // If requested as download or non-previewable format (e.g. docx), download with exact original filename
+    if ($request->has('download') || !in_array($extension, ['pdf', 'png', 'jpg', 'jpeg'])) {
+        return response()->download($fullPath, $filename, [
+            'Content-Disposition' => 'attachment; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
+        ]);
+    }
+
     $mimeType = mime_content_type($fullPath) ?: 'application/octet-stream';
-    return response(file_get_contents($fullPath), 200, [
+
+    return response()->file($fullPath, [
         'Content-Type' => $mimeType,
-        'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"',
+        'Content-Disposition' => 'inline; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
         'Cache-Control' => 'public, max-age=86400',
     ]);
 })->where('path', '.*');

@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\InternshipPost;
-use App\Models\Placement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ApplicantReviewController extends Controller
@@ -34,7 +34,7 @@ class ApplicantReviewController extends Controller
             $query->where('internship_post_id', $postId);
         }
 
-        $applications = $query->latest('applied_at')->paginate(6)->withQueryString();
+        $applications = $query->latest('applied_at')->paginate(5)->withQueryString();
         $companyPosts = InternshipPost::where('company_profile_id', $company?->id)->get();
 
         return view('company.applicants.index', compact('applications', 'companyPosts'));
@@ -69,17 +69,34 @@ class ApplicantReviewController extends Controller
     /**
      * Preview or download an applicant's resume.
      */
-    public function resume(Application $application)
+    public function resume(Request $request, Application $application)
     {
         $company = Auth::user()->companyProfile;
         abort_if(!$company || $application->internshipPost->company_profile_id !== $company->id, 403, 'Unauthorized.');
 
-        $resumePath = $application->custom_resume_path ?? $application->studentProfile->resume_path;
-        abort_if(!$resumePath, 404, 'Resume not found.');
+        $resumePath = $application->getEffectiveResumePath();
+        if (!$resumePath || !Storage::disk('public')->exists($resumePath)) {
+            return back()->with('error', 'No resume document attached to this application.');
+        }
 
-        $fullPath = storage_path('app/public/' . $resumePath);
-        abort_if(!file_exists($fullPath), 404, 'Resume file not found on disk.');
+        $fullPath = Storage::disk('public')->path($resumePath);
+        if (!file_exists($fullPath)) {
+            return back()->with('error', 'The candidate resume file is not available on the server disk.');
+        }
 
-        return response()->file($fullPath);
+        // Keep exact original file name - never rename
+        $filename = basename($resumePath);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        // For non-previewable files (docx, doc, etc.) or when download parameter is present, download with exact filename
+        if ($request->has('download') || !in_array($extension, ['pdf', 'png', 'jpg', 'jpeg'])) {
+            return response()->download($fullPath, $filename, [
+                'Content-Disposition' => 'attachment; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
+            ]);
+        }
+
+        return response()->file($fullPath, [
+            'Content-Disposition' => 'inline; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
+        ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\InternshipPost;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class InternshipBrowseController extends Controller
@@ -38,7 +39,7 @@ class InternshipBrowseController extends Controller
             $query->where('category', $category);
         }
 
-        $posts = $query->latest()->paginate(9)->withQueryString();
+        $posts = $query->latest()->get();
 
         return view('student.posts.index', compact('posts'));
     }
@@ -80,18 +81,41 @@ class InternshipBrowseController extends Controller
 
         $validated = $request->validate([
             'cover_letter' => ['required', 'string', 'min:30', 'max:3000'],
+            'resume' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'],
         ]);
+
+        $customResumePath = null;
+
+        // If a tailored resume was uploaded with this application
+        if ($request->hasFile('resume')) {
+            $file = $request->file('resume');
+            if ($file->isValid()) {
+                $originalName = $file->getClientOriginalName();
+                $customResumePath = $file->storeAs('resumes/' . $student->id, $originalName, 'public');
+
+                // If student doesn't have a profile resume yet, also set it as their profile resume
+                if (!$student->resume_path || !Storage::disk('public')->exists($student->resume_path)) {
+                    $student->update(['resume_path' => $customResumePath]);
+                }
+            }
+        } elseif ($student->resume_path && Storage::disk('public')->exists($student->resume_path)) {
+            // Use profile resume
+            $customResumePath = $student->resume_path;
+        } else {
+            return back()->withInput()->with('error', 'Please upload a resume file (PDF or Word document) to submit your application.');
+        }
 
         Application::create([
             'internship_post_id' => $post->id,
             'student_profile_id' => $student->id,
             'cover_letter' => $validated['cover_letter'],
+            'custom_resume_path' => $customResumePath,
             'status' => 'pending',
             'applied_at' => now(),
         ]);
 
         return redirect()->route('student.applications.index')
-            ->with('success', "Application successfully submitted to {$post->companyProfile->company_name}!");
+            ->with('success', "Application successfully submitted with your resume to {$post->companyProfile->company_name}!");
     }
 
     /**
@@ -101,7 +125,7 @@ class InternshipBrowseController extends Controller
     {
         $student = Auth::user()->studentProfile;
 
-        $applications = Application::with(['internshipPost.companyProfile', 'placement'])
+        $applications = Application::with(['internshipPost.companyProfile'])
             ->where('student_profile_id', $student?->id)
             ->latest('applied_at')
             ->paginate(10);

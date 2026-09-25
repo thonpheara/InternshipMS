@@ -7,7 +7,7 @@
         $registeredMonth = $user->created_at ? $user->created_at->format('M Y') : 'Aug 2026';
     @endphp
 
-    <div class="space-y-6 max-w-7xl mx-auto" x-data="{ tab: 'all' }">
+    <div class="space-y-6 max-w-7xl mx-auto" x-data="{ tab: '{{ request('tab', 'all') }}' }">
 
         <!-- Top Header -->
         <div class="pb-2">
@@ -166,12 +166,18 @@
                                     <i class="fa-solid fa-file-lines w-3.5 h-3.5 text-slate-400"></i>
                                     <span>Resume File</span>
                                 </div>
-                                @if ($student->resume_path)
-                                    <span class="font-semibold text-emerald-600 flex items-center gap-1">
+                                @php
+                                    $hasResume = $student->resume_path && Storage::disk('public')->exists($student->resume_path);
+                                @endphp
+                                @if ($hasResume)
+                                    <a href="{{ route('student.resume.preview') }}" target="_blank" class="font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 hover:underline cursor-pointer" title="View uploaded resume">
                                         <i class="fa-solid fa-check w-3 h-3"></i> Uploaded
-                                    </span>
+                                    </a>
                                 @else
-                                    <span class="font-semibold text-amber-600">Missing</span>
+                                    <button type="button" @click="tab = 'resume'" class="font-semibold text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1 cursor-pointer" title="Click to upload resume">
+                                        <span>Missing</span>
+                                        <i class="fa-solid fa-arrow-up-from-bracket text-[10px]"></i>
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -198,6 +204,7 @@
                 
                 <form action="{{ route('student.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
+                    <input type="hidden" name="active_tab" :value="tab">
 
                     <!-- Card 1: Academic Credentials -->
                     <div x-show="tab === 'all' || tab === 'academic'" x-transition class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5">
@@ -433,35 +440,58 @@
                             </div>
                         </div>
 
-                        @if ($student->resume_path)
-                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+                        @php
+                            $hasResume = $student->resume_path && Storage::disk('public')->exists($student->resume_path);
+                        @endphp
+                        @if ($hasResume)
+                            <div class="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 flex items-center justify-between">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] flex items-center justify-center shrink-0">
                                         <i class="fa-solid fa-file-circle-check w-5 h-5"></i>
                                     </div>
                                     <div class="min-w-0">
-                                        <span class="block text-xs font-bold text-slate-900 truncate">Active Resume on File</span>
-                                        <span class="block text-[11px] text-emerald-600 font-medium">Ready for employer review</span>
+                                        <span class="block text-xs font-bold text-slate-900 truncate" title="{{ basename($student->resume_path) }}">{{ basename($student->resume_path) }}</span>
+                                        <span class="block text-[11px] text-emerald-700 font-medium">Ready for employer review</span>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <a href="{{ route('student.resume.preview') }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-[#D1FAE5] text-[#059669] hover:bg-emerald-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5">
-                                        <i class="fa-solid fa-arrow-up-right-from-square w-3 h-3"></i>
-                                        <span>Preview PDF</span>
+                                    @php
+                                        $resumeFileName = basename($student->resume_path);
+                                        $resumeExt = strtolower(pathinfo($resumeFileName, PATHINFO_EXTENSION));
+                                    @endphp
+                                    @if(in_array($resumeExt, ['pdf', 'png', 'jpg', 'jpeg']))
+                                        <a href="{{ route('student.resume.preview') }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-[#059669] text-white hover:bg-[#047857] text-xs font-semibold transition-colors inline-flex items-center gap-1.5">
+                                            <i class="fa-solid fa-arrow-up-right-from-square w-3 h-3"></i>
+                                            <span>Preview</span>
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('student.resume.preview', ['download' => 1]) }}" download="{{ $resumeFileName }}" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors inline-flex items-center gap-1.5" title="Download {{ $resumeFileName }}">
+                                        <i class="fa-solid fa-download w-3.5 h-3.5"></i>
+                                        <span>Download</span>
                                     </a>
                                     <button type="button" 
                                             onclick="if(confirm('Are you sure you want to delete your resume?')) document.getElementById('delete-resume-form').submit();" 
-                                            class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5">
+                                            class="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer">
                                         <i class="fa-solid fa-trash-can w-3.5 h-3.5"></i>
                                         <span>Delete</span>
                                     </button>
+                                </div>
+                            </div>
+                        @else
+                            <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-circle-exclamation w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-amber-900">No Resume Uploaded Yet</h4>
+                                    <p class="text-[11px] text-amber-800/80 mt-0.5">Please upload your resume in PDF or Word format so host companies can review your profile when you apply.</p>
                                 </div>
                             </div>
                         @endif
 
                         <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-2">
                             <label class="block text-xs font-bold text-slate-800">
-                                {{ $student->resume_path ? 'Replace Current Resume (PDF, DOCX, max 5MB)' : 'Upload New Resume (PDF, DOCX, max 5MB)' }}
+                                {{ $hasResume ? 'Replace Current Resume (PDF, DOCX, max 5MB)' : 'Upload New Resume (PDF, DOCX, max 5MB)' }}
                             </label>
                             <input type="file" 
                                    name="resume" 

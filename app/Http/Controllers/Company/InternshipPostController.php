@@ -66,7 +66,7 @@ class InternshipPostController extends Controller
         InternshipPost::create($validated);
 
         return redirect()->route('company.posts.index')
-            ->with('success', 'Internship post submitted for coordinator approval.');
+            ->with('success', 'Internship post submitted for admin approval.');
     }
 
     /**

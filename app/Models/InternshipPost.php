@@ -53,11 +53,6 @@ class InternshipPost extends Model
         return $this->hasMany(Application::class);
     }
 
-    public function placements(): HasMany
-    {
-        return $this->hasMany(Placement::class);
-    }
-
     public function scopeApproved(Builder $query): Builder
     {
         return $query->where('status', 'approved');

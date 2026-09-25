@@ -88,10 +88,6 @@
                 @endforeach
             </div>
 
-            <!-- Pagination -->
-            <div class="pt-4">
-                {{ $posts->links() }}
-            </div>
         @else
             <div class="p-12 rounded-3xl bg-white border border-slate-200/80 text-center space-y-3">
                 <i class="fa-solid fa-magnifying-glass-minus w-10 h-10 mx-auto text-slate-300"></i>

@@ -1,6 +1,6 @@
 # 🎓 Internship Management System
 
-Internship Management System is a modern, comprehensive web application built with **Laravel 12** and **Tailwind CSS (Vite)**. It bridges the gap between university students, host employers, and faculty coordinators/administrators to streamline internship discovery, applications, weekly logbook reporting, and performance evaluations.
+Internship Management System is a modern, comprehensive web application built with **Laravel 12**, **Tailwind CSS**, **Alpine.js**, and **Vite**. It bridges the gap between university students, host employers, and university administrators to streamline internship discovery, candidate applications, job post moderation, in-app messaging, and placement analytics.
 
 🔗 **GitHub Repository:** [https://github.com/thonpheara/InternshipMS.git](https://github.com/thonpheara/InternshipMS.git)
 
@@ -12,6 +12,7 @@ Internship Management System is a modern, comprehensive web application built wi
 - [System Requirements](#-system-requirements)
 - [Step-by-Step Installation & Setup](#-step-by-step-installation--setup)
 - [Running the Application Locally](#-running-the-application-locally)
+- [Running Automated Tests](#-running-automated-tests)
 - [Default Login Credentials](#-default-login-credentials)
 - [Updating the Project After Changes](#-updating-the-project-after-changes)
 - [Useful Commands & Troubleshooting](#-useful-commands--troubleshooting)
@@ -21,29 +22,32 @@ Internship Management System is a modern, comprehensive web application built wi
 
 ## ✨ Key Features & Roles
 
-- 🎓 **Student Portal:**
-  - Browse verified corporate internship listings with category & salary filters.
-  - Apply with resumes, cover letters, and track application statuses.
-  - Submit weekly logbooks and track approved internship hours.
-  - Complete personalized profile (academic track, skills, GPA, contact info).
+### 🎓 Student Portal
+- **Internship Discovery:** Browse approved corporate postings with dynamic search, salary filter, workplace type (On-site, Hybrid, Remote), and department category tags.
+- **Application Submission:** Apply with a customized cover letter and attached PDF resume.
+- **Resume Management:** Dedicated resume upload and browser-native PDF preview/download, stored in isolated student directories (`storage/app/public/resumes/{student_id}/`).
+- **Direct Messaging:** Communicate directly with employers regarding active applications.
+- **Status Tracking:** Real-time visibility into application progress (*Applied*, *Interviewed*, *Accepted*, *Rejected*).
+- **Student Profile:** Complete personalized academic track, university ID, major, GPA, skills, and contact details.
 
-- 🏢 **Host Company Portal:**
-  - Publish and manage internship job postings (Web, Mobile, Backend, Frontend, DevOps, etc.).
-  - Review applicant pipeline (accept, reject, or short-list students).
-  - Inspect and approve student weekly activity logs.
-  - Submit final competency evaluations and performance ratings.
+### 🏢 Host Company Portal
+- **Internship Management:** Post and edit vacancy listings with requirements, stipend disclosure, available slots, and application deadlines (held for administrative approval).
+- **Applicant Pipeline Board:** View candidacies across pipeline stages, inspect cover letters, preview or download student resumes, and update application statuses.
+- **Direct Messaging:** Real-time messaging with prospective student interns per application.
+- **Company Profile:** Update corporate profile, industry, website, hiring contact person, and official logo.
 
-- 🛡️ **University Administrator & Coordinator Portal:**
-  - Moderate and approve corporate job postings before public listing.
-  - Supervise student eligibility and track cohort placement statuses.
-  - Assign faculty supervisors to active placements.
-  - System-wide dashboard analytics.
+### 🛡️ University Administrator Portal
+- **Executive Dashboard:** High-level metrics for Total Accounts, Student Interns & Eligibility, Host Companies, Active Status, and Pending Moderation counts.
+- **Application & Placement Trends Chart:** Interactive monthly analytics chart (powered by Chart.js & Alpine.js) comparing **Total Applications Submitted** vs. **Accepted Placements**, with **This Year** and **Last Year** dynamic data toggling.
+- **Job Post Moderation Queue:** Review, approve, or reject employer postings before public listing.
+- **User Management (CRUD):** Full management of student and company accounts with modal-based creation, editing, status changes, and soft-deletes.
+- **Clean Single-Screen UI (100vh):** Optimized viewport height layout ensuring clean dashboard data presentation without unnecessary page scrolling.
 
 ---
 
 ## 🏗️ System Architecture
 
-Internship Management System implements a multi-tier **Model-View-Controller (MVC)** architectural pattern built on top of the Laravel 12 framework. The architecture enforces separation of concerns across presentation, routing & middleware, application controllers, domain models, and relational persistence.
+Internship Management System implements a multi-tier **Model-View-Controller (MVC)** architectural pattern built on the Laravel 12 framework. The architecture enforces separation of concerns across presentation, routing & middleware, application controllers, domain models, and relational persistence.
 
 For an in-depth technical specification, see [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md).
 
@@ -54,7 +58,7 @@ flowchart TD
     subgraph ClientLayer ["Client / Presentation Layer"]
         A1["🎓 Student Portal (Web Browser)"]
         A2["🏢 Company Portal (Web Browser)"]
-        A3["🛡️ Admin & Coordinator Portal"]
+        A3["🛡️ University Admin Portal"]
     end
 
     subgraph SecurityLayer ["Security & Routing Layer"]
@@ -64,17 +68,16 @@ flowchart TD
     end
 
     subgraph ControllerLayer ["Application / Controller Layer (Laravel 12)"]
-        C1["Student Controllers<br/>(Browse, Apply, WeeklyLogs, Messaging)"]
-        C2["Company Controllers<br/>(Postings, Applicants, LogReview, Evaluations)"]
-        C3["Admin Controllers<br/>(Approvals, Eligibility, Placements)"]
-        C4["AuthController<br/>(Login, Registration, Session)"]
+        C1["Student Controllers<br/>(Browse, Apply, Profile, Messages)"]
+        C2["Company Controllers<br/>(Postings, Applicants, Profile, Messages)"]
+        C3["Admin Controllers<br/>(Dashboard, Approvals, UserManagement)"]
+        C4["AuthController<br/>(Login, Registration, Logout)"]
     end
 
     subgraph DomainLayer ["Domain & ORM Layer (Eloquent ORM)"]
         D1["User & Profiles<br/>(StudentProfile, CompanyProfile)"]
-        D2["Internship & Applications<br/>(InternshipPost, Application)"]
-        D3["Placements & Logs<br/>(Placement, WeeklyLog)"]
-        D4["Evaluations & Messaging<br/>(Evaluation, Conversation, Message)"]
+        D2["Internships & Applications<br/>(InternshipPost, Application)"]
+        D3["In-App Messaging<br/>(Conversation, Message)"]
     end
 
     subgraph DataLayer ["Data & Storage Layer"]
@@ -91,7 +94,7 @@ flowchart TD
 
     B3 -->|role: student| C1
     B3 -->|role: company| C2
-    B3 -->|role: admin,coordinator| C3
+    B3 -->|role: admin| C3
     B3 -->|public / guest| C4
 
     C1 --> DomainLayer
@@ -109,33 +112,28 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Company as 🏢 Host Company
     actor Admin as 🛡️ University Admin
+    actor Company as 🏢 Host Company
     actor Student as 🎓 Student
 
-    Company->>Admin: 1. Submit Internship Post (Status: Pending Approval)
-    Admin->>Admin: 2. Review and Approve Post (Status: Approved)
-    Student->>Company: 3. Discover Post & Submit Application (CV + Cover Letter)
-    Company->>Student: 4. Review Application & Accept Student
-    Admin->>Admin: 5. Generate Placement & Assign Faculty Supervisor
-    
-    loop Weekly Internship Progression
-        Student->>Company: 6. Submit Weekly Log (Hours & Completed Tasks)
-        Company->>Company: 7. Review & Approve / Request Revision
+    Company->>Admin: 1. Publish Internship Listing (Status: Pending Approval)
+    Admin->>Admin: 2. Review and Approve Listing (Status: Approved)
+    Student->>Company: 3. Browse Verified Postings & Apply (Resume + Cover Letter)
+    Company->>Student: 4. Review Pipeline, Preview Resume & Update Status (Interview / Accept / Reject)
+    opt Direct Communication
+        Student<<-->>Company: 5. Message regarding interviews & hiring details
     end
-
-    Company->>Admin: 8. Submit Final Performance & Competency Evaluation
-    Admin->>Student: 9. Complete Placement & Record Credit Hours
+    Admin->>Admin: 6. Monitor Application & Placement Trends on Analytics Dashboard
 ```
 
 ### 3. Layered Components Breakdown
 
 | Layer | Technologies & Components | Core Responsibility |
 | :--- | :--- | :--- |
-| **Presentation Tier** | Blade Templates, Tailwind CSS 4, Vite, Alpine.js / Vanilla JS | Responsive role-specific dashboards, dynamic modals, data tables, resume previews, and real-time form validations. |
-| **Routing & Middleware** | Laravel Web Router (`routes/web.php`), RBAC Middleware | Request dispatching, session state validation, CSRF verification, and strict role guards (`role:student`, `role:company`, `role:admin,coordinator`). |
-| **Application Tier** | PHP 8.2+, Laravel 12 Controllers | Request validation, file processing (resumes & images), business logic orchestration, and response view rendering. |
-| **Domain & Data Tier** | Eloquent ORM Models (`User`, `Application`, `Placement`, etc.) | Domain relationships (hasOne, hasMany, belongsTo), cascading constraints, soft deletes, and timestamp management. |
+| **Presentation Tier** | Blade Templates, Tailwind CSS, Alpine.js, Chart.js, Vite | Responsive role-specific dashboards, dynamic modal popups, resume PDF viewer, and real-time form validation. |
+| **Routing & Middleware** | Laravel Web Router (`routes/web.php`), RBAC Middleware | Request dispatching, session state validation, CSRF verification, and strict role guards (`role:student`, `role:company`, `role:admin`). |
+| **Application Tier** | PHP 8.2+, Laravel 12 Controllers | Request validation, secure file handling (PDF resumes & logos), business logic orchestration, and view rendering. |
+| **Domain & Data Tier** | Eloquent ORM Models (`User`, `StudentProfile`, `CompanyProfile`, `InternshipPost`, `Application`, `Conversation`, `Message`) | Relationships (hasOne, belongsTo, hasMany), cascading constraints, soft deletes, and automatic timestamps. |
 | **Storage & Persistence** | MySQL 8.x / MariaDB, Filesystem (`storage/app/public`) | Relational transaction integrity, foreign key relations, and secure document storage for student resumes and company logos. |
 
 ---
@@ -143,7 +141,7 @@ sequenceDiagram
 ## 💻 System Requirements
 
 Before running the project locally, make sure you have:
-- **PHP** >= 8.2 (with `pdo_mysql`, `fileinfo`, `mbstring`, `openssl` enabled)
+- **PHP** >= 8.2 (with `pdo_mysql`, `fileinfo`, `mbstring`, `openssl` extensions enabled)
 - **Composer** (PHP dependency manager)
 - **Node.js** (v18.x or later) & **npm**
 - **MySQL / MariaDB** (via XAMPP, Laragon, WampServer, or native MySQL server)
@@ -200,8 +198,11 @@ cd InternshipMS
 
 ### Step 4: Configure the Database
 
-1. **Start your MySQL server** (e.g., click **Start** for Apache and MySQL in XAMPP / Laragon).
-2. **Create Database:** Create a new database named `intern_db` in phpMyAdmin (`http://localhost/phpmyadmin`) or via MySQL CLI.
+1. **Start your MySQL server** (e.g., Apache & MySQL in XAMPP / Laragon).
+2. **Create Database:** Create a new database named `intern_db` in phpMyAdmin (`http://localhost/phpmyadmin`) or via MySQL CLI:
+   ```sql
+   CREATE DATABASE intern_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
 3. **Verify Database settings in `.env`:**
    ```env
    APP_NAME="Internship Management System"
@@ -218,7 +219,7 @@ cd InternshipMS
 
 ### Step 5: Run Database Migrations & Seeders
 
-Run the database schema migrations and seed the initial administrator account:
+Run the database schema migrations and seed the initial data:
 ```bash
 php artisan migrate --seed
 ```
@@ -232,7 +233,7 @@ php artisan migrate --seed
 
 ### Step 6: Create Storage Symbolic Link
 
-To ensure uploaded resumes, student avatars, and company logos display properly:
+To ensure uploaded student resumes, avatars, and company logos display properly:
 ```bash
 php artisan storage:link
 ```
@@ -265,6 +266,16 @@ composer run dev
 
 ---
 
+## 🧪 Running Automated Tests
+
+The application includes automated Feature and Unit tests covering Authentication, User Management, Resume Upload/Preview, Dashboard Analytics, and Role-Based Access Control:
+
+```bash
+php artisan test
+```
+
+---
+
 ## 🔑 Default Login Credentials
 
 ### 1. System Administrator
@@ -287,7 +298,7 @@ When pulling new updates or modifying code:
 # 1. Pull latest commits
 git pull origin main
 
-# 2. Run new migrations (if database tables changed)
+# 2. Run new migrations
 php artisan migrate
 
 # 3. Clear application caches
@@ -303,12 +314,13 @@ npm run build     # (or 'npm run dev' for local development)
 
 | Action | Command / Solution |
 | :--- | :--- |
+| **Run automated test suite** | `php artisan test` |
 | **Clear all Laravel caches** | `php artisan optimize:clear` |
 | **Compile assets for production** | `npm run build` |
-| **Fix broken image / avatar links** | `php artisan storage:link` |
-| **Reset entire database** | `php artisan migrate:fresh --seed` |
-| **List all routes** | `php artisan route:list` |
-| **Database connection error** | Verify MySQL service is active and credentials match `.env`. |
+| **Fix broken image / resume links** | `php artisan storage:link` |
+| **Reset entire database with seeds** | `php artisan migrate:fresh --seed` |
+| **List all application routes** | `php artisan route:list` |
+| **Database connection error** | Verify MySQL service is running and credentials match `.env`. |
 
 ---
 

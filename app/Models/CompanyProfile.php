@@ -38,11 +38,6 @@ class CompanyProfile extends Model
         return $this->hasMany(InternshipPost::class);
     }
 
-    public function placements(): HasMany
-    {
-        return $this->hasMany(Placement::class);
-    }
-
     public function applications(): HasManyThrough
     {
         return $this->hasManyThrough(Application::class, InternshipPost::class);

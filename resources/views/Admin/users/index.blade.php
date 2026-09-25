@@ -1,5 +1,24 @@
 <x-layout>
-    <div class="space-y-6">
+    <div class="space-y-6"
+         x-data="{
+             viewModalOpen: false,
+             editModalOpen: {{ $errors->any() && old('_user_id') ? 'true' : 'false' }},
+             viewUser: {},
+             editUser: {{ $errors->any() && old('_user_id') ? json_encode(array_merge(old(), ['updateUrl' => route('admin.users.update', old('_user_id')), 'role' => old('role', 'student')])) : '{}' }},
+             openViewModal(userData) {
+                 this.viewUser = { ...userData };
+                 this.viewModalOpen = true;
+             },
+             openEditModal(userData) {
+                 this.editUser = { ...userData };
+                 this.editModalOpen = true;
+             },
+             switchViewToEdit() {
+                 this.editUser = { ...this.viewUser };
+                 this.viewModalOpen = false;
+                 this.editModalOpen = true;
+             }
+         }">
 
         <!-- Page Header & Action -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -17,60 +36,6 @@
             </div>
         </div>
 
-        <!-- Metrics Overview Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total Accounts</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-users w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ $counts['total'] }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">Total registered users</p>
-                </div>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Student Interns</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-graduation-cap w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ $counts['students'] }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">Enrolled university candidates</p>
-                </div>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Host Companies</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-building w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ $counts['companies'] }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">Registered employer partners</p>
-                </div>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Active Status</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-circle-check w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-2xl font-black text-[#059669]">{{ $counts['active'] }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">Active verified accounts</p>
-                </div>
-            </div>
-        </div>
 
         <!-- Filter & Search Controls Bar -->
         <div class="bg-white rounded-2xl border border-[#E5E7EB] p-4 shadow-xs space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
@@ -143,17 +108,77 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach ($users as $u)
+                                @php
+                                    $userData = [
+                                        'id' => $u->id,
+                                        'name' => $u->name,
+                                        'email' => $u->email,
+                                        'role' => $u->role,
+                                        'status' => $u->status,
+                                        'created_at_formatted' => $u->created_at ? $u->created_at->format('M d, Y') : 'N/A',
+                                        'updated_at_formatted' => $u->updated_at ? $u->updated_at->format('M d, Y') : 'N/A',
+                                        'updateUrl' => route('admin.users.update', $u),
+                                        'avatar_initials' => strtoupper(substr($u->name, 0, 2)),
+                                    ];
+
+                                    if ($u->isStudent() && $u->studentProfile) {
+                                        $sp = $u->studentProfile;
+                                        $skillsList = is_array($sp->skills) ? $sp->skills : ($sp->skills ? explode(',', $sp->skills) : []);
+                                        $resumeName = $sp->resume_path ? basename($sp->resume_path) : null;
+                                        $resumeExt = $resumeName ? strtolower(pathinfo($resumeName, PATHINFO_EXTENSION)) : null;
+
+                                        $userData += [
+                                            'student_id_number' => $sp->student_id_number ?? '',
+                                            'department' => $sp->department ?? '',
+                                            'major' => $sp->major ?? '',
+                                            'cohort_year' => $sp->cohort_year ?? '',
+                                            'gpa' => $sp->gpa !== null ? number_format($sp->gpa, 2) : '',
+                                            'phone' => $sp->phone ?? '',
+                                            'skills' => $skillsList,
+                                            'skills_string' => is_array($sp->skills) ? implode(', ', $sp->skills) : ($sp->skills ?? ''),
+                                            'bio' => $sp->bio ?? '',
+                                            'eligibility_status' => $sp->eligibility_status ?? 'eligible',
+                                            'resume_path' => $sp->resume_path ?? '',
+                                            'resume_filename' => $resumeName ?? '',
+                                            'resume_ext' => $resumeExt ?? '',
+                                            'resume_preview_url' => $sp->resume_path ? '/storage/' . $sp->resume_path : '',
+                                            'resume_download_url' => $sp->resume_path ? '/storage/' . $sp->resume_path . '?download=1' : '',
+                                            'applications_count' => $sp->applications_count ?? 0,
+                                        ];
+                                    } elseif ($u->isCompany() && $u->companyProfile) {
+                                        $cp = $u->companyProfile;
+                                        $userData += [
+                                            'company_name' => $cp->company_name ?? '',
+                                            'industry' => $cp->industry ?? '',
+                                            'website' => $cp->website ?? '',
+                                            'location' => $cp->location ?? '',
+                                            'address' => $cp->address ?? '',
+                                            'contact_person' => $cp->contact_person ?? '',
+                                            'contact_phone' => $cp->contact_phone ?? '',
+                                            'description' => $cp->description ?? '',
+                                            'verification_status' => $cp->verification_status ?? 'verified',
+                                            'internship_posts_count' => $cp->internship_posts_count ?? 0,
+                                            'applications_count' => $cp->applications_count ?? 0,
+                                        ];
+                                    }
+                                @endphp
                                 <tr class="hover:bg-gray-50/70 transition-colors">
                                     <!-- User Column -->
                                     <td class="py-4 px-6">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-9 h-9 rounded-xl bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                            <div @click="openViewModal(@js($userData))" 
+                                                 class="w-9 h-9 rounded-xl text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
+                                                 :class="'{{ $u->role }}' === 'student' ? 'bg-[#059669]' : ('{{ $u->role }}' === 'company' ? 'bg-teal-700' : 'bg-slate-700')"
+                                                 title="Click to view details">
                                                 {{ strtoupper(substr($u->name, 0, 2)) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <a href="{{ route('admin.users.show', $u) }}" class="font-extrabold text-[#111827] text-sm hover:text-[#059669] transition-colors line-clamp-1">
+                                                <button type="button" 
+                                                        @click="openViewModal(@js($userData))" 
+                                                        class="font-extrabold text-[#111827] text-sm hover:text-[#059669] transition-colors line-clamp-1 text-left cursor-pointer"
+                                                        title="Click to view details">
                                                     {{ $u->name }}
-                                                </a>
+                                                </button>
                                                 <span class="text-gray-500 text-xs block truncate">{{ $u->email }}</span>
                                             </div>
                                         </div>
@@ -222,19 +247,21 @@
                                     <!-- Actions Column -->
                                     <td class="py-4 px-6 text-right">
                                         <div class="flex items-center justify-end gap-1.5">
-                                            <!-- View Profile -->
-                                            <a href="{{ route('admin.users.show', $u) }}" 
-                                               title="View Full Profile" 
-                                               class="p-1.5 text-gray-500 hover:text-[#059669] hover:bg-[#D1FAE5]/60 rounded-lg transition-colors">
+                                            <!-- View Profile Modal Button -->
+                                            <button type="button"
+                                                    @click="openViewModal(@js($userData))"
+                                                    title="View Full Profile Modal" 
+                                                    class="p-1.5 text-gray-500 hover:text-[#059669] hover:bg-[#D1FAE5]/60 rounded-lg transition-colors cursor-pointer">
                                                 <i class="fa-solid fa-eye w-4 h-4"></i>
-                                            </a>
+                                            </button>
 
-                                            <!-- Edit User -->
-                                            <a href="{{ route('admin.users.edit', $u) }}" 
-                                               title="Edit Account & Profile" 
-                                               class="p-1.5 text-gray-500 hover:text-[#111827] hover:bg-gray-100 rounded-lg transition-colors">
+                                            <!-- Edit User Modal Button -->
+                                            <button type="button"
+                                                    @click="openEditModal(@js($userData))"
+                                                    title="Edit Account & Profile Modal" 
+                                                    class="p-1.5 text-gray-500 hover:text-[#111827] hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
                                                 <i class="fa-solid fa-pen-to-square w-4 h-4"></i>
-                                            </a>
+                                            </button>
 
                                             <!-- Delete User (Protected against self) -->
                                             @if ($u->id !== Auth::id())
@@ -279,6 +306,12 @@
                 </div>
             @endif
         </div>
+
+        {{-- View User Details Modal --}}
+        @include('Admin.users.modal-view')
+
+        {{-- Edit User Account & Profile Modal --}}
+        @include('Admin.users.modal-edit')
 
     </div>
 </x-layout>

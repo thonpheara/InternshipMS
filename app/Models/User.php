@@ -71,22 +71,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the placements supervised by this user (faculty coordinator).
-     */
-    public function supervisedPlacements(): HasMany
-    {
-        return $this->hasMany(Placement::class, 'supervisor_id');
-    }
-
-    /**
-     * Get the evaluations submitted by this user.
-     */
-    public function evaluations(): HasMany
-    {
-        return $this->hasMany(Evaluation::class, 'evaluator_id');
-    }
-
-    /**
      * Role checking helper methods
      */
     public function isAdmin(): bool
@@ -94,15 +78,6 @@ class User extends Authenticatable
         return $this->role === 'admin';
     }
 
-    public function isCoordinator(): bool
-    {
-        return $this->role === 'coordinator';
-    }
-
-    public function isAdminOrCoordinator(): bool
-    {
-        return in_array($this->role, ['admin', 'coordinator'], true);
-    }
 
     public function isCompany(): bool
     {

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'coordinator', 'company', 'student'])->default('student')->index();
+            $table->enum('role', ['admin', 'company', 'student'])->default('student')->index();
             $table->enum('status', ['active', 'inactive', 'pending_approval', 'suspended'])->default('active')->index();
             $table->string('avatar_path')->nullable();
             $table->rememberToken();

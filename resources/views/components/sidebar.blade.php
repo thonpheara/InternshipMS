@@ -4,7 +4,6 @@
 
     $roleLabel = match($role) {
         'admin' => 'University Admin',
-        'coordinator' => 'Faculty Coordinator',
         'company' => 'Host Company',
         default => 'Student Intern',
     };
@@ -119,7 +118,7 @@
             </a>
 
         @else
-            <!-- Admin & Coordinator Navigation -->
+            <!-- Admin Navigation -->
             <a href="{{ route('admin.dashboard') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.dashboard') ? $activeClass : $inactiveClass }}">
                 <i class="fa-solid fa-gauge w-4.5 h-4.5"></i>
@@ -147,25 +146,36 @@
                     'company' => route('company.profile'),
                     default => null,
                 };
+                $displayName = match($role) {
+                    'company' => $user->companyProfile?->company_name ?: $user->name,
+                    default => $user->name,
+                };
+                $logoPath = $role === 'company' ? $user->companyProfile?->logo_path : null;
+                $hasLogo = $logoPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath);
+                $initials = strtoupper(substr($displayName, 0, 2));
             @endphp
             @if($profileRoute)
                 <a href="{{ $profileRoute }}" title="View Profile" class="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-80 transition-opacity">
-                    <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                        {{ strtoupper(substr($user->name, 0, 2)) }}
-                    </div>
+                    @if($hasLogo)
+                        <img src="{{ asset('storage/' . ltrim($logoPath, '/')) }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                            {{ $initials }}
+                        </div>
+                    @endif
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-[#111827] truncate">{{ $user->name }}</p>
-                        <p class="text-[11px] text-gray-500 truncate">{{ $user->email }}</p>
+                        <p class="text-xs font-semibold text-[#111827] truncate" title="{{ $displayName }}">{{ $displayName }}</p>
+                        <p class="text-[11px] text-gray-500 truncate" title="{{ $user->email }}">{{ $user->email }}</p>
                     </div>
                 </a>
             @else
                 <div class="flex items-center gap-2.5 min-w-0">
                     <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                        {{ $initials }}
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs font-semibold text-[#111827] truncate">{{ $user->name }}</p>
-                        <p class="text-[11px] text-gray-500 truncate">{{ $user->email }}</p>
+                        <p class="text-xs font-semibold text-[#111827] truncate" title="{{ $displayName }}">{{ $displayName }}</p>
+                        <p class="text-[11px] text-gray-500 truncate" title="{{ $user->email }}">{{ $user->email }}</p>
                     </div>
                 </div>
             @endif

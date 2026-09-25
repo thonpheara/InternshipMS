@@ -76,9 +76,9 @@
             </button>
         </div>
 
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between h-[calc(100vh-12rem)]">
             @if ($posts->isNotEmpty())
-                <div class="overflow-x-auto">
+                <div class="overflow-auto flex-1 min-h-0">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-600">
@@ -95,36 +95,36 @@
                         <tbody class="divide-y divide-slate-100">
                             @foreach ($posts as $post)
                                 <tr class="hover:bg-slate-50/60 transition-colors">
-                                    <td class="py-4 px-6 font-extrabold text-slate-900">
+                                    <td class="py-2.5 px-6 font-extrabold text-slate-900">
                                         <div class="text-sm">{{ $post->title }}</div>
-                                        <span class="text-slate-600 font-normal">{{ $post->duration_weeks }} weeks • {{ $post->slots }} slot(s)</span>
+                                        <span class="text-slate-600 font-normal text-xs">{{ $post->duration_weeks }} weeks • {{ $post->slots }} slot(s)</span>
                                     </td>
-                                    <td class="py-4 px-4">
+                                    <td class="py-2.5 px-4">
                                         <span class="inline-block px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 text-[10px] font-bold border border-slate-200/80">
                                             {{ $post->category ?? 'General IT' }}
                                         </span>
                                     </td>
-                                    <td class="py-4 px-4 text-slate-700 font-medium">
+                                    <td class="py-2.5 px-4 text-slate-700 font-medium">
                                         <div class="flex items-center gap-1.5">
                                             <i class="fa-solid fa-location-dot text-slate-400 text-xs"></i>
                                             <span>{{ $post->location }}</span>
                                         </div>
                                     </td>
-                                    <td class="py-4 px-4 font-bold text-emerald-600">
+                                    <td class="py-2.5 px-4 font-bold text-emerald-600">
                                         {{ $post->stipend ? '$' . number_format($post->stipend, 0) . '/mo' : 'Unpaid/Standard' }}
                                     </td>
-                                    <td class="py-4 px-4 font-extrabold text-slate-900">
+                                    <td class="py-2.5 px-4 font-extrabold text-slate-900">
                                         <a href="{{ route('company.applicants.index', ['post_id' => $post->id]) }}" class="text-emerald-600 hover:underline">
                                             {{ $post->applications_count }} Candidate(s)
                                         </a>
                                     </td>
-                                    <td class="py-4 px-4">
+                                    <td class="py-2.5 px-4">
                                         <x-status-badge :status="$post->status" />
                                     </td>
-                                    <td class="py-4 px-4 text-slate-600">
+                                    <td class="py-2.5 px-4 text-slate-600">
                                         {{ \Carbon\Carbon::parse($post->deadline)->format('M d, Y') }}
                                     </td>
-                                    <td class="py-4 px-6 text-right">
+                                    <td class="py-2.5 px-6 text-right">
                                         <div class="inline-flex items-center justify-end gap-1.5">
                                             <button type="button" 
                                                     @click="openEditModal({
@@ -163,11 +163,11 @@
                     </table>
                 </div>
 
-                <div class="p-4 border-t border-slate-100">
+                <div class="p-4 border-t border-slate-100 bg-white shrink-0">
                     {{ $posts->links() }}
                 </div>
             @else
-                <div class="py-16 text-center text-slate-600 space-y-3">
+                <div class="flex-1 flex flex-col items-center justify-center py-16 text-center text-slate-600 space-y-3">
                     <i class="fa-solid fa-folder-plus w-12 h-12 mx-auto text-slate-300"></i>
                     <h3 class="text-base font-bold text-slate-800">No internship listings created yet</h3>
                     <p class="text-xs text-slate-600 max-w-sm mx-auto">Create a listing to begin receiving applications from pre-vetted university students.</p>

@@ -110,20 +110,76 @@
                         </div>
                     @else
                         <!-- Application Form -->
-                        <form action="{{ route('student.posts.apply', $post) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('student.posts.apply', $post) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                             @csrf
 
                             <div>
                                 <label for="cover_letter" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                                    Statement of Intent / Cover Letter
+                                    Statement of Intent / Cover Letter <span class="text-rose-500">*</span>
                                 </label>
                                 <textarea id="cover_letter" 
                                           name="cover_letter" 
-                                          rows="5" 
+                                          rows="4" 
                                           required 
                                           placeholder="Describe your technical background, relevant projects, and motivation for joining {{ $post->companyProfile->company_name }}..."
                                           class="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900">{{ old('cover_letter') }}</textarea>
-                                <p class="text-[10px] text-slate-600 mt-1">Minimum 30 characters. Your stored profile resume will be attached automatically.</p>
+                                <p class="text-[10px] text-slate-600 mt-1">Minimum 30 characters explaining your background and motivation.</p>
+                            </div>
+
+                            <!-- Resume Attachment Section -->
+                            @php
+                                $hasProfileResume = $student?->resume_path && Storage::disk('public')->exists($student->resume_path);
+                                $profileResumeName = $hasProfileResume ? basename($student->resume_path) : null;
+                            @endphp
+
+                            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                                    Resume / Curriculum Vitae <span class="text-rose-500">*</span>
+                                </label>
+
+                                @if ($hasProfileResume)
+                                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-white border border-emerald-200 text-xs">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="w-8 h-8 rounded-lg bg-[#D1FAE5] text-[#059669] flex items-center justify-center shrink-0">
+                                                <i class="fa-solid fa-file-circle-check text-xs"></i>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <span class="font-bold text-slate-900 truncate block text-xs" title="{{ $profileResumeName }}">{{ $profileResumeName }}</span>
+                                                <span class="text-[10px] text-emerald-700 font-medium">Ready from your profile</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <a href="{{ route('student.resume.preview') }}" target="_blank" class="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50 rounded-lg border border-emerald-200/70 inline-flex items-center gap-1">
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                                <span>View</span>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-1">
+                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">
+                                            Attach a tailored resume for this role? (Optional)
+                                        </label>
+                                        <input type="file" 
+                                               name="resume" 
+                                               accept=".pdf,.doc,.docx" 
+                                               class="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-800 hover:file:bg-slate-300 cursor-pointer">
+                                        <span class="text-[10px] text-slate-600 mt-1 block">PDF, DOC, or DOCX (Max 5MB). Leave empty to use your default profile resume.</span>
+                                    </div>
+                                @else
+                                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-xs space-y-2">
+                                        <div class="flex items-start gap-2 text-amber-800 font-medium">
+                                            <i class="fa-solid fa-circle-exclamation text-amber-600 w-4 h-4 mt-0.5 shrink-0"></i>
+                                            <span>No resume in your profile yet. Please upload your resume to attach to this application.</span>
+                                        </div>
+                                        <input type="file" 
+                                               name="resume" 
+                                               required
+                                               accept=".pdf,.doc,.docx" 
+                                               class="block w-full text-xs text-slate-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#059669] file:text-white hover:file:bg-[#047857] cursor-pointer">
+                                        <span class="text-[10px] text-amber-700/90 block">This resume will be sent to the host company and saved to your profile for future applications.</span>
+                                    </div>
+                                @endif
                             </div>
 
                             <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2">

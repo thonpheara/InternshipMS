@@ -80,6 +80,11 @@ class CompanyProfileController extends Controller
 
         $company->update($updateData);
 
+        // Keep User account name in sync with company name
+        $user->update([
+            'name' => $validated['company_name'],
+        ]);
+
         return back()->with('success', 'Company profile updated successfully.');
     }
 }

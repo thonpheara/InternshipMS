@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\CompanyProfile;
 use App\Models\InternshipPost;
-use App\Models\Placement;
 use App\Models\StudentProfile;
 use App\Models\User;
-use App\Models\WeeklyLog;
 use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
@@ -19,30 +18,63 @@ class AdminDashboardController extends Controller
     public function index(): View
     {
         $stats = [
-            'total_students' => StudentProfile::count(),
+            'total_accounts' => User::whereIn('role', ['student', 'company'])->count(),
+            'total_students' => User::where('role', 'student')->count(),
             'eligible_students' => StudentProfile::where('eligibility_status', 'eligible')->count(),
-            'total_companies' => CompanyProfile::count(),
+            'total_companies' => User::where('role', 'company')->count(),
+            'active_accounts' => User::whereIn('role', ['student', 'company'])->where('status', 'active')->count(),
             'pending_posts' => InternshipPost::where('status', 'pending_approval')->count(),
-            'active_placements' => Placement::where('status', 'active')->count(),
-            'unassigned_supervisors' => Placement::whereNull('supervisor_id')->where('status', 'active')->count(),
-            'total_hours_logged' => WeeklyLog::where('status', 'approved')->sum('hours_completed'),
         ];
 
-        // Posts needing coordinator review
+        // Posts needing admin review
         $pendingPosts = InternshipPost::with('companyProfile')
             ->where('status', 'pending_approval')
             ->latest()
             ->take(5)
             ->get();
 
-        // Placements requiring supervisor assignment
-        $unassignedPlacements = Placement::with(['studentProfile.user', 'companyProfile', 'internshipPost'])
-            ->whereNull('supervisor_id')
-            ->where('status', 'active')
-            ->latest()
-            ->take(5)
+        // Monthly applications and accepted placements for the chart
+        $currentYear = (int) now()->format('Y');
+        $lastYear = $currentYear - 1;
+
+        $chartData = [
+            'thisYear' => [
+                'year' => $currentYear,
+                'applied' => array_fill(0, 12, 0),
+                'accepted' => array_fill(0, 12, 0),
+            ],
+            'lastYear' => [
+                'year' => $lastYear,
+                'applied' => array_fill(0, 12, 0),
+                'accepted' => array_fill(0, 12, 0),
+            ],
+        ];
+
+        $applications = Application::select(['id', 'status', 'created_at'])
+            ->whereYear('created_at', '>=', $lastYear)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'pendingPosts', 'unassignedPlacements'));
+        foreach ($applications as $app) {
+            if (!$app->created_at) {
+                continue;
+            }
+
+            $appYear = (int) $app->created_at->format('Y');
+            $monthIndex = ((int) $app->created_at->format('n')) - 1;
+
+            if ($appYear === $currentYear && $monthIndex >= 0 && $monthIndex < 12) {
+                $chartData['thisYear']['applied'][$monthIndex]++;
+                if ($app->status === 'accepted') {
+                    $chartData['thisYear']['accepted'][$monthIndex]++;
+                }
+            } elseif ($appYear === $lastYear && $monthIndex >= 0 && $monthIndex < 12) {
+                $chartData['lastYear']['applied'][$monthIndex]++;
+                if ($app->status === 'accepted') {
+                    $chartData['lastYear']['accepted'][$monthIndex]++;
+                }
+            }
+        }
+
+        return view('admin.dashboard', compact('stats', 'pendingPosts', 'chartData'));
     }
 }

@@ -31,6 +31,16 @@
                                     <td class="py-4 px-6">
                                         <div class="font-extrabold text-slate-900 text-sm">{{ $app->internshipPost->title }}</div>
                                         <div class="text-slate-600 font-semibold">{{ $app->internshipPost->companyProfile->company_name }} • {{ $app->internshipPost->location }}</div>
+                                        @php
+                                            $appResumePath = $app->getEffectiveResumePath();
+                                            $resumeExists = $appResumePath && Storage::disk('public')->exists($appResumePath);
+                                        @endphp
+                                        @if($resumeExists)
+                                            <div class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium mt-1">
+                                                <i class="fa-solid fa-file-circle-check text-[10px]"></i>
+                                                <span>{{ basename($appResumePath) }} attached</span>
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="py-4 px-4 text-slate-600">
                                         {{ \Carbon\Carbon::parse($app->applied_at)->format('M d, Y') }}
@@ -44,6 +54,12 @@
                                     </td>
                                     <td class="py-4 px-4 text-right">
                                         <div class="inline-flex items-center gap-2 justify-end">
+                                            @if($resumeExists)
+                                                <a href="{{ Storage::url($appResumePath) }}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-slate-200/60 transition-all" title="View Submitted Resume">
+                                                    <i class="fa-solid fa-file-lines w-3.5 h-3.5 text-emerald-600"></i>
+                                                    <span>Resume</span>
+                                                </a>
+                                            @endif
                                             <a href="{{ route('student.messages.start', $app) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-slate-200/60 transition-all" title="Message Host Company">
                                                 <i class="fa-solid fa-comment w-3.5 h-3.5"></i>
                                                 <span>Message</span>

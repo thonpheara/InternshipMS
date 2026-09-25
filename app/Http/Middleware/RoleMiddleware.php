@@ -27,7 +27,7 @@ class RoleMiddleware
         if (!in_array($user->role, $roles, true)) {
             // Redirect to their respective dashboard instead of a blank 403 error for better UX
             return match ($user->role) {
-                'admin', 'coordinator' => redirect()->route('admin.dashboard')->with('error', 'Access denied to that section.'),
+                'admin' => redirect()->route('admin.dashboard')->with('error', 'Access denied to that section.'),
                 'company' => redirect()->route('company.dashboard')->with('error', 'Access denied to that section.'),
                 'student' => redirect()->route('student.dashboard')->with('error', 'Access denied to that section.'),
                 default => redirect()->route('login'),

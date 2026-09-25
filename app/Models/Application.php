@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
@@ -41,11 +40,6 @@ class Application extends Model
         return $this->belongsTo(StudentProfile::class);
     }
 
-    public function placement(): HasOne
-    {
-        return $this->hasOne(Placement::class);
-    }
-
     public function isPending(): bool
     {
         return $this->status === 'pending';
@@ -64,5 +58,15 @@ class Application extends Model
     public function isRejected(): bool
     {
         return $this->status === 'rejected';
+    }
+
+    public function getCustomResumePathAttribute($value): ?string
+    {
+        return ($value === '0' || $value === '' || $value === null) ? null : $value;
+    }
+
+    public function getEffectiveResumePath(): ?string
+    {
+        return $this->custom_resume_path ?: $this->studentProfile?->resume_path;
     }
 }

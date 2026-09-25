@@ -344,7 +344,7 @@
                 <div class="pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <p class="text-[11px] text-slate-500 flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-info text-amber-500"></i>
-                        <span>Changes to an approved post may require university coordinator re-moderation.</span>
+                        <span>Changes to an approved post may require university admin re-moderation.</span>
                     </p>
                     <div class="flex items-center justify-end gap-3 shrink-0">
                         <button type="button" 

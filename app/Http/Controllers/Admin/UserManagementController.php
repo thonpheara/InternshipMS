@@ -25,8 +25,15 @@ class UserManagementController extends Controller
         $status = $request->query('status', 'all');
         $search = trim($request->query('search', ''));
 
-        $query = User::with(['studentProfile', 'companyProfile'])
-            ->whereIn('role', ['student', 'company', 'coordinator']);
+        $query = User::with([
+            'studentProfile' => function ($q) {
+                $q->withCount('applications');
+            },
+            'companyProfile' => function ($q) {
+                $q->withCount(['internshipPosts', 'applications']);
+            }
+        ])
+        ->whereIn('role', ['student', 'company']);
 
         if ($role !== 'all') {
             $query->where('role', $role);
@@ -57,10 +64,10 @@ class UserManagementController extends Controller
 
         // Metric counts for quick badges
         $counts = [
-            'total' => User::whereIn('role', ['student', 'company', 'coordinator'])->count(),
+            'total' => User::whereIn('role', ['student', 'company'])->count(),
             'students' => User::where('role', 'student')->count(),
             'companies' => User::where('role', 'company')->count(),
-            'active' => User::whereIn('role', ['student', 'company', 'coordinator'])->where('status', 'active')->count(),
+            'active' => User::whereIn('role', ['student', 'company'])->where('status', 'active')->count(),
         ];
 
         return view('Admin.users.index', compact('users', 'counts', 'role', 'status', 'search'));
@@ -119,8 +126,9 @@ class UserManagementController extends Controller
         $validated = $request->validate($rules);
 
         DB::transaction(function () use ($validated, $role) {
+            $userName = ($role === 'company' && !empty($validated['company_name'])) ? $validated['company_name'] : $validated['name'];
             $user = User::create([
-                'name' => $validated['name'],
+                'name' => $userName,
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'role' => $role,
@@ -166,31 +174,19 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Display the specified user and full profile data.
+     * Display the specified user (redirects to modal view on index).
      */
-    public function show(User $user): View
+    public function show(User $user): RedirectResponse
     {
-        $user->load(['studentProfile', 'companyProfile']);
-
-        $activity = [];
-        if ($user->isStudent() && $user->studentProfile) {
-            $activity['applications_count'] = $user->studentProfile->applications()->count();
-            $activity['placements_count'] = $user->studentProfile->placements()->count();
-        } elseif ($user->isCompany() && $user->companyProfile) {
-            $activity['posts_count'] = $user->companyProfile->internshipPosts()->count();
-            $activity['applicants_count'] = $user->companyProfile->applications()->count();
-        }
-
-        return view('Admin.users.show', compact('user', 'activity'));
+        return redirect()->route('admin.users.index');
     }
 
     /**
-     * Show the form for editing the specified user.
+     * Show the form for editing the specified user (redirects to modal edit on index).
      */
-    public function edit(User $user): View
+    public function edit(User $user): RedirectResponse
     {
-        $user->load(['studentProfile', 'companyProfile']);
-        return view('Admin.users.edit', compact('user'));
+        return redirect()->route('admin.users.index');
     }
 
     /**
@@ -237,7 +233,7 @@ class UserManagementController extends Controller
 
         DB::transaction(function () use ($user, $validated, $role) {
             $userPayload = [
-                'name' => $validated['name'],
+                'name' => ($role === 'company' && !empty($validated['company_name'])) ? $validated['company_name'] : $validated['name'],
                 'email' => $validated['email'],
                 'status' => $validated['status'],
             ];

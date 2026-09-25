@@ -1,4 +1,4 @@
-﻿<x-layout>
+<x-layout>
     <div class="space-y-6">
         
         <!-- Header -->
@@ -32,7 +32,7 @@
             </div>
         @else
             <!-- 2-Column Chat Workspace -->
-            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 h-[calc(100vh-13rem)] min-h-[550px] max-h-[800px]">
+            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 h-[calc(100vh-12rem)] max-h-[800px]">
                 
                 <!-- Left Column: Conversations List -->
                 <div class="lg:col-span-4 border-r border-slate-200/80 flex flex-col h-full min-h-0 bg-slate-50/50 overflow-hidden">
@@ -157,9 +157,9 @@
                                            required 
                                            autocomplete="off"
                                            placeholder="Type your message to {{ $candidate->name ?? 'the candidate' }}..."
-                                           class="w-full h-11 px-4 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition-all text-slate-900">
+                                           class="w-full h-12 px-4.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 transition-all text-slate-900 placeholder:text-slate-400">
                                 </div>
-                                <button type="submit" class="h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 shrink-0 hover:translate-y-[-1px] cursor-pointer">
+                                <button type="submit" class="h-12 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 shrink-0 hover:translate-y-[-1px] cursor-pointer">
                                     <span>Send</span>
                                     <i class="fa-solid fa-paper-plane w-3.5 h-3.5"></i>
                                 </button>

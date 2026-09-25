@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
-use App\Models\Placement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +14,7 @@ use Illuminate\View\View;
 class StudentDashboardController extends Controller
 {
     /**
-     * Display student dashboard with active placement progress and stats.
+     * Display student dashboard with stats.
      */
     public function index(): View
     {
@@ -24,12 +23,6 @@ class StudentDashboardController extends Controller
             'eligibility_status' => 'eligible',
         ]);
 
-        // Active placement
-        $activePlacement = Placement::with(['companyProfile', 'internshipPost', 'supervisor', 'weeklyLogs'])
-            ->where('student_profile_id', $student?->id)
-            ->where('status', 'active')
-            ->first();
-
         // Recent applications (show 3)
         $recentApplications = Application::with(['internshipPost.companyProfile'])
             ->where('student_profile_id', $student?->id)
@@ -37,19 +30,13 @@ class StudentDashboardController extends Controller
             ->take(3)
             ->get();
 
-        // Recent weekly logs
-        $recentLogs = $activePlacement ? $activePlacement->weeklyLogs()->latest('week_number')->take(4)->get() : collect();
-
         // Stats
         $stats = [
             'total_applications' => Application::where('student_profile_id', $student?->id)->count(),
             'shortlisted' => Application::where('student_profile_id', $student?->id)->where('status', 'shortlisted')->count(),
-            'hours_logged' => $activePlacement ? $activePlacement->totalHoursLogged() : 0,
-            'hours_required' => $activePlacement ? $activePlacement->total_hours_required : 480,
-            'progress_percent' => $activePlacement ? $activePlacement->completionPercentage() : 0,
         ];
 
-        return view('student.dashboard', compact('student', 'activePlacement', 'recentApplications', 'recentLogs', 'stats'));
+        return view('student.dashboard', compact('student', 'recentApplications', 'stats'));
     }
 
     /**
@@ -98,36 +85,70 @@ class StudentDashboardController extends Controller
         ];
 
         // Process skills as array
-        if (!empty($validated['skills_input'])) {
-            $skillsArray = array_values(array_filter(array_map('trim', explode(',', $validated['skills_input']))));
+        if (array_key_exists('skills_input', $validated)) {
+            $skillsArray = !empty($validated['skills_input'])
+                ? array_values(array_filter(array_map('trim', explode(',', $validated['skills_input']))))
+                : null;
             $updateData['skills'] = $skillsArray;
         }
 
-        // Process resume upload
+        // Process resume upload (isolated per student to avoid overwrites)
         if ($request->hasFile('resume')) {
-            if ($student->resume_path && Storage::disk('public')->exists($student->resume_path)) {
-                Storage::disk('public')->delete($student->resume_path);
+            $file = $request->file('resume');
+            if ($file->isValid()) {
+                if ($student->resume_path && Storage::disk('public')->exists($student->resume_path)) {
+                    Storage::disk('public')->delete($student->resume_path);
+                }
+
+                $originalName = $file->getClientOriginalName();
+                $storedPath = $file->storeAs('resumes/' . $student->id, $originalName, 'public');
+                if ($storedPath) {
+                    $updateData['resume_path'] = $storedPath;
+                }
             }
-            $updateData['resume_path'] = $request->file('resume')->store('resumes', 'public');
         }
 
         $student->update($updateData);
 
-        return back()->with('success', 'Profile updated successfully.');
+        $activeTab = $request->input('active_tab');
+        if ($request->hasFile('resume')) {
+            $activeTab = 'resume';
+        }
+
+        return redirect()->route('student.profile', $activeTab ? ['tab' => $activeTab] : [])
+            ->with('success', $request->hasFile('resume') ? 'Resume uploaded and profile updated successfully.' : 'Profile updated successfully.');
     }
 
     /**
      * Preview or download student's own resume.
      */
-    public function previewResume()
+    public function previewResume(Request $request)
     {
         $student = Auth::user()->studentProfile;
-        abort_if(!$student || !$student->resume_path, 404, 'Resume not found.');
+        $resumePath = $student?->resume_path;
 
-        $fullPath = storage_path('app/public/' . $student->resume_path);
-        abort_if(!file_exists($fullPath), 404, 'Resume file not found on disk.');
+        if (!$resumePath || !Storage::disk('public')->exists($resumePath)) {
+            return redirect()->route('student.profile', ['tab' => 'resume'])->with('error', 'Resume document not found.');
+        }
 
-        return response()->file($fullPath);
+        $fullPath = Storage::disk('public')->path($resumePath);
+        if (!file_exists($fullPath)) {
+            return redirect()->route('student.profile', ['tab' => 'resume'])->with('error', 'Resume file not found on disk. Please re-upload your resume.');
+        }
+
+        $filename = basename($resumePath);
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        // For non-previewable files (docx, doc, etc.) or when download parameter is present, download with exact filename
+        if ($request->has('download') || !in_array($extension, ['pdf', 'png', 'jpg', 'jpeg'])) {
+            return response()->download($fullPath, $filename, [
+                'Content-Disposition' => 'attachment; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
+            ]);
+        }
+
+        return response()->file($fullPath, [
+            'Content-Disposition' => 'inline; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
+        ]);
     }
 
     /**
@@ -149,6 +170,6 @@ class StudentDashboardController extends Controller
             $student->update(['resume_path' => null]);
         }
 
-        return back()->with('success', 'Resume document removed successfully.');
+        return redirect()->route('student.profile', ['tab' => 'resume'])->with('success', 'Resume document removed successfully.');
     }
 }

@@ -43,7 +43,7 @@
                             Post New Internship Vacancy
                         </h3>
                         <p class="text-xs text-slate-500 mt-0.5">
-                            New listings will be reviewed by university faculty coordinators before going live.
+                            New listings will be reviewed by university administrators before going live.
                         </p>
                     </div>
                 </div>
@@ -305,7 +305,7 @@
                 <div class="pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <p class="text-[11px] text-slate-500 flex items-center gap-1.5">
                         <i class="fa-solid fa-shield-halved text-emerald-600"></i>
-                        <span>Faculty coordinator review required before listing is made public.</span>
+                        <span>University admin review required before listing is made public.</span>
                     </p>
                     <div class="flex items-center justify-end gap-3 shrink-0">
                         <button type="button" 

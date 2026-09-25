@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StudentProfile extends Model
@@ -48,26 +46,6 @@ class StudentProfile extends Model
         return $this->hasMany(Application::class);
     }
 
-    public function placements(): HasMany
-    {
-        return $this->hasMany(Placement::class);
-    }
-
-    public function activePlacement(): HasOne
-    {
-        return $this->hasOne(Placement::class)->where('status', 'active');
-    }
-
-    public function weeklyLogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(WeeklyLog::class, Placement::class);
-    }
-
-    public function evaluations(): HasManyThrough
-    {
-        return $this->hasManyThrough(Evaluation::class, Placement::class);
-    }
-
     public function isEligible(): bool
     {
         return true;
@@ -76,6 +54,11 @@ class StudentProfile extends Model
     public function getEligibilityStatusAttribute($value): string
     {
         return $value === 'pending' || empty($value) ? 'eligible' : $value;
+    }
+
+    public function getResumePathAttribute($value): ?string
+    {
+        return ($value === '0' || $value === '' || $value === null) ? null : $value;
     }
 
     public function conversations(): HasMany

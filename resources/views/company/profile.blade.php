@@ -331,7 +331,7 @@
                             <div>
                                 <h3 class="text-base font-bold text-slate-900">Hiring Contact Person</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    Contact point for student applicants and university coordinator correspondence.
+                                    Contact point for student applicants and university administrator correspondence.
                                 </p>
                             </div>
                         </div>

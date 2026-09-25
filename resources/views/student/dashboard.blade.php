@@ -15,7 +15,7 @@
         </div>
 
         <!-- Metrics Overview Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total Applications</span>
@@ -41,84 +41,7 @@
                     <p class="text-xs text-gray-500 mt-1">Interview invitations</p>
                 </div>
             </div>
-
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Hours Approved</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-circle-check w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ number_format($stats['hours_logged'], 1) }}h</h3>
-                    <p class="text-xs text-[#059669] font-semibold mt-1">Of {{ $stats['hours_required'] }}h target</p>
-                </div>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Completion</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-percent w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ $stats['progress_percent'] }}%</h3>
-                    <p class="text-xs text-gray-500 mt-1">Accreditation progress</p>
-                </div>
-            </div>
         </div>
-
-        <!-- Active Placement Status Card -->
-        @if ($activePlacement)
-            <div class="p-6 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs space-y-5">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E7EB]">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#059669] animate-pulse"></span>
-                            <span class="text-xs font-bold uppercase tracking-wider text-[#059669]">Current Active Internship</span>
-                        </div>
-                        <h3 class="text-xl font-extrabold text-[#111827]">
-                            {{ $activePlacement->internshipPost->title }}
-                        </h3>
-                        <p class="text-xs text-gray-500 mt-1">
-                            Host Organization: <strong class="text-[#111827]">{{ $activePlacement->companyProfile->company_name }}</strong> • Supervisor: <strong class="text-[#111827]">{{ $activePlacement->supervisor->name ?? 'Dr. Eleanor Vance' }}</strong>
-                        </p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-2xl font-black text-[#059669]">{{ $activePlacement->completionPercentage() }}%</span>
-                        <span class="block text-[11px] text-gray-500">Target: {{ $activePlacement->total_hours_required }} Hours</span>
-                    </div>
-                </div>
-
-                <!-- Progress Bar -->
-                <div>
-                    <div class="flex justify-between text-xs font-semibold text-gray-500 mb-2">
-                        <span>{{ number_format($activePlacement->totalHoursLogged(), 1) }} Hours Approved</span>
-                        <span>{{ max(0, $activePlacement->total_hours_required - $activePlacement->totalHoursLogged()) }} Hours Remaining</span>
-                    </div>
-                    <div class="w-full h-3.5 bg-gray-100 border border-gray-200 rounded-full overflow-hidden p-0.5">
-                        <div class="h-full bg-[#059669] rounded-full transition-all duration-500 shadow-xs" 
-                             style="width: {{ $activePlacement->completionPercentage() }}%"></div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs">
-                    <div class="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB]">
-                        <span class="block text-gray-500 text-[10px] uppercase font-bold">Start Date</span>
-                        <span class="font-semibold text-[#111827]">{{ \Carbon\Carbon::parse($activePlacement->start_date)->format('M d, Y') }}</span>
-                    </div>
-                    <div class="p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB]">
-                        <span class="block text-gray-500 text-[10px] uppercase font-bold">End Date</span>
-                        <span class="font-semibold text-[#111827]">{{ \Carbon\Carbon::parse($activePlacement->end_date)->format('M d, Y') }}</span>
-                    </div>
-                    <div class="col-span-2 sm:col-span-1 p-3 rounded-xl bg-[#F9FAFB] border border-[#E5E7EB]">
-                        <span class="block text-gray-500 text-[10px] uppercase font-bold">Status</span>
-                        <span class="font-semibold text-[#059669] uppercase">Active Agreement</span>
-                    </div>
-                </div>
-            </div>
-        @endif
 
         <!-- Applications Tracking Section -->
         <div class="p-6 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs space-y-4">

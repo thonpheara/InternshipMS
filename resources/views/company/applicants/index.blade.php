@@ -43,23 +43,23 @@
         </div>
 
         <!-- Applicants Grid / Table -->
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between h-[calc(100vh-12rem)]">
             @if ($applications->isNotEmpty())
-                <div class="w-full overflow-hidden">
+                <div class="w-full overflow-auto flex-1 min-h-0">
                     <table class="w-full text-left border-collapse text-xs table-fixed">
                         <thead>
                             <tr class="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                                <th class="py-3.5 px-6 w-[24%]">Student Candidate</th>
-                                <th class="py-3.5 px-4 w-[22%]">Role Applied</th>
-                                <th class="py-3.5 px-4 w-[14%] whitespace-nowrap">Status</th>
-                                <th class="py-3.5 px-4 w-[26%]">Statement / Cover Letter</th>
-                                <th class="py-3.5 px-6 text-right w-[14%] whitespace-nowrap">Review Action</th>
+                                <th class="py-3 px-6 w-[24%]">Student Candidate</th>
+                                <th class="py-3 px-4 w-[22%]">Role Applied</th>
+                                <th class="py-3 px-4 w-[14%] whitespace-nowrap">Status</th>
+                                <th class="py-3 px-4 w-[26%]">Statement / Cover Letter</th>
+                                <th class="py-3 px-6 text-right w-[14%] whitespace-nowrap">Review Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @foreach ($applications as $app)
                                 <tr class="hover:bg-slate-50/60 transition-colors">
-                                    <td class="py-4 px-6 min-w-0">
+                                    <td class="py-3 px-6 min-w-0">
                                         <div class="font-extrabold text-slate-900 text-sm truncate">{{ $app->studentProfile->user->name }}</div>
                                         <div class="text-slate-600 font-semibold truncate">{{ $app->studentProfile->major }} (GPA: {{ $app->studentProfile->gpa ?? 'N/A' }})</div>
                                         @if (is_array($app->studentProfile->skills))
@@ -72,32 +72,52 @@
                                             </div>
                                         @endif
                                     </td>
-                                    <td class="py-4 px-4 text-slate-600 min-w-0">
+                                    <td class="py-3 px-4 text-slate-600 min-w-0">
                                         <div class="font-bold text-slate-900 truncate" title="{{ $app->internshipPost->title }}">{{ $app->internshipPost->title }}</div>
                                         <span class="text-[11px] text-slate-600 block truncate">Applied {{ \Carbon\Carbon::parse($app->applied_at)->format('M d, Y') }}</span>
                                     </td>
-                                    <td class="py-4 px-4 whitespace-nowrap">
+                                    <td class="py-3 px-4 whitespace-nowrap">
                                         <x-status-badge :status="$app->status" />
                                     </td>
-                                    <td class="py-4 px-4 text-slate-600 min-w-0">
+                                    <td class="py-3 px-4 text-slate-600 min-w-0">
                                         <p class="line-clamp-2 text-xs break-all break-words leading-relaxed">{{ $app->cover_letter }}</p>
                                         @if ($app->company_notes)
                                             <div class="mt-1 text-[11px] text-emerald-700 font-medium truncate break-all break-words">Note: {{ $app->company_notes }}</div>
                                         @endif
                                     </td>
-                                    <td class="py-4 px-6 text-right whitespace-nowrap">
+                                    <td class="py-3 px-6 text-right whitespace-nowrap">
                                         <div class="inline-flex items-center gap-1.5 justify-end">
-                                            @if($app->custom_resume_path || $app->studentProfile->resume_path)
-                                                <a href="{{ route('company.applicants.resume', $app) }}" 
-                                                   target="_blank"
+                                            @php
+                                                $appResumePath = $app->getEffectiveResumePath();
+                                                $resumeExists = $appResumePath && Storage::disk('public')->exists($appResumePath);
+                                            @endphp
+                                            @if($resumeExists)
+                                                @php
+                                                    $resumeFileName = basename($appResumePath);
+                                                    $resumeExt = strtolower(pathinfo($resumeFileName, PATHINFO_EXTENSION));
+                                                @endphp
+                                                @if(in_array($resumeExt, ['pdf', 'png', 'jpg', 'jpeg']))
+                                                    <a href="{{ route('company.applicants.resume', $app) }}" 
+                                                       target="_blank"
+                                                       class="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200/60 cursor-pointer"
+                                                       title="Preview {{ $resumeFileName }}">
+                                                        <i class="fa-solid fa-file-lines text-xs text-emerald-600"></i>
+                                                    </a>
+                                                @endif
+                                                <a href="{{ route('company.applicants.resume', [$app, 'download' => 1]) }}" 
+                                                   download="{{ $resumeFileName }}"
                                                    class="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200/60 cursor-pointer"
-                                                   title="View Resume">
-                                                    <i class="fa-solid fa-file-lines text-xs text-emerald-600"></i>
+                                                   title="Download {{ $resumeFileName }}">
+                                                    <i class="fa-solid fa-download text-xs text-slate-600"></i>
                                                 </a>
+                                            @else
+                                                <span class="w-8 h-8 flex items-center justify-center text-slate-300 rounded-lg border border-dashed border-slate-200" title="No resume document attached">
+                                                    <i class="fa-solid fa-file-circle-xmark text-xs text-slate-300"></i>
+                                                </span>
                                             @endif
                                             <a href="{{ route('company.messages.start', $app) }}" 
-                                               class="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200/60 cursor-pointer"
-                                               title="Chat with Candidate">
+                                                class="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200/60 cursor-pointer"
+                                                title="Chat with Candidate">
                                                 <i class="fa-solid fa-comment-dots text-xs"></i>
                                             </a>
                                             <button type="button"
@@ -107,7 +127,11 @@
                                                         roleTitle: @js($app->internshipPost->title),
                                                         status: @js($app->status),
                                                         companyNotes: @js($app->company_notes ?? ''),
-                                                        updateUrl: @js(route('company.applicants.update', $app))
+                                                        updateUrl: @js(route('company.applicants.update', $app)),
+                                                        hasResume: @js($resumeExists),
+                                                        resumeFileName: @js($resumeExists ? basename($appResumePath) : ''),
+                                                        resumePreviewUrl: @js($resumeExists && in_array(strtolower(pathinfo(basename($appResumePath), PATHINFO_EXTENSION)), ['pdf', 'png', 'jpg', 'jpeg']) ? route('company.applicants.resume', $app) : ''),
+                                                        resumeDownloadUrl: @js($resumeExists ? route('company.applicants.resume', [$app, 'download' => 1]) : '')
                                                     })"
                                                     class="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200/60 cursor-pointer"
                                                     title="Update Candidacy Status">
@@ -121,11 +145,11 @@
                     </table>
                 </div>
 
-                <div class="p-4 border-t border-slate-100">
+                <div class="p-4 border-t border-slate-100 bg-white shrink-0">
                     {{ $applications->links() }}
                 </div>
             @else
-                <div class="py-16 text-center text-slate-600 space-y-3">
+                <div class="flex-1 flex flex-col items-center justify-center py-16 text-center text-slate-600 space-y-3">
                     <i class="fa-solid fa-users w-12 h-12 mx-auto text-slate-300"></i>
                     <h3 class="text-base font-bold text-slate-800">No applicants match this filter</h3>
                     <p class="text-xs text-slate-600 max-w-sm mx-auto">Select a different role or reset filters to review incoming candidate profiles.</p>

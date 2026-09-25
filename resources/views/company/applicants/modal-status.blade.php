@@ -61,6 +61,31 @@
                 @method('PUT')
                 <input type="hidden" name="status" :value="statusApp.status">
 
+                <!-- Candidate Resume in Modal -->
+                <div x-show="statusApp.hasResume" class="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-[#D1FAE5] text-[#059669] flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-file-circle-check text-xs"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <span class="font-bold text-slate-900 block truncate" x-text="statusApp.resumeFileName"></span>
+                            <span class="text-[10px] text-emerald-700 font-medium">Candidate Attached Resume</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <template x-if="statusApp.resumePreviewUrl">
+                            <a :href="statusApp.resumePreviewUrl" target="_blank" class="px-2.5 py-1 rounded-lg bg-[#059669] text-white hover:bg-[#047857] text-xs font-semibold inline-flex items-center gap-1 transition-colors">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                                <span>Preview</span>
+                            </a>
+                        </template>
+                        <a :href="statusApp.resumeDownloadUrl" :download="statusApp.resumeFileName" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold inline-flex items-center gap-1 transition-colors">
+                            <i class="fa-solid fa-download text-[10px]"></i>
+                            <span>Download</span>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Stage Selection Cards -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2.5">

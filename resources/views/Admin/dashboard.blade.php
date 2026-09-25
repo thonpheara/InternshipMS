@@ -1,13 +1,28 @@
 <x-layout>
     <div class="space-y-6">
 
-        <!-- Institutional Metric KPI Cards -->
+        <!-- Institutional Metric KPI Cards (4 Metrics Overview) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- 1. Total Accounts -->
             <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total Cohort Students</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total Accounts</span>
                     <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
                         <i class="fa-solid fa-users w-4.5 h-4.5"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-2xl font-black text-[#111827]">{{ $stats['total_accounts'] }}</h3>
+                    <p class="text-xs text-gray-500 mt-1">Total registered users</p>
+                </div>
+            </div>
+
+            <!-- 2. Student Interns -->
+            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Student Interns</span>
+                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
+                        <i class="fa-solid fa-graduation-cap w-4.5 h-4.5"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-baseline justify-between">
@@ -17,69 +32,56 @@
                 <p class="text-xs text-gray-500 mt-1">Enrolled university candidates</p>
             </div>
 
+            <!-- 3. Host Companies -->
             <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Pending Job Approvals</span>
-                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center">
-                        <i class="fa-solid fa-clock-rotate-left w-4.5 h-4.5"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Host Companies</span>
+                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
+                        <i class="fa-solid fa-building w-4.5 h-4.5"></i>
                     </div>
                 </div>
-                <div class="mt-4 flex items-baseline justify-between">
-                    <h3 class="text-2xl font-black {{ $stats['pending_posts'] > 0 ? 'text-amber-600' : 'text-[#111827]' }}">
-                        {{ $stats['pending_posts'] }}
-                    </h3>
-                    <span class="text-xs font-semibold text-gray-500">Company Postings</span>
+                <div class="mt-4">
+                    <h3 class="text-2xl font-black text-[#111827]">{{ $stats['total_companies'] }}</h3>
+                    <p class="text-xs text-gray-500 mt-1">Registered employer partners</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Requires coordinator check</p>
             </div>
 
+            <!-- 4. Active Status -->
             <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Active Placements</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Active Status</span>
                     <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-briefcase w-4.5 h-4.5"></i>
+                        <i class="fa-solid fa-circle-check w-4.5 h-4.5"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-baseline justify-between">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ $stats['active_placements'] }}</h3>
-                    <span class="text-xs font-bold {{ $stats['unassigned_supervisors'] > 0 ? 'text-rose-600' : 'text-[#059669]' }}">
-                        {{ $stats['unassigned_supervisors'] }} Unassigned
-                    </span>
+                    <h3 class="text-2xl font-black text-[#059669]">{{ $stats['active_accounts'] }}</h3>
+                    @if($stats['pending_posts'] > 0)
+                        <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                            {{ $stats['pending_posts'] }} pending post{{ $stats['pending_posts'] > 1 ? 's' : '' }}
+                        </span>
+                    @endif
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Ongoing student internships</p>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total Hours Logged</span>
-                    <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-business-time w-4.5 h-4.5"></i>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-baseline justify-between">
-                    <h3 class="text-2xl font-black text-[#111827]">{{ number_format($stats['total_hours_logged'], 0) }}h</h3>
-                    <span class="text-xs font-semibold text-gray-500">Cohort Total</span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">Verified timesheet hours</p>
+                <p class="text-xs text-gray-500 mt-1">Active verified accounts</p>
             </div>
         </div>
 
         <!-- Analytics & Job Moderation Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch lg:h-[calc(100vh-19rem)]">
             
-            <!-- Left: Applicant Growth Analytics Chart (lg:col-span-7 xl:col-span-8) -->
-            <div class="lg:col-span-7 xl:col-span-8 p-6 sm:p-7 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs flex flex-col justify-between"
-                 x-data="applicantGrowthChart()">
+            <!-- Left: Application & Placement Trends Chart (lg:col-span-7) -->
+            <div class="lg:col-span-7 p-6 sm:p-7 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs flex flex-col justify-between h-full min-h-0"
+                 x-data="applicantGrowthChart({{ \Illuminate\Support\Js::from($chartData) }})">
                 
                 <!-- Card Header with Title & Period Filter -->
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
                     <div>
-                        <h4 class="text-lg font-bold text-[#111827] tracking-tight">Applicant Growth Analytics</h4>
-                        <p class="text-xs sm:text-sm text-gray-500 mt-0.5 font-medium">Monthly candidate acquisition per department</p>
+                        <h4 class="text-lg font-bold text-[#111827] tracking-tight">Application & Placement Trends</h4>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-0.5 font-medium">Monthly student applications submitted vs. accepted placements</p>
                     </div>
 
                     <!-- Toggle Pill Switcher -->
-                    <div class="inline-flex items-center gap-1 self-start sm:self-auto bg-gray-50/80 p-1 rounded-2xl border border-gray-100">
+                    <div class="inline-flex items-center gap-1 self-start sm:self-auto bg-gray-50/80 p-1 rounded-2xl border border-gray-100 shrink-0">
                         <button type="button" 
                                 @click="setPeriod('thisYear')" 
                                 :class="period === 'thisYear' ? 'bg-[#2563EB] text-white shadow-xs font-semibold' : 'text-gray-600 hover:text-[#111827] bg-transparent font-medium'"
@@ -96,36 +98,36 @@
                 </div>
 
                 <!-- Chart Canvas Area -->
-                <div class="relative w-full h-[280px] sm:h-[300px] mt-6">
+                <div class="relative w-full flex-1 min-h-[160px] my-2">
                     <canvas id="applicantGrowthCanvas" class="w-full h-full"></canvas>
                 </div>
 
-                <!-- Bottom Legend matching user screenshot -->
-                <div class="flex items-center justify-center gap-7 pt-4 pb-1">
+                <!-- Bottom Legend matching user choice: Total Applied vs Accepted Placements -->
+                <div class="flex items-center justify-center gap-7 pt-2 pb-1 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <span class="w-7 h-3 rounded-xs bg-[#2563EB] inline-block"></span>
-                        <span class="text-xs font-medium text-gray-600">Engineering</span>
+                        <span class="text-xs font-semibold text-gray-700">Total Applied</span>
                     </div>
                     <div class="flex items-center gap-2.5">
                         <span class="w-7 h-3 rounded-xs bg-[#10B981] inline-block"></span>
-                        <span class="text-xs font-medium text-gray-600">Design</span>
+                        <span class="text-xs font-semibold text-gray-700">Accepted Placements</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Right: Postings Needing Moderation (lg:col-span-5 xl:col-span-4) -->
-            <div class="lg:col-span-5 xl:col-span-4 p-6 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs flex flex-col justify-between space-y-4">
-                <div>
-                    <div class="flex items-center justify-between pb-3 border-b border-[#E5E7EB]">
-                        <h4 class="text-sm font-bold text-[#111827] uppercase tracking-wider flex items-center gap-2">
-                            <i class="fa-solid fa-square-check w-4 h-4 text-[#059669]"></i>
-                            Postings Needing Moderation
+            <!-- Right: Postings Needing Moderation (lg:col-span-5) -->
+            <div class="lg:col-span-5 p-6 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs flex flex-col justify-between h-full min-h-0 space-y-4">
+                <div class="flex-1 flex flex-col min-h-0">
+                    <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB] shrink-0">
+                        <h4 class="text-sm font-bold text-[#111827] flex items-center gap-2 min-w-0">
+                            <i class="fa-solid fa-square-check w-4 h-4 text-[#059669] shrink-0"></i>
+                            <span class="whitespace-nowrap truncate">Postings Needing Moderation</span>
                         </h4>
-                        <a href="{{ route('admin.approvals.index') }}" class="text-xs font-semibold text-[#059669] hover:underline">Review Queue</a>
+                        <a href="{{ route('admin.approvals.index') }}" class="text-xs font-semibold text-[#059669] hover:underline whitespace-nowrap shrink-0">Review Queue</a>
                     </div>
 
                     @if ($pendingPosts->isNotEmpty())
-                        <div class="divide-y divide-gray-100 max-h-[330px] overflow-y-auto pr-1">
+                        <div class="divide-y divide-gray-100 flex-1 overflow-y-auto min-h-0 pr-1 my-1">
                             @foreach ($pendingPosts as $post)
                                 <div class="py-3.5 flex items-start justify-between gap-3">
                                     <div class="min-w-0 flex-1">
@@ -150,14 +152,14 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="py-16 text-center text-gray-400 text-xs">
+                        <div class="flex-1 flex flex-col items-center justify-center py-8 text-center text-gray-400 text-xs">
                             <i class="fa-solid fa-check-double w-8 h-8 mx-auto mb-2 text-[#059669]"></i>
                             No pending employer job postings awaiting moderation.
                         </div>
                     @endif
                 </div>
 
-                <div class="pt-3 border-t border-gray-100 text-right">
+                <div class="pt-3 border-t border-gray-100 text-right shrink-0">
                     <a href="{{ route('admin.approvals.index') }}" class="text-xs font-semibold text-[#059669] hover:text-[#047857] inline-flex items-center gap-1">
                         Open Full Approvals Queue <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </a>
@@ -170,18 +172,18 @@
 
     <!-- Chart.js Alpine Controller Logic -->
     <script>
-        function applicantGrowthChart() {
+        function applicantGrowthChart(serverData) {
             return {
                 period: 'thisYear',
                 chart: null,
-                dataSets: {
+                dataSets: serverData || {
                     thisYear: {
-                        engineering: [64, 77, 89, 80, 94, 109, 124, 129, 144],
-                        design: [39, 51, 59, 57, 67, 73, 87, 91, 104]
+                        applied: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        accepted: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     },
                     lastYear: {
-                        engineering: [48, 56, 68, 62, 72, 85, 95, 102, 118],
-                        design: [26, 35, 42, 40, 50, 58, 65, 71, 80]
+                        applied: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        accepted: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                     }
                 },
                 init() {
@@ -194,14 +196,17 @@
                     if (!canvas || typeof Chart === 'undefined') return;
                     const ctx = canvas.getContext('2d');
 
+                    const currentApplied = this.dataSets[this.period]?.applied || [];
+                    const currentAccepted = this.dataSets[this.period]?.accepted || [];
+
                     this.chart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                             datasets: [
                                 {
-                                    label: 'Engineering',
-                                    data: this.dataSets.thisYear.engineering,
+                                    label: 'Total Applied',
+                                    data: currentApplied,
                                     backgroundColor: '#2563EB',
                                     borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
                                     borderSkipped: false,
@@ -209,8 +214,8 @@
                                     categoryPercentage: 0.55
                                 },
                                 {
-                                    label: 'Design',
-                                    data: this.dataSets.thisYear.design,
+                                    label: 'Accepted Placements',
+                                    data: currentAccepted,
                                     backgroundColor: '#10B981',
                                     borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
                                     borderSkipped: false,
@@ -257,13 +262,13 @@
                                 },
                                 y: {
                                     min: 0,
-                                    max: 160,
+                                    beginAtZero: true,
                                     border: {
                                         display: true,
                                         color: '#E5E7EB'
                                     },
                                     ticks: {
-                                        stepSize: 20,
+                                        precision: 0,
                                         color: '#6B7280',
                                         font: {
                                             family: "'Plus Jakarta Sans', sans-serif",
@@ -281,9 +286,9 @@
                 },
                 setPeriod(period) {
                     this.period = period;
-                    if (this.chart) {
-                        this.chart.data.datasets[0].data = this.dataSets[period].engineering;
-                        this.chart.data.datasets[1].data = this.dataSets[period].design;
+                    if (this.chart && this.dataSets[period]) {
+                        this.chart.data.datasets[0].data = this.dataSets[period].applied;
+                        this.chart.data.datasets[1].data = this.dataSets[period].accepted;
                         this.chart.update();
                     }
                 }
