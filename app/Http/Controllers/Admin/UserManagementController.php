@@ -107,7 +107,6 @@ class UserManagementController extends Controller
                 'phone' => ['nullable', 'string', 'max:50'],
                 'skills' => ['nullable', 'string', 'max:1000'],
                 'bio' => ['nullable', 'string', 'max:2000'],
-                'eligibility_status' => ['nullable', 'in:eligible,ineligible,pending'],
             ];
         } elseif ($role === 'company') {
             $rules += [
@@ -151,7 +150,6 @@ class UserManagementController extends Controller
                     'phone' => $validated['phone'] ?? null,
                     'skills' => $skillsArray,
                     'bio' => $validated['bio'] ?? null,
-                    'eligibility_status' => $validated['eligibility_status'] ?? 'eligible',
                 ]);
             } elseif ($role === 'company') {
                 CompanyProfile::create([
@@ -213,7 +211,6 @@ class UserManagementController extends Controller
                 'phone' => ['nullable', 'string', 'max:50'],
                 'skills' => ['nullable', 'string', 'max:1000'],
                 'bio' => ['nullable', 'string', 'max:2000'],
-                'eligibility_status' => ['nullable', 'in:eligible,ineligible,pending'],
             ];
         } elseif ($role === 'company') {
             $rules += [
@@ -261,7 +258,6 @@ class UserManagementController extends Controller
                         'phone' => $validated['phone'] ?? null,
                         'skills' => $skillsArray,
                         'bio' => $validated['bio'] ?? null,
-                        'eligibility_status' => $validated['eligibility_status'] ?? 'eligible',
                     ]
                 );
             } elseif ($role === 'company') {

@@ -124,6 +124,11 @@
                 <i class="fa-solid fa-gauge w-4.5 h-4.5"></i>
                 Dashboard
             </a>
+            <a href="{{ route('admin.companies.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.companies.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-building-circle-check w-4.5 h-4.5"></i>
+                Company Verification
+            </a>
             <a href="{{ route('admin.approvals.index') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.approvals.*') ? $activeClass : $inactiveClass }}">
                 <i class="fa-solid fa-square-check w-4.5 h-4.5"></i>
@@ -133,6 +138,11 @@
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.users.*') ? $activeClass : $inactiveClass }}">
                 <i class="fa-solid fa-users-gear w-4.5 h-4.5"></i>
                 User Management
+            </a>
+            <a href="{{ route('admin.reports.index') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.reports.*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-file-invoice w-4.5 h-4.5"></i>
+                Reports
             </a>
         @endif
     </nav>

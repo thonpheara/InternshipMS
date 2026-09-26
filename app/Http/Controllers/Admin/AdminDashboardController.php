@@ -18,12 +18,13 @@ class AdminDashboardController extends Controller
     public function index(): View
     {
         $stats = [
-            'total_accounts' => User::whereIn('role', ['student', 'company'])->count(),
-            'total_students' => User::where('role', 'student')->count(),
-            'eligible_students' => StudentProfile::where('eligibility_status', 'eligible')->count(),
-            'total_companies' => User::where('role', 'company')->count(),
-            'active_accounts' => User::whereIn('role', ['student', 'company'])->where('status', 'active')->count(),
-            'pending_posts' => InternshipPost::where('status', 'pending_approval')->count(),
+            'total_accounts'    => User::whereIn('role', ['student', 'company'])->count(),
+            'total_students'    => User::where('role', 'student')->count(),
+            'total_companies'   => User::where('role', 'company')->count(),
+            'pending_companies' => CompanyProfile::where('verification_status', 'pending')->count(),
+            'active_accounts'   => User::whereIn('role', ['student', 'company'])->where('status', 'active')->count(),
+            'pending_posts'     => InternshipPost::where('status', 'pending_approval')->count(),
+            'total_placements'  => Application::where('status', 'accepted')->count(),
         ];
 
         // Posts needing admin review

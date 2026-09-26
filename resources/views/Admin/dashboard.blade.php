@@ -25,11 +25,10 @@
                         <i class="fa-solid fa-graduation-cap w-4.5 h-4.5"></i>
                     </div>
                 </div>
-                <div class="mt-4 flex items-baseline justify-between">
+                <div class="mt-4">
                     <h3 class="text-2xl font-black text-[#111827]">{{ $stats['total_students'] }}</h3>
-                    <span class="text-xs font-bold text-[#059669]">{{ $stats['eligible_students'] }} Eligible</span>
+                    <p class="text-xs text-gray-500 mt-1">Enrolled university candidates</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Enrolled university candidates</p>
             </div>
 
             <!-- 3. Host Companies -->
@@ -40,29 +39,36 @@
                         <i class="fa-solid fa-building w-4.5 h-4.5"></i>
                     </div>
                 </div>
-                <div class="mt-4">
+                <div class="mt-4 flex items-baseline justify-between">
                     <h3 class="text-2xl font-black text-[#111827]">{{ $stats['total_companies'] }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">Registered employer partners</p>
+                    @if(!empty($stats['pending_companies']) && $stats['pending_companies'] > 0)
+                        <a href="{{ route('admin.companies.index', ['status' => 'pending']) }}" class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 hover:bg-amber-100 transition-colors">
+                            {{ $stats['pending_companies'] }} Needs Review
+                        </a>
+                    @else
+                        <a href="{{ route('admin.companies.index') }}" class="text-[10px] font-bold text-[#059669] hover:underline">
+                            Manage &rarr;
+                        </a>
+                    @endif
                 </div>
+                <p class="text-xs text-gray-500 mt-1">Registered employer partners</p>
             </div>
 
-            <!-- 4. Active Status -->
+            <!-- 4. Confirmed Placements -->
             <div class="p-5 rounded-2xl bg-white border border-[#E5E7EB] shadow-xs hover:border-[#059669]/40 transition-colors">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Active Status</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Confirmed Placements</span>
                     <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] border border-[#A7F3D0]/60 flex items-center justify-center">
-                        <i class="fa-solid fa-circle-check w-4.5 h-4.5"></i>
+                        <i class="fa-solid fa-award w-4.5 h-4.5"></i>
                     </div>
                 </div>
                 <div class="mt-4 flex items-baseline justify-between">
-                    <h3 class="text-2xl font-black text-[#059669]">{{ $stats['active_accounts'] }}</h3>
-                    @if($stats['pending_posts'] > 0)
-                        <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                            {{ $stats['pending_posts'] }} pending post{{ $stats['pending_posts'] > 1 ? 's' : '' }}
-                        </span>
-                    @endif
+                    <h3 class="text-2xl font-black text-[#059669]">{{ $stats['total_placements'] }}</h3>
+                    <a href="{{ route('admin.reports.index', ['status' => 'accepted']) }}" class="text-[10px] font-bold text-[#059669] hover:underline">
+                        View Report &rarr;
+                    </a>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">Active verified accounts</p>
+                <p class="text-xs text-gray-500 mt-1">Students placed in internships</p>
             </div>
         </div>
 

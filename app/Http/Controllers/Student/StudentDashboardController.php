@@ -19,9 +19,7 @@ class StudentDashboardController extends Controller
     public function index(): View
     {
         $user = Auth::user();
-        $student = $user->studentProfile ?? $user->studentProfile()->create([
-            'eligibility_status' => 'eligible',
-        ]);
+        $student = $user->studentProfile ?? $user->studentProfile()->create();
 
         // Recent applications (show 3)
         $recentApplications = Application::with(['internshipPost.companyProfile'])
@@ -45,9 +43,7 @@ class StudentDashboardController extends Controller
     public function profile(): View
     {
         $user = Auth::user();
-        $student = $user->studentProfile ?? $user->studentProfile()->create([
-            'eligibility_status' => 'eligible',
-        ]);
+        $student = $user->studentProfile ?? $user->studentProfile()->create();
 
         return view('student.profile', compact('user', 'student'));
     }
@@ -58,9 +54,7 @@ class StudentDashboardController extends Controller
     public function updateProfile(Request $request): RedirectResponse
     {
         $user = Auth::user();
-        $student = $user->studentProfile ?? $user->studentProfile()->create([
-            'eligibility_status' => 'eligible',
-        ]);
+        $student = $user->studentProfile ?? $user->studentProfile()->create();
 
         $validated = $request->validate([
             'student_id_number' => ['nullable', 'string', 'max:50', Rule::unique('student_profiles', 'student_id_number')->ignore($student->id)],

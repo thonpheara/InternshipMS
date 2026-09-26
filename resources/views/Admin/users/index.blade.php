@@ -137,7 +137,6 @@
                                             'skills' => $skillsList,
                                             'skills_string' => is_array($sp->skills) ? implode(', ', $sp->skills) : ($sp->skills ?? ''),
                                             'bio' => $sp->bio ?? '',
-                                            'eligibility_status' => $sp->eligibility_status ?? 'eligible',
                                             'resume_path' => $sp->resume_path ?? '',
                                             'resume_filename' => $resumeName ?? '',
                                             'resume_ext' => $resumeExt ?? '',

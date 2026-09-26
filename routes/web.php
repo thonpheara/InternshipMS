@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\CompanyVerificationController;
 use App\Http\Controllers\Admin\PostApprovalController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Company\ApplicantReviewController;
 use App\Http\Controllers\Company\CompanyDashboardController;
 use App\Http\Controllers\Company\CompanyProfileController;
@@ -40,6 +43,14 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// In-App Notifications (All authenticated users)
+Route::middleware('auth')->prefix('notifications')->as('notifications.')->group(function () {
+    Route::get('/{id}/read', [NotificationController::class, 'read'])->name('read');
+    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('markAllRead');
+    Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/', [NotificationController::class, 'clearAll'])->name('clearAll');
+});
 
 // ==========================================
 // STUDENT PORTAL ROUTES
@@ -93,12 +104,21 @@ Route::prefix('company')->as('company.')->middleware(['auth', 'role:company'])->
 Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+    // Company verification queue
+    Route::get('/companies', [CompanyVerificationController::class, 'index'])->name('companies.index');
+    Route::put('/companies/{company}', [CompanyVerificationController::class, 'update'])->name('companies.update');
+
     // Job post moderation queue
     Route::get('/approvals', [PostApprovalController::class, 'index'])->name('approvals.index');
     Route::put('/approvals/{post}', [PostApprovalController::class, 'update'])->name('approvals.update');
 
     // User Management (CRUD for Students & Companies)
     Route::resource('users', UserManagementController::class);
+
+    // Placement & Outcome Reports
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.exportCsv');
+    Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
 });
 
 // Public storage route fallback (ensures file preview/download works without relying on symlinks)

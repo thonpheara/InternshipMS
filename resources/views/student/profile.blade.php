@@ -192,7 +192,7 @@
                     <div>
                         <h4 class="text-xs font-bold text-emerald-900">Academic Tip</h4>
                         <p class="text-xs text-emerald-800/80 leading-relaxed mt-1">
-                            Keep your cumulative GPA and technical skills updated so host companies can quickly verify your eligibility for internship placements.
+                            Keep your cumulative GPA and technical skills updated so host companies can quickly review your qualifications for internship placements.
                         </p>
                     </div>
                 </div>

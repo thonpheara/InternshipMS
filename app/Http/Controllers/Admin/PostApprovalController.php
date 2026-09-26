@@ -24,7 +24,7 @@ class PostApprovalController extends Controller
             $query->where('status', 'pending_approval');
         }
 
-        $posts = $query->latest()->paginate(10)->withQueryString();
+        $posts = $query->latest()->get();
 
         return view('admin.approvals.index', compact('posts'));
     }
@@ -43,6 +43,18 @@ class PostApprovalController extends Controller
             'status' => $validated['status'],
             'rejection_reason' => $validated['status'] === 'rejected' ? $validated['rejection_reason'] : null,
         ]);
+
+        // Notify employer of moderation decision
+        $isApproved = $validated['status'] === 'approved';
+        $post->companyProfile?->user?->notify(new \App\Notifications\AppNotification(
+            title: $isApproved ? 'Job Post Approved' : 'Job Post Rejected',
+            message: $isApproved
+                ? "Your listing '{$post->title}' has been approved and is now visible to students."
+                : "Your listing '{$post->title}' was rejected. Reason: " . ($post->rejection_reason ?? 'Please review your listing.'),
+            actionUrl: route('company.posts.index'),
+            icon: $isApproved ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark',
+            color: $isApproved ? 'emerald' : 'rose'
+        ));
 
         return back()->with('success', "Internship post '{$post->title}' marked as " . ucfirst($validated['status']) . ".");
     }

@@ -98,15 +98,26 @@ class AuthController extends Controller
             if ($role === 'student') {
                 StudentProfile::create([
                     'user_id' => $newUser->id,
-                    'eligibility_status' => 'eligible',
                 ]);
             } else {
                 CompanyProfile::create([
                     'user_id' => $newUser->id,
                     'company_name' => $validated['name'],
                     'contact_person' => $validated['name'],
-                    'verification_status' => 'verified',
+                    'verification_status' => 'pending',
                 ]);
+
+                // Notify all administrators about new company registration
+                $admins = User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\AppNotification(
+                        title: 'New Company Pending Verification',
+                        message: "{$newUser->name} registered and requested institutional partnership.",
+                        actionUrl: route('admin.companies.index', ['status' => 'pending']),
+                        icon: 'fa-solid fa-building-circle-check',
+                        color: 'amber'
+                    ));
+                }
             }
 
             return $newUser;

@@ -213,20 +213,6 @@
                                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] focus:bg-white transition-all font-medium">
                                 </div>
 
-                                <!-- Eligibility Status -->
-                                <div class="sm:col-span-2">
-                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                                        Internship Eligibility Status
-                                    </label>
-                                    <select name="eligibility_status" 
-                                            x-model="editUser.eligibility_status" 
-                                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] focus:bg-white transition-all font-medium">
-                                        <option value="eligible">Eligible (Cleared for internships)</option>
-                                        <option value="pending">Pending Review</option>
-                                        <option value="ineligible">Ineligible (Not cleared)</option>
-                                    </select>
-                                </div>
-
                                 <!-- Skills Input -->
                                 <div class="sm:col-span-2">
                                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">

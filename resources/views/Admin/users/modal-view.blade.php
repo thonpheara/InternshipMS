@@ -79,11 +79,7 @@
                                 <span x-text="viewUser.status === 'active' ? 'Active' : 'Inactive'"></span>
                             </span>
 
-                            <!-- Extra Verification / Eligibility Badge -->
-                            <template x-if="viewUser.role === 'student' && viewUser.eligibility_status">
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200"
-                                      x-text="'Eligibility: ' + viewUser.eligibility_status"></span>
-                            </template>
+                            <!-- Company Verification Badge -->
                             <template x-if="viewUser.role === 'company' && viewUser.verification_status">
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200"
                                       x-text="'Verified: ' + viewUser.verification_status"></span>

@@ -63,7 +63,19 @@ class InternshipPostController extends Controller
         $validated['is_stipend_disclosed'] = !empty($validated['stipend']);
         $validated['type'] = $validated['type'] ?? 'on_site';
 
-        InternshipPost::create($validated);
+        $post = InternshipPost::create($validated);
+
+        // Notify admins about new job post pending approval
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new \App\Notifications\AppNotification(
+                title: 'New Job Post Pending Approval',
+                message: "{$company->company_name} submitted '{$post->title}' for review.",
+                actionUrl: route('admin.approvals.index', ['status' => 'pending_approval']),
+                icon: 'fa-solid fa-square-check',
+                color: 'amber'
+            ));
+        }
 
         return redirect()->route('company.posts.index')
             ->with('success', 'Internship post submitted for admin approval.');

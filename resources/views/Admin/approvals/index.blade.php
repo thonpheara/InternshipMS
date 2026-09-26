@@ -103,10 +103,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="p-4 border-t border-slate-100">
-                    {{ $posts->links() }}
-                </div>
             @else
                 <div class="py-16 text-center text-slate-600 space-y-3">
                     <i class="fa-solid fa-inbox w-12 h-12 mx-auto text-slate-300"></i>

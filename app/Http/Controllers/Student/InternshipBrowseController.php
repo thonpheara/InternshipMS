@@ -114,6 +114,15 @@ class InternshipBrowseController extends Controller
             'applied_at' => now(),
         ]);
 
+        // Notify employer of new applicant
+        $post->companyProfile?->user?->notify(new \App\Notifications\AppNotification(
+            title: 'New Candidate Application',
+            message: Auth::user()->name . " submitted an application for '{$post->title}'.",
+            actionUrl: route('company.applicants.index'),
+            icon: 'fa-solid fa-user-plus',
+            color: 'blue'
+        ));
+
         return redirect()->route('student.applications.index')
             ->with('success', "Application successfully submitted with your resume to {$post->companyProfile->company_name}!");
     }

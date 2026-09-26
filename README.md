@@ -37,7 +37,7 @@ Internship Management System is a modern, comprehensive web application built wi
 - **Company Profile:** Update corporate profile, industry, website, hiring contact person, and official logo.
 
 ### 🛡️ University Administrator Portal
-- **Executive Dashboard:** High-level metrics for Total Accounts, Student Interns & Eligibility, Host Companies, Active Status, and Pending Moderation counts.
+- **Executive Dashboard:** High-level metrics for Total Accounts, Student Interns, Host Companies, Active Status, and Pending Moderation counts.
 - **Application & Placement Trends Chart:** Interactive monthly analytics chart (powered by Chart.js & Alpine.js) comparing **Total Applications Submitted** vs. **Accepted Placements**, with **This Year** and **Last Year** dynamic data toggling.
 - **Job Post Moderation Queue:** Review, approve, or reject employer postings before public listing.
 - **User Management (CRUD):** Full management of student and company accounts with modal-based creation, editing, status changes, and soft-deletes.

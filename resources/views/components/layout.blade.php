@@ -48,19 +48,8 @@
 
             <!-- Main Content Area -->
             <div class="flex-1 flex flex-col min-w-0 lg:pl-68">
-                <!-- Top Navbar (Only visible on Dashboard pages) -->
-                @if (request()->routeIs('*.dashboard') || request()->routeIs('dashboard'))
-                    @include('components.topbar')
-                @else
-                    <!-- Minimal Mobile Toggle for non-dashboard pages -->
-                    <div class="lg:hidden h-14 bg-[#F3F4F6]/95 backdrop-blur-md border-b border-[#E5E7EB] px-4 flex items-center justify-between sticky top-0 z-30">
-                        <button @click="sidebarOpen = true" class="p-2 text-gray-600 hover:text-[#111827] rounded-lg hover:bg-gray-200 transition-colors">
-                            <i class="fa-solid fa-bars w-5 h-5"></i>
-                        </button>
-                        <span class="text-sm font-bold text-[#111827]">Intern<span class="text-[#059669]">ship</span></span>
-                        <div class="w-8"></div>
-                    </div>
-                @endif
+                <!-- Top Navbar -->
+                @include('components.topbar')
 
                 <!-- Flash Notifications -->
                 <main class="flex-1 p-4 sm:p-6 lg:p-8">

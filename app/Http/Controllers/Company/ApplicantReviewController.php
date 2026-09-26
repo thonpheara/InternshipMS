@@ -63,6 +63,26 @@ class ApplicantReviewController extends Controller
             'reviewed_at' => now(),
         ]);
 
+        // Notify candidate of status update
+        $statusLabel = ucfirst(str_replace('_', ' ', $validated['status']));
+        $application->studentProfile?->user?->notify(new \App\Notifications\AppNotification(
+            title: "Application Status: {$statusLabel}",
+            message: "{$company->company_name} updated your application for '{$application->internshipPost->title}' to {$statusLabel}.",
+            actionUrl: route('student.applications.index'),
+            icon: match($validated['status']) {
+                'accepted' => 'fa-solid fa-award',
+                'shortlisted' => 'fa-solid fa-star',
+                'rejected' => 'fa-solid fa-circle-xmark',
+                default => 'fa-solid fa-file-circle-check',
+            },
+            color: match($validated['status']) {
+                'accepted' => 'emerald',
+                'shortlisted' => 'teal',
+                'rejected' => 'rose',
+                default => 'blue',
+            }
+        ));
+
         return back()->with('success', "Candidate status updated to " . ucfirst(str_replace('_', ' ', $validated['status'])) . ".");
     }
 
