@@ -44,7 +44,8 @@ flowchart TB
         C_Auth["AuthController"]
         C_Student["Student Controllers<br/>(StudentDashboardController, InternshipBrowseController, MessageController)"]
         C_Company["Company Controllers<br/>(CompanyDashboardController, InternshipPostController, ApplicantReviewController, CompanyProfileController, MessageController)"]
-        C_Admin["Admin Controllers<br/>(AdminDashboardController, PostApprovalController, UserManagementController)"]
+        C_Admin["Admin Controllers<br/>(AdminDashboardController, CompanyVerificationController, PostApprovalController, UserManagementController, ReportController)"]
+        C_Notify["NotificationController<br/>(Read, Mark All, Delete, Clear)"]
     end
 
     subgraph DomainLayer ["4. Domain / Business Logic & ORM Layer"]
@@ -52,6 +53,7 @@ flowchart TB
         M_User["User & Profiles<br/>(User, StudentProfile, CompanyProfile)"]
         M_Post["Job & Applications<br/>(InternshipPost, Application)"]
         M_Chat["Communication<br/>(Conversation, Message)"]
+        M_Notify["Notifications<br/>(AppNotification, Database Notifications)"]
     end
 
     subgraph PersistenceLayer ["5. Data & Storage Tier"]
@@ -116,8 +118,12 @@ Controllers encapsulate incoming HTTP requests, coordinate with models, perform 
   - `MessageController`: Application-bound messaging with student candidates.
 - **`Admin/` Controllers:**
   - `AdminDashboardController`: Key institutional metrics and real-time monthly **Application & Placement Trends** analytics chart.
+  - `CompanyVerificationController`: Review, verify, or reject employer registrations with formal feedback notes.
   - `PostApprovalController`: Content moderation queue for reviewing, approving, or rejecting employer listings.
+  - `ReportController`: Comprehensive placement & outcome reporting, multi-dimensional filters, CSV export, and print-ready academic audit layouts.
   - `UserManagementController`: Full CRUD operations for Student and Company accounts with modal dialogs, status updates, and soft deletes.
+- **`NotificationController`:**
+  - Interactive topbar drawer actions: mark as read with deep-linked routing, mark all read, delete single notification, and clear all.
 
 ### 3.4 Domain / ORM Layer (Eloquent ORM)
 Eloquent models serve as the programmatic abstraction over the database:
@@ -128,6 +134,7 @@ Eloquent models serve as the programmatic abstraction over the database:
   - `StudentProfile` ⟷ `Application` (1:N)
   - `Conversation` ⟷ `Message` (1:N)
   - `User` ⟷ `Message` (Sender, 1:N)
+  - `User` ⟷ `DatabaseNotification` (`notifications` table via `Notifiable` trait)
 - **Data Integrity:** Soft deletes (`SoftDeletes`) maintain historical audit trails for users and postings.
 
 ### 3.5 Persistence & Storage Layer
@@ -143,6 +150,7 @@ Eloquent models serve as the programmatic abstraction over the database:
 | :--- | :---: | :---: | :---: | :---: |
 | **Browse Public Landing & Login** | ✅ | ✅ | ✅ | ✅ |
 | **Register (Self-service)** | ✅ | ✅ | ✅ | ❌ |
+| **In-App Notification Drawer & Bell** | ❌ | ✅ | ✅ | ✅ |
 | **Manage Student Profile & Resume** | ❌ | ✅ | ❌ | ❌ |
 | **Browse & Apply to Approved Posts** | ❌ | ✅ | ❌ | ❌ |
 | **Direct Messaging (Active Applications)** | ❌ | ✅ | ✅ | ❌ |
@@ -150,9 +158,11 @@ Eloquent models serve as the programmatic abstraction over the database:
 | **Post & Manage Internship Opportunities**| ❌ | ❌ | ✅ | ❌ |
 | **Review Applicants & Preview Resumes** | ❌ | ❌ | ✅ | ❌ |
 | **Update Applicant Status (Accept/Reject)**| ❌ | ❌ | ✅ | ❌ |
+| **Verify & Moderate Company Accounts** | ❌ | ❌ | ❌ | ✅ |
 | **Moderate & Approve Job Postings** | ❌ | ❌ | ❌ | ✅ |
 | **View Institutional Trends Analytics** | ❌ | ❌ | ❌ | ✅ |
 | **User Management (CRUD Students/Companies)**| ❌ | ❌ | ❌ | ✅ |
+| **Placement & Outcome Reports (CSV & Print)**| ❌ | ❌ | ❌ | ✅ |
 
 ---
 
@@ -281,6 +291,21 @@ erDiagram
 1. **Dynamic Data Aggregation:** The Admin Dashboard automatically aggregates monthly applications submitted versus accepted offers across the current and preceding calendar years.
 2. **Visual Assessment:** University leadership tracks placement momentum and student success rates using the interactive Chart.js visualization.
 3. **Account Supervision:** Administrators manage student and company accounts with inline modal editing and status controls.
+
+### 6.5 Company Onboarding & Verification Lifecycle
+1. **Self-Service Registration:** A company registers through `/register`, generating a `CompanyProfile` flagged with `verification_status: 'pending'`.
+2. **Administrative Moderation:** The profile enters `/admin/companies`. Admins inspect the organization's name, website, industry, contact person, and address.
+3. **Approval / Rejection:** The admin approves or rejects the registration with an explanatory note. The decision dispatches an immediate `AppNotification` to the company.
+
+### 6.6 Universal In-App Notification Dispatch Lifecycle
+1. **Event Trigger:** System events (new applications, candidate stage updates, post moderation outcomes, account verifications) trigger Laravel's `Notification::send()` or `$user->notify(new AppNotification(...))`.
+2. **Persistence:** The notification is stored in the `notifications` relational table with title, message, and direct deep-link `action_url`.
+3. **Delivery & Interaction:** The recipient's topbar notification bell displays an unread count badge. Clicking any notification marks it as read and redirects directly to the target record.
+
+### 6.7 Placement & Institutional Outcome Reporting Lifecycle
+1. **Multi-Dimensional Querying:** Administrators access `/admin/reports` to inspect institutional placement rates filtered by Academic Year, Department/Major, Company, Status, or Date Range.
+2. **Metric Computation:** Aggregate metrics (Total Applicants, Placements, Active Companies, Placement Rate %) calculate in real time.
+3. **Distribution & Archival:** Administrators can export the dataset as a standard CSV (`/admin/reports/export-csv`) or open the dedicated print layout (`/admin/reports/print`) styled with `@media print` CSS for official university audit documentation.
 
 ---
 
