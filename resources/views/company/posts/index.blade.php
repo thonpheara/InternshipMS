@@ -59,29 +59,29 @@
         }
     @endphp
 
-    <div class="space-y-6"
+    <div class="flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-7rem)] lg:h-[calc(100vh-8rem)]"
          x-data="listingsManager({{ $initialCreateOpen ? 'true' : 'false' }}, {{ $initialEditOpen ? 'true' : 'false' }}, @js($initialEditPost))"
          @open-create-modal.window="createModalOpen = true">
 
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between pb-4 shrink-0">
             <div>
                 <h2 class="text-2xl font-black tracking-tight text-slate-900">Internship Listings</h2>
                 <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Manage positions published to university students.</p>
             </div>
             <button type="button" 
                     @click="createModalOpen = true" 
-                    class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm shadow-emerald-600/20 cursor-pointer">
+                    class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 active:scale-95 transition-all flex items-center gap-1.5 shadow-sm shadow-emerald-600/20 cursor-pointer shrink-0">
                 <i class="fa-solid fa-plus w-4 h-4"></i>
                 <span>Create New Listing</span>
             </button>
         </div>
 
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between h-[calc(100vh-12rem)]">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between flex-1 min-h-0">
             @if ($posts->isNotEmpty())
                 <div class="overflow-auto flex-1 min-h-0">
                     <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                        <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs">
+                            <tr class="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                                 <th class="py-3.5 px-6">Position Title</th>
                                 <th class="py-3.5 px-4">Category</th>
                                 <th class="py-3.5 px-4">Location</th>

@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="space-y-6"
+    <div class="flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-7rem)] lg:h-[calc(100vh-8rem)]"
          x-data="{
              statusModalOpen: false,
              statusApp: {
@@ -17,13 +17,13 @@
          }">
 
         <!-- Page Header & Filter Form -->
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 shrink-0">
             <div>
                 <h2 class="text-2xl font-black tracking-tight text-slate-900">Applicant Review Board</h2>
                 <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Review student resumes, shortlist profiles, and issue placement offers.</p>
             </div>
 
-            <form action="{{ route('company.applicants.index') }}" method="GET" class="flex flex-wrap items-center gap-2.5">
+            <form action="{{ route('company.applicants.index') }}" method="GET" class="flex flex-wrap items-center gap-2.5 shrink-0">
                 <select name="post_id" onchange="this.form.submit()" class="py-2 pl-3 pr-8 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
                     <option value="">All Job Listings</option>
                     @foreach ($companyPosts as $p)
@@ -43,12 +43,12 @@
         </div>
 
         <!-- Applicants Grid / Table -->
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between h-[calc(100vh-12rem)]">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between flex-1 min-h-0">
             @if ($applications->isNotEmpty())
                 <div class="w-full overflow-auto flex-1 min-h-0">
                     <table class="w-full text-left border-collapse text-xs table-fixed">
-                        <thead>
-                            <tr class="border-b border-slate-100 bg-slate-50/50 text-[11px] font-bold uppercase tracking-wider text-slate-600">
+                        <thead class="sticky top-0 z-10 bg-slate-50/95 backdrop-blur-xs">
+                            <tr class="border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-600">
                                 <th class="py-3 px-6 w-[24%]">Student Candidate</th>
                                 <th class="py-3 px-4 w-[22%]">Role Applied</th>
                                 <th class="py-3 px-4 w-[14%] whitespace-nowrap">Status</th>

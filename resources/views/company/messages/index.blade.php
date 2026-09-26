@@ -1,13 +1,13 @@
 <x-layout>
-    <div class="space-y-6">
+    <div class="flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-7rem)] lg:h-[calc(100vh-8rem)]">
         
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 shrink-0">
             <div>
                 <h1 class="text-2xl font-black text-slate-900 tracking-tight">Direct Candidate Messaging</h1>
                 <p class="text-xs text-slate-600 mt-1">Communicate directly with applicants, schedule interviews, and clarify requirements.</p>
             </div>
-            <a href="{{ route('company.applicants.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition-colors">
+            <a href="{{ route('company.applicants.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition-colors shrink-0">
                 <i class="fa-solid fa-users w-4 h-4"></i>
                 <span>Applicant Pipeline</span>
             </a>
@@ -15,7 +15,7 @@
 
         @if($conversations->isEmpty())
             <!-- Empty State -->
-            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-12 text-center max-w-lg mx-auto my-12">
+            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-12 text-center max-w-lg mx-auto my-auto">
                 <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
                     <i class="fa-solid fa-comment w-8 h-8"></i>
                 </div>
@@ -32,7 +32,7 @@
             </div>
         @else
             <!-- 2-Column Chat Workspace -->
-            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 h-[calc(100vh-12rem)] max-h-[800px]">
+            <div class="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 flex-1 min-h-0">
                 
                 <!-- Left Column: Conversations List -->
                 <div class="lg:col-span-4 border-r border-slate-200/80 flex flex-col h-full min-h-0 bg-slate-50/50 overflow-hidden">
