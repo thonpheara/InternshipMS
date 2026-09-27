@@ -1,10 +1,18 @@
 <x-layout>
     <div class="space-y-6"
          x-data="{
+             createModalOpen: {{ $errors->any() && !old('_user_id') ? 'true' : 'false' }},
+             createRole: '{{ old('role', ($role !== 'all' ? $role : 'student')) }}',
              viewModalOpen: false,
              editModalOpen: {{ $errors->any() && old('_user_id') ? 'true' : 'false' }},
              viewUser: {},
              editUser: {{ $errors->any() && old('_user_id') ? json_encode(array_merge(old(), ['updateUrl' => route('admin.users.update', old('_user_id')), 'role' => old('role', 'student')])) : '{}' }},
+             openCreateModal(roleType = null) {
+                 if (roleType) {
+                     this.createRole = roleType;
+                 }
+                 this.createModalOpen = true;
+             },
              openViewModal(userData) {
                  this.viewUser = { ...userData };
                  this.viewModalOpen = true;
@@ -28,11 +36,12 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.users.create') }}" 
-                   class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#059669] hover:bg-[#047857] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer">
+                <button type="button" 
+                        @click="openCreateModal('{{ $role !== 'all' ? $role : 'student' }}')"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#059669] hover:bg-[#047857] text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer">
                     <i class="fa-solid fa-user-plus w-4 h-4"></i>
                     <span>Add New User</span>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -60,12 +69,68 @@
             <form action="{{ route('admin.users.index') }}" method="GET" class="flex flex-wrap items-center gap-2">
                 <input type="hidden" name="role" value="{{ $role }}">
 
-                <!-- Status Filter -->
-                <select name="status" onchange="this.form.submit()" class="py-2 pl-3 pr-8 text-xs rounded-xl bg-[#F9FAFB] border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-medium text-gray-700">
-                    <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All Statuses</option>
-                    <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Active Only</option>
-                    <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Inactive Only</option>
-                </select>
+                <!-- Custom Styled Status Dropdown Menu -->
+                <div class="relative" 
+                     x-data="{ 
+                         dropdownOpen: false, 
+                         statusVal: '{{ $status }}',
+                         options: [
+                             { value: 'all', label: 'All Statuses', dot: 'bg-slate-400' },
+                             { value: 'active', label: 'Active Only', dot: 'bg-[#059669] ring-2 ring-emerald-100' },
+                             { value: 'inactive', label: 'Inactive Only', dot: 'bg-rose-500 ring-2 ring-rose-100' }
+                         ],
+                         get currentOption() {
+                             return this.options.find(o => o.value === this.statusVal) || this.options[0];
+                         },
+                         selectStatus(val) {
+                             this.statusVal = val;
+                             this.dropdownOpen = false;
+                             $nextTick(() => {
+                                 $el.closest('form').submit();
+                             });
+                         }
+                     }">
+                    <input type="hidden" name="status" :value="statusVal">
+
+                    <!-- Dropdown Trigger Button -->
+                    <button type="button" 
+                            @click="dropdownOpen = !dropdownOpen"
+                            class="inline-flex items-center justify-between gap-2.5 py-2 pl-3.5 pr-3 text-xs rounded-xl bg-[#F9FAFB] hover:bg-white border border-[#E5E7EB] hover:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-semibold text-gray-700 transition-all cursor-pointer shadow-2xs">
+                        <span class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full shrink-0" :class="currentOption.dot"></span>
+                            <span x-text="currentOption.label"></span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200"
+                           :class="dropdownOpen ? 'rotate-180 text-[#059669]' : ''"></i>
+                    </button>
+
+                    <!-- Custom Dropdown Menu Panel -->
+                    <div x-show="dropdownOpen" 
+                         x-cloak
+                         @click.outside="dropdownOpen = false"
+                         @keydown.escape.window="dropdownOpen = false"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                         class="absolute left-0 top-full z-40 mt-1.5 w-48 rounded-2xl bg-white border border-slate-200/90 shadow-xl p-1.5 space-y-0.5"
+                         style="display: none;">
+                        <template x-for="item in options" :key="item.value">
+                            <button type="button" 
+                                    @click="selectStatus(item.value)" 
+                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                    :class="statusVal === item.value ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-gray-700 hover:bg-slate-50 font-medium'">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2 h-2 rounded-full shrink-0" :class="item.dot"></span>
+                                    <span x-text="item.label"></span>
+                                </div>
+                                <i x-show="statusVal === item.value" class="fa-solid fa-check text-[11px] text-[#059669]"></i>
+                            </button>
+                        </template>
+                    </div>
+                </div>
 
                 <!-- Search Input -->
                 <div class="relative min-w-[200px] sm:min-w-[240px]">
@@ -305,6 +370,9 @@
                 </div>
             @endif
         </div>
+
+        {{-- Add New User Modal --}}
+        @include('Admin.users.modal-create')
 
         {{-- View User Details Modal --}}
         @include('Admin.users.modal-view')

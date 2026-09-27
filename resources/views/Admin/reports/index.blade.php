@@ -76,43 +76,198 @@
         <!-- Filter & Search Controls Bar -->
         <div class="bg-white rounded-2xl border border-[#E5E7EB] p-4 shadow-xs">
             <form action="{{ route('admin.reports.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
-                <!-- Status Filter -->
-                <div class="flex items-center gap-1.5">
+                <!-- Status Filter Dropdown -->
+                <div class="flex items-center gap-1.5"
+                     x-data="{
+                         open: false,
+                         statusVal: '{{ $status }}',
+                         options: [
+                             { value: 'all', label: 'All Statuses', dot: 'bg-slate-400' },
+                             { value: 'accepted', label: 'Accepted (Placed)', dot: 'bg-emerald-500 ring-2 ring-emerald-100' },
+                             { value: 'shortlisted', label: 'Shortlisted', dot: 'bg-indigo-500 ring-2 ring-indigo-100' },
+                             { value: 'interviewed', label: 'Interviewed', dot: 'bg-amber-500 ring-2 ring-amber-100' },
+                             { value: 'under_review', label: 'Under Review', dot: 'bg-purple-500 ring-2 ring-purple-100' },
+                             { value: 'pending', label: 'Pending', dot: 'bg-sky-500 ring-2 ring-sky-100' },
+                             { value: 'rejected', label: 'Rejected', dot: 'bg-rose-500 ring-2 ring-rose-100' }
+                         ],
+                         get currentOption() {
+                             return this.options.find(o => o.value === this.statusVal) || this.options[0];
+                         },
+                         select(val) {
+                             this.statusVal = val;
+                             this.open = false;
+                             $nextTick(() => {
+                                 $el.closest('form').submit();
+                             });
+                         }
+                     }">
                     <label class="text-[11px] font-bold text-gray-500 uppercase">Status:</label>
-                    <select name="status" class="py-1.5 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#059669] focus:outline-hidden">
-                        <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All Statuses</option>
-                        <option value="accepted" {{ $status === 'accepted' ? 'selected' : '' }}>Accepted (Placed)</option>
-                        <option value="shortlisted" {{ $status === 'shortlisted' ? 'selected' : '' }}>Shortlisted</option>
-                        <option value="interviewed" {{ $status === 'interviewed' ? 'selected' : '' }}>Interviewed</option>
-                        <option value="under_review" {{ $status === 'under_review' ? 'selected' : '' }}>Under Review</option>
-                        <option value="pending" {{ $status === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="rejected" {{ $status === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                    </select>
+                    <div class="relative">
+                        <input type="hidden" name="status" :value="statusVal">
+                        <button type="button" 
+                                @click="open = !open" 
+                                class="inline-flex items-center justify-between gap-2.5 py-1.5 pl-3 pr-2.5 text-xs rounded-xl bg-white hover:bg-slate-50 border border-[#E5E7EB] hover:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-medium text-gray-700 transition-all cursor-pointer shadow-2xs">
+                            <span class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full shrink-0" :class="currentOption.dot"></span>
+                                <span class="font-semibold text-slate-800" x-text="currentOption.label"></span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200"
+                               :class="open ? 'rotate-180 text-[#059669]' : ''"></i>
+                        </button>
+
+                        <div x-show="open" 
+                             x-cloak
+                             @click.outside="open = false"
+                             @keydown.escape.window="open = false"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                             class="absolute left-0 top-full z-40 mt-1.5 w-52 rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 space-y-0.5"
+                             style="display: none;">
+                            <template x-for="item in options" :key="item.value">
+                                <button type="button" 
+                                        @click="select(item.value)" 
+                                        class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                        :class="statusVal === item.value ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-gray-700 hover:bg-slate-50 font-medium'">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-2 h-2 rounded-full shrink-0" :class="item.dot"></span>
+                                        <span x-text="item.label"></span>
+                                    </div>
+                                    <i x-show="statusVal === item.value" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Department Filter -->
+                <!-- Department Filter Dropdown -->
                 @if($departments->isNotEmpty())
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5"
+                         x-data="{
+                             open: false,
+                             deptVal: '{{ $department }}',
+                             get currentLabel() {
+                                 return this.deptVal === 'all' ? 'All Departments' : this.deptVal;
+                             },
+                             select(val) {
+                                 this.deptVal = val;
+                                 this.open = false;
+                                 $nextTick(() => {
+                                     $el.closest('form').submit();
+                                 });
+                             }
+                         }">
                         <label class="text-[11px] font-bold text-gray-500 uppercase">Department:</label>
-                        <select name="department" class="py-1.5 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#059669] focus:outline-hidden">
-                            <option value="all" {{ $department === 'all' ? 'selected' : '' }}>All Departments</option>
-                            @foreach($departments as $dept)
-                                <option value="{{ $dept }}" {{ $department === $dept ? 'selected' : '' }}>{{ $dept }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <input type="hidden" name="department" :value="deptVal">
+                            <button type="button" 
+                                    @click="open = !open" 
+                                    class="inline-flex items-center justify-between gap-2.5 py-1.5 pl-3 pr-2.5 text-xs rounded-xl bg-white hover:bg-slate-50 border border-[#E5E7EB] hover:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-medium text-gray-700 transition-all cursor-pointer shadow-2xs max-w-[220px]">
+                                <span class="flex items-center gap-2 truncate">
+                                    <i class="fa-solid fa-building-columns text-[11px] text-gray-400"></i>
+                                    <span class="truncate font-semibold text-slate-800" x-text="currentLabel"></span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200 shrink-0"
+                                   :class="open ? 'rotate-180 text-[#059669]' : ''"></i>
+                            </button>
+
+                            <div x-show="open" 
+                                 x-cloak
+                                 @click.outside="open = false"
+                                 @keydown.escape.window="open = false"
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                                 class="absolute left-0 top-full z-40 mt-1.5 w-64 max-h-60 overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 space-y-0.5"
+                                 style="display: none;">
+                                <button type="button" 
+                                        @click="select('all')" 
+                                        class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                        :class="deptVal === 'all' ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-gray-700 hover:bg-slate-50 font-medium'">
+                                    <span class="truncate">All Departments</span>
+                                    <i x-show="deptVal === 'all'" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                                </button>
+                                @foreach($departments as $dept)
+                                    <button type="button" 
+                                            @click="select('{{ addslashes($dept) }}')" 
+                                            class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                            :class="deptVal === '{{ addslashes($dept) }}' ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-gray-700 hover:bg-slate-50 font-medium'">
+                                        <span class="truncate">{{ $dept }}</span>
+                                        <i x-show="deptVal === '{{ addslashes($dept) }}'" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
                 @endif
 
-                <!-- Year Filter -->
+                <!-- Year Filter Dropdown -->
                 @if($years->isNotEmpty())
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5"
+                         x-data="{
+                             open: false,
+                             yearVal: '{{ $year }}',
+                             get currentLabel() {
+                                 return this.yearVal === 'all' ? 'All Years' : this.yearVal;
+                             },
+                             select(val) {
+                                 this.yearVal = val;
+                                 this.open = false;
+                                 $nextTick(() => {
+                                     $el.closest('form').submit();
+                                 });
+                             }
+                         }">
                         <label class="text-[11px] font-bold text-gray-500 uppercase">Year:</label>
-                        <select name="year" class="py-1.5 px-3 text-xs bg-white border border-[#E5E7EB] rounded-xl focus:ring-2 focus:ring-[#059669] focus:outline-hidden">
-                            <option value="all" {{ $year === 'all' ? 'selected' : '' }}>All Years</option>
-                            @foreach($years as $yr)
-                                <option value="{{ $yr }}" {{ (string)$year === (string)$yr ? 'selected' : '' }}>{{ $yr }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <input type="hidden" name="year" :value="yearVal">
+                            <button type="button" 
+                                    @click="open = !open" 
+                                    class="inline-flex items-center justify-between gap-2.5 py-1.5 pl-3 pr-2.5 text-xs rounded-xl bg-white hover:bg-slate-50 border border-[#E5E7EB] hover:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-medium text-gray-700 transition-all cursor-pointer shadow-2xs min-w-[105px]">
+                                <span class="flex items-center gap-2">
+                                    <i class="fa-regular fa-calendar text-[11px] text-gray-400"></i>
+                                    <span class="font-semibold text-slate-800" x-text="currentLabel"></span>
+                                </span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200"
+                                   :class="open ? 'rotate-180 text-[#059669]' : ''"></i>
+                            </button>
+
+                            <div x-show="open" 
+                                 x-cloak
+                                 @click.outside="open = false"
+                                 @keydown.escape.window="open = false"
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                                 class="absolute left-0 top-full z-40 mt-1.5 w-36 max-h-48 overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 space-y-0.5"
+                                 style="display: none;">
+                                <button type="button" 
+                                        @click="select('all')" 
+                                        class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                        :class="yearVal === 'all' ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-gray-700 hover:bg-slate-50 font-medium'">
+                                    <span>All Years</span>
+                                    <i x-show="yearVal === 'all'" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                                </button>
+                                @foreach($years as $yr)
+                                    <button type="button" 
+                                            @click="select('{{ $yr }}')" 
+                                            class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                            :class="yearVal === '{{ $yr }}' ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-gray-700 hover:bg-slate-50 font-medium'">
+                                        <span>{{ $yr }}</span>
+                                        <i x-show="yearVal === '{{ $yr }}'" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
                 @endif
 

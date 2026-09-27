@@ -74,12 +74,13 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Show the form for creating a new user.
+     * Show the form for creating a new user (redirects to modal create on index).
      */
-    public function create(Request $request): View
+    public function create(Request $request): RedirectResponse
     {
-        $selectedRole = $request->query('role', 'student');
-        return view('Admin.users.create', compact('selectedRole'));
+        return redirect()->route('admin.users.index', [
+            'role' => $request->query('role', 'all'),
+        ]);
     }
 
     /**

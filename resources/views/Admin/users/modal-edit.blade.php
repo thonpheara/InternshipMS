@@ -112,17 +112,83 @@
                             </div>
 
                             <!-- Account Status -->
-                            <div>
+                            <!-- Account Status Custom Dropdown in Edit Modal -->
+                            <div class="relative" 
+                                 x-data="{ 
+                                     open: false, 
+                                     options: [
+                                         { 
+                                             value: 'active', 
+                                             label: 'Active (Access Allowed)', 
+                                             desc: 'Can sign in and use system features', 
+                                             dot: 'bg-emerald-500 ring-2 ring-emerald-200', 
+                                             activeBg: 'bg-emerald-50 text-emerald-900 border-emerald-200' 
+                                         },
+                                         { 
+                                             value: 'inactive', 
+                                             label: 'Inactive (Suspended)', 
+                                             desc: 'Login disabled, account locked', 
+                                             dot: 'bg-rose-500 ring-2 ring-rose-200', 
+                                             activeBg: 'bg-rose-50 text-rose-900 border-rose-200' 
+                                         }
+                                     ],
+                                     get currentOption() {
+                                         return this.options.find(o => o.value === editUser.status) || this.options[0];
+                                     },
+                                     selectStatus(val) {
+                                         editUser.status = val;
+                                         this.open = false;
+                                     }
+                                 }">
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                     Account Status *
                                 </label>
-                                <select name="status" 
-                                        x-model="editUser.status" 
-                                        required 
-                                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] focus:bg-white transition-all font-medium">
-                                    <option value="active">Active (Access Allowed)</option>
-                                    <option value="inactive">Inactive (Suspended)</option>
-                                </select>
+
+                                <input type="hidden" name="status" :value="editUser.status">
+
+                                <!-- Trigger Button -->
+                                <button type="button" 
+                                        @click="open = !open" 
+                                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 hover:border-[#059669] bg-slate-50 hover:bg-white text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] focus:bg-white transition-all font-medium cursor-pointer shadow-2xs">
+                                    <span class="flex items-center gap-2.5">
+                                        <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="currentOption.dot"></span>
+                                        <span class="font-semibold text-slate-800" x-text="currentOption.label"></span>
+                                    </span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform duration-200"
+                                       :class="open ? 'rotate-180 text-[#059669]' : ''"></i>
+                                </button>
+
+                                <!-- Custom Dropdown Menu Floating Panel -->
+                                <div x-show="open" 
+                                     x-cloak
+                                     @click.outside="open = false"
+                                     @keydown.escape.window="open = false"
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                     x-transition:leave="transition ease-in duration-100"
+                                     x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                     x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                                     class="absolute left-0 right-0 z-50 mt-1.5 rounded-2xl bg-white border border-slate-200 shadow-2xl p-1.5 space-y-1"
+                                     style="display: none;">
+                                    <template x-for="item in options" :key="item.value">
+                                        <button type="button" 
+                                                @click="selectStatus(item.value)" 
+                                                class="w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all cursor-pointer border"
+                                                :class="editUser.status === item.value ? item.activeBg + ' font-bold' : 'border-transparent hover:bg-slate-50 text-slate-700'">
+                                            <div class="flex items-center gap-3">
+                                                <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="item.dot"></span>
+                                                <div>
+                                                    <div class="text-xs sm:text-sm font-bold" x-text="item.label"></div>
+                                                    <div class="text-[11px] text-slate-500 font-normal" x-text="item.desc"></div>
+                                                </div>
+                                            </div>
+                                            <div x-show="editUser.status === item.value" class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                                                <i class="fa-solid fa-check text-[10px]"></i>
+                                            </div>
+                                        </button>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>

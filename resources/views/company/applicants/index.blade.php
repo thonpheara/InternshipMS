@@ -24,21 +24,127 @@
             </div>
 
             <form action="{{ route('company.applicants.index') }}" method="GET" class="flex flex-wrap items-center gap-2.5 shrink-0">
-                <select name="post_id" onchange="this.form.submit()" class="py-2 pl-3 pr-8 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
-                    <option value="">All Job Listings</option>
-                    @foreach ($companyPosts as $p)
-                        <option value="{{ $p->id }}" {{ request('post_id') == $p->id ? 'selected' : '' }}>{{ $p->title }}</option>
-                    @endforeach
-                </select>
+                <!-- Job Post Filter Dropdown -->
+                <div class="relative"
+                     x-data="{
+                         open: false,
+                         postId: '{{ request('post_id', '') }}',
+                         postTitle: '{{ $companyPosts->firstWhere('id', request('post_id'))?->title ?? 'All Job Listings' }}',
+                         selectPost(id, title) {
+                             this.postId = id;
+                             this.postTitle = title;
+                             this.open = false;
+                             $nextTick(() => {
+                                 $el.closest('form').submit();
+                             });
+                         }
+                     }">
+                    <input type="hidden" name="post_id" :value="postId">
+                    <button type="button" 
+                            @click="open = !open" 
+                            class="inline-flex items-center justify-between gap-2.5 py-2 pl-3.5 pr-3 text-xs rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs max-w-[240px]">
+                        <span class="flex items-center gap-2 truncate">
+                            <i class="fa-solid fa-briefcase text-[11px] text-gray-400"></i>
+                            <span class="truncate font-semibold text-slate-800" x-text="postTitle"></span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200 shrink-0"
+                           :class="open ? 'rotate-180 text-[#059669]' : ''"></i>
+                    </button>
 
-                <select name="status" onchange="this.form.submit()" class="py-2 pl-3 pr-8 text-xs rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium text-slate-700">
-                    <option value="">All Candidacy Stages</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending Review</option>
-                    <option value="under_review" {{ request('status') === 'under_review' ? 'selected' : '' }}>Under Review</option>
-                    <option value="shortlisted" {{ request('status') === 'shortlisted' ? 'selected' : '' }}>Shortlisted</option>
-                    <option value="interviewed" {{ request('status') === 'interviewed' ? 'selected' : '' }}>Interviewed</option>
-                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                </select>
+                    <div x-show="open" 
+                         x-cloak
+                         @click.outside="open = false"
+                         @keydown.escape.window="open = false"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                         class="absolute left-0 top-full z-40 mt-1.5 w-64 max-h-60 overflow-y-auto rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 space-y-0.5"
+                         style="display: none;">
+                        <button type="button" 
+                                @click="selectPost('', 'All Job Listings')" 
+                                class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                :class="postId === '' ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-slate-700 hover:bg-slate-50 font-medium'">
+                            <span class="truncate">All Job Listings</span>
+                            <i x-show="postId === ''" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                        </button>
+                        @foreach ($companyPosts as $p)
+                            <button type="button" 
+                                    @click="selectPost('{{ $p->id }}', '{{ addslashes($p->title) }}')" 
+                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                    :class="postId == '{{ $p->id }}' ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-slate-700 hover:bg-slate-50 font-medium'">
+                                <span class="truncate">{{ $p->title }}</span>
+                                <i x-show="postId == '{{ $p->id }}'" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Candidacy Stage Filter Dropdown -->
+                <div class="relative"
+                     x-data="{
+                         open: false,
+                         statusVal: '{{ request('status', '') }}',
+                         options: [
+                             { value: '', label: 'All Candidacy Stages', dot: 'bg-slate-400' },
+                             { value: 'pending', label: 'Pending Review', dot: 'bg-sky-500 ring-2 ring-sky-100' },
+                             { value: 'under_review', label: 'Under Review', dot: 'bg-purple-500 ring-2 ring-purple-100' },
+                             { value: 'shortlisted', label: 'Shortlisted', dot: 'bg-indigo-500 ring-2 ring-indigo-100' },
+                             { value: 'interviewed', label: 'Interviewed', dot: 'bg-amber-500 ring-2 ring-amber-100' },
+                             { value: 'accepted', label: 'Accepted (Hired)', dot: 'bg-emerald-500 ring-2 ring-emerald-100' },
+                             { value: 'rejected', label: 'Rejected', dot: 'bg-rose-500 ring-2 ring-rose-100' }
+                         ],
+                         get currentOption() {
+                             return this.options.find(o => o.value === this.statusVal) || this.options[0];
+                         },
+                         selectStatus(val) {
+                             this.statusVal = val;
+                             this.open = false;
+                             $nextTick(() => {
+                                 $el.closest('form').submit();
+                             });
+                         }
+                     }">
+                    <input type="hidden" name="status" :value="statusVal">
+                    <button type="button" 
+                            @click="open = !open" 
+                            class="inline-flex items-center justify-between gap-2.5 py-2 pl-3.5 pr-3 text-xs rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-[#059669] focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] font-medium text-slate-700 transition-all cursor-pointer shadow-2xs">
+                        <span class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full shrink-0" :class="currentOption.dot"></span>
+                            <span class="font-semibold text-slate-800" x-text="currentOption.label"></span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 transition-transform duration-200"
+                           :class="open ? 'rotate-180 text-[#059669]' : ''"></i>
+                    </button>
+
+                    <div x-show="open" 
+                         x-cloak
+                         @click.outside="open = false"
+                         @keydown.escape.window="open = false"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 scale-95 -translate-y-1"
+                         class="absolute right-0 sm:left-0 top-full z-40 mt-1.5 w-52 rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 space-y-0.5"
+                         style="display: none;">
+                        <template x-for="item in options" :key="item.value">
+                            <button type="button" 
+                                    @click="selectStatus(item.value)" 
+                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all cursor-pointer text-left"
+                                    :class="statusVal === item.value ? 'bg-emerald-50 text-[#065F46] font-bold' : 'text-slate-700 hover:bg-slate-50 font-medium'">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2 h-2 rounded-full shrink-0" :class="item.dot"></span>
+                                    <span x-text="item.label"></span>
+                                </div>
+                                <i x-show="statusVal === item.value" class="fa-solid fa-check text-[10px] text-[#059669]"></i>
+                            </button>
+                        </template>
+                    </div>
+                </div>
             </form>
         </div>
 
