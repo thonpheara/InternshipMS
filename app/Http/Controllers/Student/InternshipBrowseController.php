@@ -137,7 +137,8 @@ class InternshipBrowseController extends Controller
         $applications = Application::with(['internshipPost.companyProfile'])
             ->where('student_profile_id', $student?->id)
             ->latest('applied_at')
-            ->paginate(10);
+            ->paginate(5)
+            ->withQueryString();
 
         return view('student.applications.index', compact('applications'));
     }

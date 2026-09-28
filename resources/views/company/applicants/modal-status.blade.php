@@ -152,6 +152,20 @@
                             </div>
                         </button>
 
+                        <!-- Accepted -->
+                        <button type="button" 
+                                @click="statusApp.status = 'accepted'"
+                                :class="statusApp.status === 'accepted' ? 'border-emerald-500 bg-emerald-50/80 text-emerald-950 ring-2 ring-emerald-500/20 shadow-xs' : 'border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'"
+                                class="p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-base">🎉</span>
+                                <span class="w-2 h-2 rounded-full" :class="statusApp.status === 'accepted' ? 'bg-emerald-500' : 'bg-transparent'"></span>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold block">Accepted</span>
+                                <span class="text-[10px] text-slate-500">Offer extended</span>
+                            </div>
+                        </button>
 
                         <!-- Rejected -->
                         <button type="button" 
