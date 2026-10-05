@@ -95,11 +95,18 @@ class ApplicantReviewController extends Controller
         abort_if(!$company || $application->internshipPost->company_profile_id !== $company->id, 403, 'Unauthorized.');
 
         $resumePath = $application->getEffectiveResumePath();
-        if (!$resumePath || !Storage::disk('public')->exists($resumePath)) {
+        if (!$resumePath) {
             return back()->with('error', 'No resume document attached to this application.');
         }
 
-        $fullPath = Storage::disk('public')->path($resumePath);
+        // Check private local disk first, fallback to public disk for legacy uploads
+        $disk = Storage::disk('local')->exists($resumePath) ? 'local' : (Storage::disk('public')->exists($resumePath) ? 'public' : null);
+
+        if (!$disk) {
+            return back()->with('error', 'The candidate resume file is not available on the server disk.');
+        }
+
+        $fullPath = Storage::disk($disk)->path($resumePath);
         if (!file_exists($fullPath)) {
             return back()->with('error', 'The candidate resume file is not available on the server disk.');
         }

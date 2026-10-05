@@ -278,7 +278,7 @@
                              class="absolute z-50 mt-2 w-full bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/80 overflow-hidden"
                              style="display:none;">
                             <ul class="py-1.5">
-                                <template x-for="s in statuses" :key="s.value">
+                                <template x-for="s in availableStatuses" :key="s.value">
                                     <li>
                                         <button type="button" @click="selectEditStatus(s)"
                                                 :class="editStatus === s.value ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50 font-medium'"
@@ -296,6 +296,12 @@
                             </ul>
                         </div>
                     </div>
+
+                    <p class="text-[11px] text-slate-500 flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                        <span x-show="editPost && editPost.status === 'approved'">Active listing. You can keep it published, switch to Draft, or mark as Closed.</span>
+                        <span x-show="!editPost || editPost.status !== 'approved'">University admin approval is required to publish listings. Status cannot be self-approved.</span>
+                    </p>
                 </div>
 
                 {{-- ══════════ Section 4: Description & Requirements ══════════ --}}

@@ -1,17 +1,10 @@
 <x-layout>
     <div class="space-y-6">
 
-        <!-- Header Banner with Profile Quick Action -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h2 class="text-2xl font-black tracking-tight text-slate-900">Welcome, {{ Auth::user()->name }}!</h2>
-                <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Manage your internship search, track applications, and update your academic credentials.</p>
-            </div>
-            <a href="{{ route('student.profile') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 text-xs font-bold shadow-2xs transition-all w-fit">
-                <i class="fa-solid fa-user-graduate text-emerald-600"></i>
-                <span>Manage Profile</span>
-            </a>
+        <!-- Header Banner -->
+        <div>
+            <h2 class="text-2xl font-black tracking-tight text-slate-900">Welcome, {{ Auth::user()->name }}!</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Manage your internship search, track applications, and update your academic credentials.</p>
         </div>
 
         <!-- Metrics Overview Grid -->

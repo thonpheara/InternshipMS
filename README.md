@@ -482,3 +482,12 @@ npm run build      # (or 'npm run dev' for development)
 ## 📄 License
 
 This project is open-source software licensed under the [MIT License](https://opensource.org/licenses/MIT).
+
+    server: {
+        watch: {
+            ignored: ['**/storage/framework/views/**'],
+        },
+    },
+
+php artisan serve --host=0.0.0.0 --port=8000
+npm run dev -- --host

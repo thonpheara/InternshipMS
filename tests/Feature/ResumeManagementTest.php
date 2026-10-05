@@ -19,10 +19,11 @@ class ResumeManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Storage::fake('local');
         Storage::fake('public');
     }
 
-    public function test_student_can_upload_and_preview_profile_resume(): void
+    public function test_student_can_upload_and_preview_profile_resume_in_private_storage(): void
     {
         $studentUser = User::factory()->create(['role' => 'student', 'status' => 'active']);
         $studentProfile = StudentProfile::create([
@@ -46,9 +47,12 @@ class ResumeManagementTest extends TestCase
 
         $studentProfile->refresh();
         $this->assertNotNull($studentProfile->resume_path);
-        $this->assertTrue(Storage::disk('public')->exists($studentProfile->resume_path));
+        
+        // Assert stored securely in private local disk, NOT in public disk
+        $this->assertTrue(Storage::disk('local')->exists($studentProfile->resume_path));
+        $this->assertFalse(Storage::disk('public')->exists($studentProfile->resume_path));
 
-        // Test preview
+        // Test preview through authenticated controller
         $previewResponse = $this->actingAs($studentUser)->get(route('student.resume.preview'));
         $previewResponse->assertOk();
     }
@@ -57,7 +61,7 @@ class ResumeManagementTest extends TestCase
     {
         $studentUser = User::factory()->create(['role' => 'student', 'status' => 'active']);
         $file = UploadedFile::fake()->create('delete_me.pdf', 300, 'application/pdf');
-        $stored = $file->store('resumes/1', 'public');
+        $stored = $file->store('resumes/1', 'local');
 
         $studentProfile = StudentProfile::create([
             'user_id' => $studentUser->id,
@@ -65,14 +69,14 @@ class ResumeManagementTest extends TestCase
             'eligibility_status' => 'eligible',
         ]);
 
-        $this->assertTrue(Storage::disk('public')->exists($stored));
+        $this->assertTrue(Storage::disk('local')->exists($stored));
 
         $response = $this->actingAs($studentUser)->delete(route('student.resume.delete'));
         $response->assertRedirect(route('student.profile', ['tab' => 'resume']));
 
         $studentProfile->refresh();
         $this->assertNull($studentProfile->resume_path);
-        $this->assertFalse(Storage::disk('public')->exists($stored));
+        $this->assertFalse(Storage::disk('local')->exists($stored));
     }
 
     public function test_student_applies_and_company_can_view_resume(): void
@@ -98,10 +102,10 @@ class ResumeManagementTest extends TestCase
             'deadline' => now()->addMonth(),
         ]);
 
-        // Student with uploaded profile resume
+        // Student with uploaded profile resume in local storage
         $studentUser = User::factory()->create(['role' => 'student', 'status' => 'active']);
         $file = UploadedFile::fake()->create('profile_resume.pdf', 400, 'application/pdf');
-        $storedPath = $file->storeAs('resumes/test', 'profile_resume.pdf', 'public');
+        $storedPath = $file->storeAs('resumes/test', 'profile_resume.pdf', 'local');
 
         $studentProfile = StudentProfile::create([
             'user_id' => $studentUser->id,
@@ -128,8 +132,24 @@ class ResumeManagementTest extends TestCase
         $boardResponse->assertOk();
         $boardResponse->assertSee('profile_resume.pdf');
 
-        // Company views resume
+        // Company views resume via authenticated route
         $companyResumeResponse = $this->actingAs($companyUser)->get(route('company.applicants.resume', $application));
         $companyResumeResponse->assertOk();
+
+        // Unauthorized user cannot view candidate resume
+        $otherCompanyUser = User::factory()->create(['role' => 'company', 'status' => 'active']);
+        CompanyProfile::create([
+            'user_id' => $otherCompanyUser->id,
+            'company_name' => 'Other Tech',
+            'verification_status' => 'verified',
+        ]);
+        $unauthorizedResponse = $this->actingAs($otherCompanyUser)->get(route('company.applicants.resume', $application));
+        $unauthorizedResponse->assertStatus(403);
+    }
+
+    public function test_guest_cannot_access_resume(): void
+    {
+        $response = $this->get(route('student.resume.preview'));
+        $response->assertRedirect(route('login'));
     }
 }

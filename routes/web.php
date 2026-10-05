@@ -121,18 +121,28 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
 });
 
-// Public storage route fallback (ensures file preview/download works without relying on symlinks)
+// Public storage route fallback (ensures public assets like logos work safely without symlinks)
 Route::get('/storage/{path}', function (\Illuminate\Http\Request $request, string $path) {
-    $fullPath = storage_path('app/public/' . str_replace('/', DIRECTORY_SEPARATOR, $path));
-    if (!file_exists($fullPath) || !is_file($fullPath)) {
+    $publicDir = realpath(storage_path('app/public'));
+    $targetPath = storage_path('app/public/' . str_replace('/', DIRECTORY_SEPARATOR, $path));
+    $fullPath = realpath($targetPath);
+
+    // Security: Prevent path traversal - file must be located strictly within storage/app/public
+    if (!$publicDir || !$fullPath || !str_starts_with($fullPath, $publicDir) || !is_file($fullPath)) {
         abort(404, 'File not found.');
+    }
+
+    // Security: Confidential student resumes must NEVER be accessible via this public route
+    $relativePath = str_replace(DIRECTORY_SEPARATOR, '/', substr($fullPath, strlen($publicDir)));
+    if (str_starts_with(ltrim($relativePath, '/'), 'resumes/')) {
+        abort(403, 'Unauthorized. Student resumes are private and can only be accessed through authenticated portal routes.');
     }
 
     $filename = basename($fullPath);
     $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
     // If requested as download or non-previewable format (e.g. docx), download with exact original filename
-    if ($request->has('download') || !in_array($extension, ['pdf', 'png', 'jpg', 'jpeg'])) {
+    if ($request->has('download') || !in_array($extension, ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'svg'])) {
         return response()->download($fullPath, $filename, [
             'Content-Disposition' => 'attachment; filename="' . addcslashes($filename, '"\\') . '"; filename*=UTF-8\'\'' . rawurlencode($filename),
         ]);

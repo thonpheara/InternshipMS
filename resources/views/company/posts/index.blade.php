@@ -209,13 +209,6 @@
                 { icon: '💡', label: 'General IT' },
             ];
 
-            const statuses = [
-                { value: 'approved',         icon: '✅', label: 'Approved & Published' },
-                { value: 'pending_approval', icon: '⏳', label: 'Pending Approval' },
-                { value: 'closed',           icon: '🔒', label: 'Closed' },
-                { value: 'draft',            icon: '📝', label: 'Draft' },
-            ];
-
             function registerListingsManager() {
                 if (window.Alpine && !Alpine.data('listingsManager')) {
                     Alpine.data('listingsManager', (initialCreateOpen, initialEditOpen, initialEditPost) => ({
@@ -231,17 +224,49 @@
                         editStatusIcon: '⏳',
                         editStatusLabel: 'Pending Approval',
                         categories: categories,
-                        statuses: statuses,
+
+                        get availableStatuses() {
+                            // If the listing was ALREADY approved by admin, employer can keep it approved, or close/draft it
+                            if (this.editPost && this.editPost.status === 'approved') {
+                                return [
+                                    { value: 'approved',         icon: '✅', label: 'Approved & Published (Keep Active)' },
+                                    { value: 'closed',           icon: '🔒', label: 'Closed (Stop Applications)' },
+                                    { value: 'draft',            icon: '📝', label: 'Draft (Unpublish)' },
+                                    { value: 'pending_approval', icon: '⏳', label: 'Submit for Admin Re-approval' },
+                                ];
+                            }
+
+                            // For unapproved postings (pending_approval, draft, rejected, closed):
+                            // "Approved" and "Rejected" can NEVER be selected by company (reserved for Admin only)
+                            return [
+                                { value: 'pending_approval', icon: '⏳', label: 'Submit for Admin Approval' },
+                                { value: 'draft',            icon: '📝', label: 'Save as Draft' },
+                                { value: 'closed',           icon: '🔒', label: 'Closed' },
+                            ];
+                        },
+
+                        syncStatusVisuals() {
+                            const matchedStat = this.availableStatuses.find(s => s.value === this.editStatus);
+                            if (matchedStat) {
+                                this.editStatusIcon = matchedStat.icon;
+                                this.editStatusLabel = matchedStat.label;
+                            } else if (this.editStatus === 'rejected') {
+                                this.editStatusIcon = '❌';
+                                this.editStatusLabel = 'Rejected (Select Pending Approval to resubmit)';
+                            } else if (this.editStatus === 'approved') {
+                                this.editStatusIcon = '✅';
+                                this.editStatusLabel = 'Approved & Published';
+                            } else {
+                                this.editStatusIcon = '⏳';
+                                this.editStatusLabel = 'Pending Approval';
+                            }
+                        },
 
                         init() {
                             const matchedCat = this.categories.find(c => c.label === this.editCategory);
                             if (matchedCat) this.editCategoryIcon = matchedCat.icon;
 
-                            const matchedStat = this.statuses.find(s => s.value === this.editStatus);
-                            if (matchedStat) {
-                                this.editStatusIcon = matchedStat.icon;
-                                this.editStatusLabel = matchedStat.label;
-                            }
+                            this.syncStatusVisuals();
                         },
 
                         get filteredEditCategories() {
@@ -274,9 +299,7 @@
                             this.categoryDropdownOpen = false;
 
                             this.editStatus = post.status || 'pending_approval';
-                            const matchedStat = this.statuses.find(s => s.value === this.editStatus);
-                            this.editStatusIcon = matchedStat ? matchedStat.icon : '⏳';
-                            this.editStatusLabel = matchedStat ? matchedStat.label : 'Pending Approval';
+                            this.syncStatusVisuals();
                             this.statusDropdownOpen = false;
 
                             this.editModalOpen = true;

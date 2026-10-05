@@ -86,16 +86,19 @@ class StudentDashboardController extends Controller
             $updateData['skills'] = $skillsArray;
         }
 
-        // Process resume upload (isolated per student to avoid overwrites)
+        // Process resume upload (isolated per student to avoid overwrites in private local storage)
         if ($request->hasFile('resume')) {
             $file = $request->file('resume');
             if ($file->isValid()) {
+                if ($student->resume_path && Storage::disk('local')->exists($student->resume_path)) {
+                    Storage::disk('local')->delete($student->resume_path);
+                }
                 if ($student->resume_path && Storage::disk('public')->exists($student->resume_path)) {
                     Storage::disk('public')->delete($student->resume_path);
                 }
 
                 $originalName = $file->getClientOriginalName();
-                $storedPath = $file->storeAs('resumes/' . $student->id, $originalName, 'public');
+                $storedPath = $file->storeAs('resumes/' . $student->id, $originalName, 'local');
                 if ($storedPath) {
                     $updateData['resume_path'] = $storedPath;
                 }
@@ -119,13 +122,30 @@ class StudentDashboardController extends Controller
     public function previewResume(Request $request)
     {
         $student = Auth::user()->studentProfile;
-        $resumePath = $student?->resume_path;
+        abort_if(!$student, 403, 'Student profile not found.');
 
-        if (!$resumePath || !Storage::disk('public')->exists($resumePath)) {
+        $resumePath = null;
+        if ($appId = $request->query('application_id')) {
+            $app = $student->applications()->find($appId);
+            $resumePath = $app?->getEffectiveResumePath();
+        }
+
+        if (!$resumePath) {
+            $resumePath = $student->resume_path;
+        }
+
+        if (!$resumePath) {
             return redirect()->route('student.profile', ['tab' => 'resume'])->with('error', 'Resume document not found.');
         }
 
-        $fullPath = Storage::disk('public')->path($resumePath);
+        // Check private local disk first, fallback to public for legacy files
+        $disk = Storage::disk('local')->exists($resumePath) ? 'local' : (Storage::disk('public')->exists($resumePath) ? 'public' : null);
+
+        if (!$disk) {
+            return redirect()->route('student.profile', ['tab' => 'resume'])->with('error', 'Resume document not found.');
+        }
+
+        $fullPath = Storage::disk($disk)->path($resumePath);
         if (!file_exists($fullPath)) {
             return redirect()->route('student.profile', ['tab' => 'resume'])->with('error', 'Resume file not found on disk. Please re-upload your resume.');
         }
@@ -154,9 +174,8 @@ class StudentDashboardController extends Controller
         abort_if(!$student, 403);
 
         if ($student->resume_path) {
-            $fullPath = storage_path('app/public/' . $student->resume_path);
-            if (file_exists($fullPath)) {
-                @unlink($fullPath);
+            if (Storage::disk('local')->exists($student->resume_path)) {
+                Storage::disk('local')->delete($student->resume_path);
             }
             if (Storage::disk('public')->exists($student->resume_path)) {
                 Storage::disk('public')->delete($student->resume_path);

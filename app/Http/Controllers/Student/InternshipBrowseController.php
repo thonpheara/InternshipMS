@@ -86,19 +86,20 @@ class InternshipBrowseController extends Controller
 
         $customResumePath = null;
 
-        // If a tailored resume was uploaded with this application
+        // If a tailored resume was uploaded with this application (store in private local storage)
         if ($request->hasFile('resume')) {
             $file = $request->file('resume');
             if ($file->isValid()) {
                 $originalName = $file->getClientOriginalName();
-                $customResumePath = $file->storeAs('resumes/' . $student->id, $originalName, 'public');
+                $customResumePath = $file->storeAs('resumes/' . $student->id, $originalName, 'local');
 
                 // If student doesn't have a profile resume yet, also set it as their profile resume
-                if (!$student->resume_path || !Storage::disk('public')->exists($student->resume_path)) {
+                $hasProfileResume = $student->resume_path && (Storage::disk('local')->exists($student->resume_path) || Storage::disk('public')->exists($student->resume_path));
+                if (!$hasProfileResume) {
                     $student->update(['resume_path' => $customResumePath]);
                 }
             }
-        } elseif ($student->resume_path && Storage::disk('public')->exists($student->resume_path)) {
+        } elseif ($student->resume_path && (Storage::disk('local')->exists($student->resume_path) || Storage::disk('public')->exists($student->resume_path))) {
             // Use profile resume
             $customResumePath = $student->resume_path;
         } else {

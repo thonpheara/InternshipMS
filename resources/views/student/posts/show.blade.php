@@ -128,7 +128,7 @@
 
                             <!-- Resume Attachment Section -->
                             @php
-                                $hasProfileResume = $student?->resume_path && Storage::disk('public')->exists($student->resume_path);
+                                $hasProfileResume = $student?->resume_path && (Storage::disk('local')->exists($student->resume_path) || Storage::disk('public')->exists($student->resume_path));
                                 $profileResumeName = $hasProfileResume ? basename($student->resume_path) : null;
                             @endphp
 

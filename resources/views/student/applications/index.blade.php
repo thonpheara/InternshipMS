@@ -33,7 +33,7 @@
                                         <div class="text-slate-600 font-semibold truncate">{{ $app->internshipPost->companyProfile->company_name }} • {{ $app->internshipPost->location }}</div>
                                         @php
                                             $appResumePath = $app->getEffectiveResumePath();
-                                            $resumeExists = $appResumePath && Storage::disk('public')->exists($appResumePath);
+                                            $resumeExists = $appResumePath && (Storage::disk('local')->exists($appResumePath) || Storage::disk('public')->exists($appResumePath));
                                         @endphp
                                         @if($resumeExists)
                                             <div class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium mt-1 truncate">
@@ -57,7 +57,7 @@
                                     <td class="py-3.5 px-6 text-right whitespace-nowrap">
                                         <div class="inline-flex items-center gap-1.5 justify-end">
                                             @if($resumeExists)
-                                                <a href="{{ Storage::url($appResumePath) }}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-slate-200/60 transition-all" title="View Submitted Resume">
+                                                <a href="{{ route('student.resume.preview', ['application_id' => $app->id]) }}" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-slate-200/60 transition-all" title="View Submitted Resume">
                                                     <i class="fa-solid fa-file-lines w-3.5 h-3.5 text-emerald-600"></i>
                                                     <span>Resume</span>
                                                 </a>

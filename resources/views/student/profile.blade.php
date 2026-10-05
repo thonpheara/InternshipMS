@@ -167,7 +167,7 @@
                                     <span>Resume File</span>
                                 </div>
                                 @php
-                                    $hasResume = $student->resume_path && Storage::disk('public')->exists($student->resume_path);
+                                    $hasResume = $student->resume_path && (Storage::disk('local')->exists($student->resume_path) || Storage::disk('public')->exists($student->resume_path));
                                 @endphp
                                 @if ($hasResume)
                                     <a href="{{ route('student.resume.preview') }}" target="_blank" class="font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1 hover:underline cursor-pointer" title="View uploaded resume">
@@ -441,7 +441,7 @@
                         </div>
 
                         @php
-                            $hasResume = $student->resume_path && Storage::disk('public')->exists($student->resume_path);
+                            $hasResume = $student->resume_path && (Storage::disk('local')->exists($student->resume_path) || Storage::disk('public')->exists($student->resume_path));
                         @endphp
                         @if ($hasResume)
                             <div class="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200/80 flex items-center justify-between">

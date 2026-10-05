@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class InternshipPostController extends Controller
@@ -98,6 +99,14 @@ class InternshipPostController extends Controller
     {
         $this->authorizeCompanyPost($post);
 
+        // Security: Company can only transition between draft, closed, and pending_approval.
+        // A company can NEVER self-approve an unapproved post (approved and rejected statuses are reserved exclusively for Admin).
+        // Only if the post is ALREADY approved may it remain approved.
+        $allowedStatuses = ['draft', 'pending_approval', 'closed'];
+        if ($post->status === 'approved') {
+            $allowedStatuses[] = 'approved';
+        }
+
         $validated = $request->validate([
             'title'           => ['required', 'string', 'max:255'],
             'category'        => ['required', 'string', 'max:100'],
@@ -110,7 +119,7 @@ class InternshipPostController extends Controller
             'stipend'         => ['nullable', 'numeric', 'min:0'],
             'slots'           => ['required', 'integer', 'min:1', 'max:50'],
             'deadline'        => ['required', 'date'],
-            'status'          => ['required', 'in:draft,pending_approval,approved,rejected,closed'],
+            'status'          => ['required', Rule::in($allowedStatuses)],
         ]);
 
         if (empty($validated['type'])) {
@@ -119,7 +128,23 @@ class InternshipPostController extends Controller
 
         $validated['is_stipend_disclosed'] = !empty($validated['stipend']);
 
+        $previousStatus = $post->status;
         $post->update($validated);
+
+        // If the post was submitted/resubmitted for admin approval, notify admins
+        if ($previousStatus !== 'pending_approval' && $validated['status'] === 'pending_approval') {
+            $company = Auth::user()->companyProfile;
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new \App\Notifications\AppNotification(
+                    title: 'Job Post Resubmitted for Approval',
+                    message: "{$company->company_name} updated and resubmitted '{$post->title}' for review.",
+                    actionUrl: route('admin.approvals.index', ['status' => 'pending_approval']),
+                    icon: 'fa-solid fa-square-check',
+                    color: 'amber'
+                ));
+            }
+        }
 
         return redirect()->route('company.posts.index')
             ->with('success', 'Internship post updated successfully.');

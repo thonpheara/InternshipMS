@@ -195,7 +195,7 @@
                                         <div class="inline-flex items-center gap-1.5 justify-end">
                                             @php
                                                 $appResumePath = $app->getEffectiveResumePath();
-                                                $resumeExists = $appResumePath && Storage::disk('public')->exists($appResumePath);
+                                                $resumeExists = $appResumePath && (Storage::disk('local')->exists($appResumePath) || Storage::disk('public')->exists($appResumePath));
                                             @endphp
                                             @if($resumeExists)
                                                 @php

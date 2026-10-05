@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Notifications\AppNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MessageController extends Controller
@@ -52,6 +54,11 @@ class MessageController extends Controller
                         'read_at' => now(),
                     ]);
 
+                // Also mark related bell notifications as read
+                Auth::user()->unreadNotifications
+                    ->filter(fn ($n) => str_contains($n->data['action_url'] ?? '', 'conversation_id=' . $activeConversation->id))
+                    ->markAsRead();
+
                 $messages = $activeConversation->messages()
                     ->with('sender')
                     ->oldest()
@@ -83,6 +90,18 @@ class MessageController extends Controller
         $conversation->update([
             'last_message_at' => now(),
         ]);
+
+        // Send In-App Notification to company recruiter
+        $recipient = $conversation->getRecipientFor(Auth::user());
+        if ($recipient) {
+            $recipient->notify(new AppNotification(
+                title: 'New Message from ' . Auth::user()->name,
+                message: Str::limit(trim($validated['body']), 60),
+                actionUrl: route('company.messages.index', ['conversation_id' => $conversation->id]),
+                icon: 'fa-solid fa-comments',
+                color: 'blue'
+            ));
+        }
 
         return redirect()->route('student.messages.index', ['conversation_id' => $conversation->id]);
     }

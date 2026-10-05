@@ -50,7 +50,7 @@
             <a href="{{ route('student.dashboard') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.dashboard') ? $activeClass : $inactiveClass }}">
                 <i class="fa-solid fa-chart-pie w-4.5 h-4.5"></i>
-                Overview Dashboard
+                Dashboard
             </a>
             <a href="{{ route('student.posts.index') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.posts.*') ? $activeClass : $inactiveClass }}">
@@ -86,7 +86,7 @@
             <a href="{{ route('company.dashboard') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.dashboard') ? $activeClass : $inactiveClass }}">
                 <i class="fa-solid fa-chart-pie w-4.5 h-4.5"></i>
-                Overview Dashboard
+                Dashboard
             </a>
             <a href="{{ route('company.posts.index') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.posts.*') ? $activeClass : $inactiveClass }}">
