@@ -37,10 +37,15 @@
                 <div class="flex items-center gap-4 min-w-0">
                     <!-- Squircle Avatar with Status Dot -->
                     <div class="relative shrink-0">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-sm"
-                             :class="viewUser.role === 'student' ? 'bg-[#059669]' : (viewUser.role === 'company' ? 'bg-teal-700' : 'bg-slate-700')"
-                             x-text="viewUser.avatar_initials">
-                        </div>
+                        <template x-if="viewUser.avatar_url">
+                            <img :src="viewUser.avatar_url" :alt="viewUser.name" class="w-14 h-14 rounded-2xl object-cover shadow-sm border border-slate-100">
+                        </template>
+                        <template x-if="!viewUser.avatar_url">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-lg font-black shadow-sm"
+                                 :class="viewUser.role === 'student' ? 'bg-[#059669]' : (viewUser.role === 'company' ? 'bg-teal-700' : 'bg-slate-700')"
+                                 x-text="viewUser.avatar_initials">
+                            </div>
+                        </template>
                         <span class="w-3.5 h-3.5 rounded-full border-2 border-white absolute -bottom-0.5 -right-0.5"
                               :class="viewUser.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'"
                               :title="viewUser.status === 'active' ? 'Active Account' : 'Inactive Account'"></span>

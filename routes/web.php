@@ -59,6 +59,7 @@ Route::prefix('student')->as('student.')->middleware(['auth', 'role:student'])->
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [StudentDashboardController::class, 'profile'])->name('profile');
     Route::post('/profile', [StudentDashboardController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [StudentDashboardController::class, 'updatePassword'])->name('password.update');
 
     // Job browsing & applications
     Route::get('/posts', [InternshipBrowseController::class, 'index'])->name('posts.index');
@@ -83,6 +84,7 @@ Route::prefix('company')->as('company.')->middleware(['auth', 'role:company'])->
     Route::get('/dashboard', [CompanyDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [CompanyProfileController::class, 'profile'])->name('profile');
     Route::post('/profile', [CompanyProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [CompanyProfileController::class, 'updatePassword'])->name('password.update');
 
     // Manage internship posts
     Route::resource('posts', InternshipPostController::class)->except(['show']);

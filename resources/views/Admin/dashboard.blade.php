@@ -121,55 +121,99 @@
                 </div>
             </div>
 
-            <!-- Right: Postings Needing Moderation (lg:col-span-5) -->
-            <div class="lg:col-span-5 p-6 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs flex flex-col justify-between h-full min-h-0 space-y-4">
-                <div class="flex-1 flex flex-col min-h-0">
-                    <div class="flex items-center justify-between gap-3 pb-3 border-b border-[#E5E7EB] shrink-0">
-                        <h4 class="text-sm font-bold text-[#111827] flex items-center gap-2 min-w-0">
-                            <i class="fa-solid fa-square-check w-4 h-4 text-[#059669] shrink-0"></i>
-                            <span class="whitespace-nowrap truncate">Postings Needing Moderation</span>
+            <!-- Right: Application Status Donut Chart (lg:col-span-5) -->
+            <div class="lg:col-span-5 p-6 sm:p-7 rounded-3xl bg-white border border-[#E5E7EB] shadow-xs flex flex-col justify-between h-full min-h-0"
+                 x-data="applicationStatusDonutChart({{ \Illuminate\Support\Js::from($donutData) }})">
+                
+                <!-- Card Header -->
+                <div class="flex items-center justify-between gap-3 pb-3 border-b border-gray-100 shrink-0">
+                    <div>
+                        <h4 class="text-lg font-bold text-[#111827] tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie w-4 h-4 text-[#059669]"></i>
+                            <span>Application Outcomes</span>
                         </h4>
-                        <a href="{{ route('admin.approvals.index') }}" class="text-xs font-semibold text-[#059669] hover:underline whitespace-nowrap shrink-0">Review Queue</a>
+                        <p class="text-xs text-gray-500 mt-0.5 font-medium">Status distribution across student applications</p>
                     </div>
-
-                    @if ($pendingPosts->isNotEmpty())
-                        <div class="divide-y divide-gray-100 flex-1 overflow-y-auto min-h-0 pr-1 my-1">
-                            @foreach ($pendingPosts as $post)
-                                <div class="py-3.5 flex items-start justify-between gap-3">
-                                    <div class="min-w-0 flex-1">
-                                        <h5 class="text-xs font-bold text-[#111827] truncate">{{ $post->title }}</h5>
-                                        <p class="text-xs text-gray-600 mt-0.5 truncate">{{ $post->companyProfile->company_name ?? 'Employer' }} • {{ $post->location }}</p>
-                                        <span class="text-[11px] text-gray-400 mt-0.5 block">Deadline: {{ \Carbon\Carbon::parse($post->deadline)->format('M d, Y') }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        <form action="{{ route('admin.approvals.update', $post) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="approved">
-                                            <button type="submit" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#059669] hover:bg-[#047857] text-white shadow-xs transition-all cursor-pointer">
-                                                Approve
-                                            </button>
-                                        </form>
-                                        <a href="{{ route('admin.approvals.index') }}" class="p-1 text-gray-400 hover:text-[#111827]" title="View details">
-                                            <i class="fa-solid fa-ellipsis-vertical w-4 h-4"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="flex-1 flex flex-col items-center justify-center py-8 text-center text-gray-400 text-xs">
-                            <i class="fa-solid fa-check-double w-8 h-8 mx-auto mb-2 text-[#059669]"></i>
-                            No pending employer job postings awaiting moderation.
-                        </div>
-                    @endif
-                </div>
-
-                <div class="pt-3 border-t border-gray-100 text-right shrink-0">
-                    <a href="{{ route('admin.approvals.index') }}" class="text-xs font-semibold text-[#059669] hover:text-[#047857] inline-flex items-center gap-1">
-                        Open Full Approvals Queue <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    <a href="{{ route('admin.reports.index') }}" class="text-xs font-semibold text-[#059669] hover:underline whitespace-nowrap shrink-0 flex items-center gap-1">
+                        <span>Reports</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </a>
                 </div>
+
+                <!-- Donut Canvas with Center KPI Metric -->
+                <div class="relative w-full flex-1 min-h-[160px] my-2 flex items-center justify-center">
+                    <canvas id="applicationStatusDonutCanvas" class="w-full h-full max-h-[190px]"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                        <span class="text-2xl font-black text-[#111827] tracking-tight leading-none">{{ $donutData['total'] }}</span>
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-1">Applications</span>
+                        @if($donutData['total'] > 0)
+                            <span class="text-[10px] font-bold text-[#059669] bg-[#D1FAE5]/80 px-2 py-0.5 rounded-full mt-1 border border-[#A7F3D0]/60">
+                                {{ $donutData['placementRate'] }}% Placed
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- 2x2 Custom Categorical Legend with Counts & Percentages -->
+                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 shrink-0">
+                    <!-- Accepted -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/50 border border-emerald-100/70">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#10B981] shrink-0"></span>
+                            <span class="text-xs text-gray-700 font-medium truncate">Accepted</span>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-bold text-gray-900">{{ $donutData['counts']['accepted'] }}</span>
+                            <span class="text-[10px] text-gray-500 font-medium">({{ $donutData['percentages']['accepted'] }}%)</span>
+                        </div>
+                    </div>
+
+                    <!-- In Review -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/50 border border-amber-100/70">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B] shrink-0"></span>
+                            <span class="text-xs text-gray-700 font-medium truncate">In Review</span>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-bold text-gray-900">{{ $donutData['counts']['pending'] }}</span>
+                            <span class="text-[10px] text-gray-500 font-medium">({{ $donutData['percentages']['pending'] }}%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Interviewed -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-blue-50/50 border border-blue-100/70">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0"></span>
+                            <span class="text-xs text-gray-700 font-medium truncate">Interviewed</span>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-bold text-gray-900">{{ $donutData['counts']['interviewed'] }}</span>
+                            <span class="text-[10px] text-gray-500 font-medium">({{ $donutData['percentages']['interviewed'] }}%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Rejected -->
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-rose-50/50 border border-rose-100/70">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#EF4444] shrink-0"></span>
+                            <span class="text-xs text-gray-700 font-medium truncate">Rejected</span>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="text-xs font-bold text-gray-900">{{ $donutData['counts']['rejected'] }}</span>
+                            <span class="text-[10px] text-gray-500 font-medium">({{ $donutData['percentages']['rejected'] }}%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                @if(!empty($stats['pending_posts']) && $stats['pending_posts'] > 0)
+                    <div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-amber-800 bg-amber-50/80 px-3 py-1.5 rounded-xl border border-amber-200/60 shrink-0">
+                        <span class="flex items-center gap-1.5 font-medium truncate">
+                            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
+                            <span>{{ $stats['pending_posts'] }} job(s) awaiting approval</span>
+                        </span>
+                        <a href="{{ route('admin.approvals.index') }}" class="font-bold text-amber-700 underline hover:text-amber-900 shrink-0 ml-2">Review Queue &rarr;</a>
+                    </div>
+                @endif
             </div>
 
         </div>
@@ -297,6 +341,73 @@
                         this.chart.data.datasets[1].data = this.dataSets[period].accepted;
                         this.chart.update();
                     }
+                }
+            };
+        }
+
+        function applicationStatusDonutChart(serverData) {
+            return {
+                donutData: serverData || {
+                    labels: ['Accepted', 'Under Review', 'Interviewed', 'Rejected'],
+                    data: [0, 0, 0, 0],
+                    colors: ['#10B981', '#F59E0B', '#3B82F6', '#EF4444']
+                },
+                chart: null,
+                init() {
+                    this.$nextTick(() => {
+                        this.renderChart();
+                    });
+                },
+                renderChart() {
+                    const canvas = document.getElementById('applicationStatusDonutCanvas');
+                    if (!canvas || typeof Chart === 'undefined') return;
+                    const ctx = canvas.getContext('2d');
+
+                    const hasData = this.donutData.data && this.donutData.data.some(v => v > 0);
+                    const chartData = hasData ? this.donutData.data : [1];
+                    const chartColors = hasData ? this.donutData.colors : ['#E5E7EB'];
+                    const chartLabels = hasData ? this.donutData.labels : ['No Applications'];
+
+                    this.chart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: chartLabels,
+                            datasets: [{
+                                data: chartData,
+                                backgroundColor: chartColors,
+                                borderWidth: 3,
+                                borderColor: '#FFFFFF',
+                                hoverOffset: hasData ? 6 : 0,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '72%',
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    enabled: hasData,
+                                    backgroundColor: '#111827',
+                                    titleColor: '#FFFFFF',
+                                    bodyColor: '#F3F4F6',
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    usePointStyle: true,
+                                    callbacks: {
+                                        label: function(context) {
+                                            const value = context.parsed;
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                            return ` ${context.label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
             };
         }

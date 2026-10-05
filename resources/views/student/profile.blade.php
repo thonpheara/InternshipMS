@@ -7,7 +7,7 @@
         $registeredMonth = $user->created_at ? $user->created_at->format('M Y') : 'Aug 2026';
     @endphp
 
-    <div class="space-y-6 max-w-7xl mx-auto" x-data="{ tab: '{{ request('tab', 'all') }}' }">
+    <div class="space-y-6 max-w-7xl mx-auto" x-data="{ tab: '{{ $errors->has('current_password') || $errors->has('password') || request('tab') === 'security' ? 'security' : request('tab', 'all') }}' }">
 
         <!-- Top Header -->
         <div class="pb-2">
@@ -59,6 +59,14 @@
                     <i class="fa-solid fa-file-lines w-3.5 h-3.5"></i>
                     <span>Official Resume</span>
                 </button>
+
+                <!-- Security & Password Tab -->
+                <button @click="tab = 'security'" 
+                        :class="tab === 'security' ? 'bg-[#D1FAE5] text-[#065F46] border-[#A7F3D0] font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium border-transparent'"
+                        class="px-3.5 py-1.5 rounded-lg border flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-shield-halved w-3.5 h-3.5"></i>
+                    <span>Security &amp; Password</span>
+                </button>
             </div>
 
             <!-- Auto-saved session indicator -->
@@ -93,9 +101,19 @@
                 <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 flex flex-col items-center text-center space-y-4">
                     <!-- Squircle Avatar with Green Online Dot -->
                     <div class="relative group">
-                        <div class="w-20 h-20 rounded-2xl bg-[#059669] text-white text-2xl font-black flex items-center justify-center shadow-md shadow-[#059669]/20">
-                            {{ $initials }}
-                        </div>
+                        @if ($user->avatar_path)
+                            <img src="{{ asset('storage/' . ltrim($user->avatar_path, '/')) }}" 
+                                 alt="{{ $user->name }}" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                 class="w-20 h-20 rounded-2xl object-cover shadow-md shadow-[#059669]/20 border-2 border-white">
+                            <div style="display: none;" class="w-20 h-20 rounded-2xl bg-[#059669] text-white text-2xl font-black items-center justify-center shadow-md shadow-[#059669]/20">
+                                {{ $initials }}
+                            </div>
+                        @else
+                            <div class="w-20 h-20 rounded-2xl bg-[#059669] text-white text-2xl font-black flex items-center justify-center shadow-md shadow-[#059669]/20">
+                                {{ $initials }}
+                            </div>
+                        @endif
                         <span class="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white absolute -bottom-1 -right-1"></span>
                     </div>
 
@@ -337,8 +355,46 @@
                             <div>
                                 <h3 class="text-base font-bold text-slate-900">Personal Information &amp; Skills</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    Update your contact phone, technical competencies, and professional bio.
+                                    Update your portrait avatar, contact phone, technical competencies, and professional bio.
                                 </p>
+                            </div>
+                        </div>
+
+                        <!-- Profile Picture / Avatar Upload Row -->
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div class="relative shrink-0">
+                                @if ($user->avatar_path)
+                                    <img src="{{ asset('storage/' . ltrim($user->avatar_path, '/')) }}" 
+                                         alt="{{ $user->name }}" 
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                         class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-xs">
+                                    <div style="display: none;" class="w-16 h-16 rounded-2xl bg-[#059669] text-white font-black text-xl items-center justify-center shadow-xs">
+                                        {{ $initials }}
+                                    </div>
+                                @else
+                                    <div class="w-16 h-16 rounded-2xl bg-[#059669] text-white font-black text-xl flex items-center justify-center shadow-xs">
+                                        {{ $initials }}
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-xs font-bold text-slate-900">Profile Picture / Avatar</span>
+                                <span class="block text-[11px] text-slate-500 mt-0.5">Upload a square or portrait photo (PNG, JPG, WEBP, max 2MB).</span>
+                                <div class="mt-2 flex flex-wrap items-center gap-2">
+                                    <input type="file" 
+                                           name="avatar" 
+                                           accept="image/*"
+                                           class="block w-full sm:w-auto text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-semibold file:bg-[#059669] file:text-white hover:file:bg-[#047857] cursor-pointer">
+                                    @if($user->avatar_path)
+                                        <button type="submit" 
+                                                name="delete_avatar" 
+                                                value="1" 
+                                                onclick="return confirm('Remove your profile picture?');"
+                                                class="px-2.5 py-1.5 text-[11px] font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl border border-rose-200 transition-colors">
+                                            <i class="fa-solid fa-trash-can mr-1"></i> Remove
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
@@ -509,6 +565,112 @@
                     </div>
 
                 </form>
+
+                <!-- Card 4: Security & Password -->
+                <div x-show="tab === 'all' || tab === 'security'" x-transition class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5" x-data="{ showCurrent: false, showNew: false, showConfirm: false }">
+                    <!-- Card Header -->
+                    <div class="flex items-start gap-3.5 pb-2">
+                        <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-shield-halved w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Change Account Password</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Ensure your student account remains protected by updating your password regularly.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('student.password.update') }}" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="grid grid-cols-1 gap-4 max-w-xl">
+                            <!-- Current Password -->
+                            <div>
+                                <label for="student_current_password" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Current Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-lock w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showCurrent ? 'text' : 'password'" 
+                                           id="student_current_password" 
+                                           name="current_password" 
+                                           required
+                                           placeholder="Enter your current password"
+                                           class="w-full pl-10 pr-10 py-2.5 rounded-xl border {{ $errors->has('current_password') ? 'border-rose-300 ring-rose-200' : 'border-slate-200' }} bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
+                                    <button type="button" 
+                                            @click="showCurrent = !showCurrent" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                                        <i class="fa-solid text-xs" :class="showCurrent ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                                @error('current_password')
+                                    <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- New Password -->
+                            <div>
+                                <label for="student_password" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    New Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-key w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showNew ? 'text' : 'password'" 
+                                           id="student_password" 
+                                           name="password" 
+                                           required
+                                           minlength="8"
+                                           placeholder="Minimum 8 characters"
+                                           class="w-full pl-10 pr-10 py-2.5 rounded-xl border {{ $errors->has('password') ? 'border-rose-300 ring-rose-200' : 'border-slate-200' }} bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
+                                    <button type="button" 
+                                            @click="showNew = !showNew" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                                        <i class="fa-solid text-xs" :class="showNew ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                                @error('password')
+                                    <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="student_password_confirmation" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Confirm New Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-circle-check w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showConfirm ? 'text' : 'password'" 
+                                           id="student_password_confirmation" 
+                                           name="password_confirmation" 
+                                           required
+                                           placeholder="Re-type your new password"
+                                           class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
+                                    <button type="button" 
+                                            @click="showConfirm = !showConfirm" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                                        <i class="fa-solid text-xs" :class="showConfirm ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-semibold text-xs shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer">
+                                <i class="fa-solid fa-lock w-3.5 h-3.5"></i>
+                                <span>Update Password</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
             </div>
         </div>

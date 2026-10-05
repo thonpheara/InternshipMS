@@ -184,6 +184,7 @@
                                         'updated_at_formatted' => $u->updated_at ? $u->updated_at->format('M d, Y') : 'N/A',
                                         'updateUrl' => route('admin.users.update', $u),
                                         'avatar_initials' => strtoupper(substr($u->name, 0, 2)),
+                                        'avatar_url' => $u->avatar_path ? asset('storage/' . ltrim($u->avatar_path, '/')) : ($u->companyProfile?->logo_path ? asset('storage/' . ltrim($u->companyProfile->logo_path, '/')) : null),
                                     ];
 
                                     if ($u->isStudent() && $u->studentProfile) {
@@ -230,11 +231,18 @@
                                     <!-- User Column -->
                                     <td class="py-4 px-6">
                                         <div class="flex items-center gap-3">
+                                            @php
+                                                $rowAvatar = $u->avatar_path ?: ($u->companyProfile?->logo_path ?? null);
+                                            @endphp
                                             <div @click="openViewModal(@js($userData))" 
-                                                 class="w-9 h-9 rounded-xl text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs cursor-pointer hover:opacity-90 transition-opacity"
+                                                 class="w-9 h-9 rounded-xl text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs cursor-pointer hover:opacity-90 transition-opacity overflow-hidden"
                                                  :class="'{{ $u->role }}' === 'student' ? 'bg-[#059669]' : ('{{ $u->role }}' === 'company' ? 'bg-teal-700' : 'bg-slate-700')"
                                                  title="Click to view details">
-                                                {{ strtoupper(substr($u->name, 0, 2)) }}
+                                                @if($rowAvatar)
+                                                    <img src="{{ asset('storage/' . ltrim($rowAvatar, '/')) }}" alt="{{ $u->name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    {{ strtoupper(substr($u->name, 0, 2)) }}
+                                                @endif
                                             </div>
                                             <div class="min-w-0">
                                                 <button type="button" 

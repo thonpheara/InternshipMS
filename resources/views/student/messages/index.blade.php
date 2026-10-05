@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 shrink-0">
             <div>
-                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Messages & Inquiries</h1>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Messages</h1>
                 <p class="text-xs text-slate-600 mt-1">Direct communication with host company recruiters and hiring managers.</p>
             </div>
             <a href="{{ route('student.posts.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold transition-colors shrink-0">

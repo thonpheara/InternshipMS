@@ -76,6 +76,40 @@ class AdminDashboardController extends Controller
             }
         }
 
-        return view('admin.dashboard', compact('stats', 'pendingPosts', 'chartData'));
+        // Donut Chart: Application Status Distribution
+        $statusCounts = Application::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $acceptedCount    = $statusCounts['accepted'] ?? 0;
+        $pendingCount     = ($statusCounts['pending'] ?? 0) + ($statusCounts['under_review'] ?? 0);
+        $interviewedCount = ($statusCounts['interviewed'] ?? 0) + ($statusCounts['shortlisted'] ?? 0);
+        $rejectedCount    = ($statusCounts['rejected'] ?? 0) + ($statusCounts['withdrawn'] ?? 0);
+        $totalApplications = $acceptedCount + $pendingCount + $interviewedCount + $rejectedCount;
+
+        $placementRate = $totalApplications > 0 ? round(($acceptedCount / $totalApplications) * 100, 1) : 0;
+
+        $donutData = [
+            'labels' => ['Accepted', 'Under Review', 'Interviewed', 'Rejected'],
+            'data'   => [$acceptedCount, $pendingCount, $interviewedCount, $rejectedCount],
+            'colors' => ['#10B981', '#F59E0B', '#3B82F6', '#EF4444'],
+            'total'  => $totalApplications,
+            'placementRate' => $placementRate,
+            'counts' => [
+                'accepted'    => $acceptedCount,
+                'pending'     => $pendingCount,
+                'interviewed' => $interviewedCount,
+                'rejected'    => $rejectedCount,
+            ],
+            'percentages' => [
+                'accepted'    => $totalApplications > 0 ? round(($acceptedCount / $totalApplications) * 100, 1) : 0,
+                'pending'     => $totalApplications > 0 ? round(($pendingCount / $totalApplications) * 100, 1) : 0,
+                'interviewed' => $totalApplications > 0 ? round(($interviewedCount / $totalApplications) * 100, 1) : 0,
+                'rejected'    => $totalApplications > 0 ? round(($rejectedCount / $totalApplications) * 100, 1) : 0,
+            ],
+        ];
+
+        return view('admin.dashboard', compact('stats', 'pendingPosts', 'chartData', 'donutData'));
     }
 }

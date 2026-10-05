@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -86,5 +87,28 @@ class CompanyProfileController extends Controller
         ]);
 
         return back()->with('success', 'Company profile updated successfully.');
+    }
+
+    /**
+     * Update the company user password.
+     */
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ], [
+            'current_password.current_password' => 'The current password you entered is incorrect.',
+            'password.different' => 'The new password must be different from your current password.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.min' => 'The new password must be at least 8 characters long.',
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()->route('company.profile', ['tab' => 'security'])
+            ->with('success', 'Your password has been changed successfully.');
     }
 }

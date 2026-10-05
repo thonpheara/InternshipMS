@@ -160,14 +160,14 @@
                     'company' => $user->companyProfile?->company_name ?: $user->name,
                     default => $user->name,
                 };
-                $logoPath = $role === 'company' ? $user->companyProfile?->logo_path : null;
-                $hasLogo = $logoPath && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPath);
+                $avatarPath = $role === 'company' ? $user->companyProfile?->logo_path : $user->avatar_path;
+                $hasAvatar = $avatarPath && (\Illuminate\Support\Facades\Storage::disk('public')->exists($avatarPath) || file_exists(public_path('storage/' . ltrim($avatarPath, '/'))));
                 $initials = strtoupper(substr($displayName, 0, 2));
             @endphp
             @if($profileRoute)
                 <a href="{{ $profileRoute }}" title="View Profile" class="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-80 transition-opacity">
-                    @if($hasLogo)
-                        <img src="{{ asset('storage/' . ltrim($logoPath, '/')) }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
+                    @if($hasAvatar)
+                        <img src="{{ asset('storage/' . ltrim($avatarPath, '/')) }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
                     @else
                         <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                             {{ $initials }}
@@ -180,9 +180,13 @@
                 </a>
             @else
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
-                        {{ $initials }}
-                    </div>
+                    @if($hasAvatar)
+                        <img src="{{ asset('storage/' . ltrim($avatarPath, '/')) }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                            {{ $initials }}
+                        </div>
+                    @endif
                     <div class="min-w-0">
                         <p class="text-xs font-semibold text-[#111827] truncate" title="{{ $displayName }}">{{ $displayName }}</p>
                         <p class="text-[11px] text-gray-500 truncate" title="{{ $user->email }}">{{ $user->email }}</p>

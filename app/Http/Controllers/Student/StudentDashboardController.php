@@ -7,6 +7,7 @@ use App\Models\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -66,7 +67,50 @@ class StudentDashboardController extends Controller
             'bio' => ['nullable', 'string', 'max:1000'],
             'skills_input' => ['nullable', 'string', 'max:500'], // comma-separated
             'resume' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:5120'], // max 5MB
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'], // max 2MB
         ]);
+
+        // Process avatar removal
+        if ($request->input('delete_avatar') == '1' && $user->avatar_path) {
+            if (Storage::disk('public')->exists($user->avatar_path)) {
+                Storage::disk('public')->delete($user->avatar_path);
+            }
+            $oldPublic = public_path('storage/' . $user->avatar_path);
+            if (file_exists($oldPublic)) {
+                @unlink($oldPublic);
+            }
+            $user->update(['avatar_path' => null]);
+        }
+
+        // Process avatar upload
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            if ($file->isValid()) {
+                if ($user->avatar_path) {
+                    if (Storage::disk('public')->exists($user->avatar_path)) {
+                        Storage::disk('public')->delete($user->avatar_path);
+                    }
+                    $oldPublic = public_path('storage/' . $user->avatar_path);
+                    if (file_exists($oldPublic)) {
+                        @unlink($oldPublic);
+                    }
+                }
+
+                $avatarPath = $file->store('student-avatars', 'public');
+                $user->update(['avatar_path' => $avatarPath]);
+
+                // Sync directly to public_path for Windows symlink compatibility
+                try {
+                    $targetDir = public_path('storage/student-avatars');
+                    if (!file_exists($targetDir)) {
+                        @mkdir($targetDir, 0755, true);
+                    }
+                    @copy(storage_path('app/public/' . $avatarPath), public_path('storage/' . $avatarPath));
+                } catch (\Exception $e) {
+                    // Silently ignore
+                }
+            }
+        }
 
         $updateData = [
             'student_id_number' => $validated['student_id_number'] ?? null,
@@ -110,10 +154,21 @@ class StudentDashboardController extends Controller
         $activeTab = $request->input('active_tab');
         if ($request->hasFile('resume')) {
             $activeTab = 'resume';
+        } elseif ($request->hasFile('avatar') || $request->input('delete_avatar') == '1') {
+            $activeTab = 'personal';
+        }
+
+        $message = 'Profile updated successfully.';
+        if ($request->hasFile('avatar')) {
+            $message = 'Profile picture updated successfully.';
+        } elseif ($request->input('delete_avatar') == '1') {
+            $message = 'Profile picture removed successfully.';
+        } elseif ($request->hasFile('resume')) {
+            $message = 'Resume uploaded and profile updated successfully.';
         }
 
         return redirect()->route('student.profile', $activeTab ? ['tab' => $activeTab] : [])
-            ->with('success', $request->hasFile('resume') ? 'Resume uploaded and profile updated successfully.' : 'Profile updated successfully.');
+            ->with('success', $message);
     }
 
     /**
@@ -184,5 +239,28 @@ class StudentDashboardController extends Controller
         }
 
         return redirect()->route('student.profile', ['tab' => 'resume'])->with('success', 'Resume document removed successfully.');
+    }
+
+    /**
+     * Update the student user password.
+     */
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ], [
+            'current_password.current_password' => 'The current password you entered is incorrect.',
+            'password.different' => 'The new password must be different from your current password.',
+            'password.confirmed' => 'The password confirmation does not match.',
+            'password.min' => 'The new password must be at least 8 characters long.',
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return redirect()->route('student.profile', ['tab' => 'security'])
+            ->with('success', 'Your password has been changed successfully.');
     }
 }

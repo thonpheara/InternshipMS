@@ -166,10 +166,26 @@
                             @foreach ($applications as $app)
                                 <tr class="hover:bg-slate-50/60 transition-colors">
                                     <td class="py-3 px-6 min-w-0">
-                                        <div class="font-extrabold text-slate-900 text-sm truncate">{{ $app->studentProfile->user->name }}</div>
-                                        <div class="text-slate-600 font-semibold truncate">{{ $app->studentProfile->major }} (GPA: {{ $app->studentProfile->gpa ?? 'N/A' }})</div>
+                                        <div class="flex items-center gap-3">
+                                            @php
+                                                $candUser = $app->studentProfile->user;
+                                                $candAvatar = $candUser->avatar_path;
+                                                $candInitials = strtoupper(substr($candUser->name, 0, 2));
+                                            @endphp
+                                            <div class="w-8 h-8 rounded-xl text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs overflow-hidden bg-[#059669]">
+                                                @if($candAvatar)
+                                                    <img src="{{ asset('storage/' . ltrim($candAvatar, '/')) }}" alt="{{ $candUser->name }}" class="w-full h-full object-cover">
+                                                @else
+                                                    {{ $candInitials }}
+                                                @endif
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="font-extrabold text-slate-900 text-sm truncate">{{ $candUser->name }}</div>
+                                                <div class="text-slate-600 font-semibold truncate">{{ $app->studentProfile->major }} (GPA: {{ $app->studentProfile->gpa ?? 'N/A' }})</div>
+                                            </div>
+                                        </div>
                                         @if (is_array($app->studentProfile->skills))
-                                            <div class="flex flex-wrap gap-1 mt-1.5">
+                                            <div class="flex flex-wrap gap-1 mt-1.5 ml-11">
                                                 @foreach (array_slice($app->studentProfile->skills, 0, 3) as $skill)
                                                     <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-semibold truncate max-w-[100px]">
                                                         {{ $skill }}
