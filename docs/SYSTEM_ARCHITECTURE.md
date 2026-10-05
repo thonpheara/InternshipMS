@@ -117,7 +117,7 @@ Controllers encapsulate incoming HTTP requests, coordinate with models, perform 
   - `ApplicantReviewController`: Candidate assessment, PDF resume preview/download, and status transitions (`pending`, `shortlisted`, `interviewed`, `accepted`, `rejected`).
   - `MessageController`: Application-bound messaging with student candidates.
 - **`Admin/` Controllers:**
-  - `AdminDashboardController`: Key institutional metrics and real-time monthly **Application & Placement Trends** analytics chart.
+  - `AdminDashboardController`: Key institutional metrics and real-time dual analytics: monthly **Application & Placement Trends** bar chart and **Application Outcomes** donut distribution chart.
   - `CompanyVerificationController`: Review, verify, or reject employer registrations with formal feedback notes.
   - `PostApprovalController`: Content moderation queue for reviewing, approving, or rejecting employer listings.
   - `ReportController`: Comprehensive placement & outcome reporting, multi-dimensional filters, CSV export, and print-ready academic audit layouts.

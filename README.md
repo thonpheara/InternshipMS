@@ -6,7 +6,7 @@
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
-[![Tests](https://img.shields.io/badge/Tests-25%20Passed%20(88%20assertions)-success?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/thonpheara/InternshipMS)
+[![Tests](https://img.shields.io/badge/Tests-31%20Passed%20(118%20assertions)-success?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/thonpheara/InternshipMS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 **Internship Management System** is a unified, enterprise-grade web application built with **Laravel 12**, **Tailwind CSS**, **Alpine.js**, **Chart.js**, and **Vite**. It bridges the gap between university students, host employers, and university administrators to streamline internship discovery, candidate applications, corporate verification, job post moderation, in-app messaging, placement reporting, and institutional analytics.
@@ -46,7 +46,9 @@
 - **Dedicated Resume Management:** Upload and manage personal PDF resumes with direct browser-native previewing, downloading, and isolated file deletion (`storage/app/public/resumes/{student_id}/`).
 - **Application Pipeline Tracking:** Real-time visibility into application progress across all stages (*Applied*, *Under Review*, *Interviewed*, *Accepted*, *Rejected*).
 - **Direct Employer Messaging:** Communicate directly with hiring managers regarding active applications, interview schedules, and onboarding inquiries.
-- **Academic Profile Configuration:** Manage university student ID, major, department, cumulative GPA, key technical skills, and profile avatar.
+- **Profile Picture & Avatar Customization:** Upload, preview, and update student profile picture with instant live preview.
+- **Academic Profile Configuration:** Manage university student ID, major, department, cumulative GPA, key technical skills, and biographical details.
+- **Account Security & Password Management:** Dedicated "Security & Password" tab to change password securely with current password verification, confirmation checks, and eye toggle visibility.
 - **Instant In-App Alerts:** Real-time bell notifications whenever a company reviews an application, updates hiring status, or sends a direct message.
 
 ### 🏢 Host Company Portal
@@ -54,11 +56,15 @@
 - **Internship Vacancy Publishing:** Create and edit job postings detailing descriptions, requirements, stipend disclosure, available positions, and application deadlines (held in a moderation queue for university approval).
 - **Applicant Review Pipeline Board:** Multi-stage applicant tracking board to inspect student candidates, read cover letters, view PDF resumes in-browser, and advance statuses (*Applied* ➔ *Under Review* ➔ *Shortlisted* ➔ *Interviewed* ➔ *Accepted* / *Rejected*).
 - **Direct Candidate Messaging:** Application-bound messaging channels with student applicants.
+- **Company Security & Password Management:** Dedicated "Security & Password" tab for recruiter password changes with authentication validation and visibility toggles.
 - **Instant In-App Alerts:** Real-time notifications when students apply for open positions or when administrators verify accounts and approve job listings.
 
 ### 🛡️ University Administrator Portal
 - **Executive KPI Dashboard:** Real-time metrics overview displaying Total User Accounts, Active Student Interns, Registered Companies, Approved Listings, and Pending Moderation queues.
-- **Placement & Application Trends Analytics:** Interactive monthly bar chart (powered by **Chart.js** & **Alpine.js**) comparing **Total Applications Submitted** vs. **Accepted Placements**, with dynamic toggling between **This Year** and **Last Year** data.
+- **Dual Analytics Engine (Chart.js & Alpine.js):**
+  - **Monthly Application & Placement Trends (Bar Chart):** Interactive monthly bar chart comparing **Total Applications Submitted** vs. **Accepted Placements**, with dynamic toggling between **This Year** and **Last Year** data.
+  - **Application Outcomes Breakdown (Donut Chart):** Interactive donut chart showing proportional distribution across application statuses (*Accepted*, *In Review*, *Interviewed*, *Rejected*) with center KPI metric and 2x2 categorical breakdown.
+  - **Smart Post Moderation Alert:** Context-aware notification bar linking directly to the approvals queue when pending postings exist.
 - **Company Verification Queue:** Centralized moderation interface to verify new employer accounts, review company details and official websites, and either approve or reject with custom feedback.
 - **Job Post Moderation Queue:** Review, approve, or reject employer internship postings before they become visible to students.
 - **User Management (Full CRUD):** Complete administrative management of Student and Company accounts featuring modal-based creation, editing, active/suspended status toggling, and soft-deletes.
@@ -184,6 +190,7 @@ sequenceDiagram
 | **Self-Service Registration** | ✅ | ✅ | ✅ | ❌ |
 | **In-App Notification Bell & Drawer** | ❌ | ✅ | ✅ | ✅ |
 | **Student Profile & PDF Resume Management** | ❌ | ✅ | ❌ | ❌ |
+| **Profile Password Management & Security** | ❌ | ✅ | ✅ | ❌ |
 | **Browse Approved Jobs & Submit Applications** | ❌ | ✅ | ❌ | ❌ |
 | **Direct Messaging (Active Applications)** | ❌ | ✅ | ✅ | ❌ |
 | **Company Profile & Corporate Logo Management** | ❌ | ❌ | ✅ | ❌ |
@@ -193,7 +200,7 @@ sequenceDiagram
 | **Company Verification Queue (Approve/Reject)** | ❌ | ❌ | ❌ | ✅ |
 | **Job Post Moderation Queue (Approve/Reject)** | ❌ | ❌ | ❌ | ✅ |
 | **User Management (CRUD Students & Employers)** | ❌ | ❌ | ❌ | ✅ |
-| **Placement Analytics & Chart.js Trends** | ❌ | ❌ | ❌ | ✅ |
+| **Dual Analytics (Bar Trends + Outcomes Donut)** | ❌ | ❌ | ❌ | ✅ |
 | **Placement & Outcome Reports (CSV & Print)** | ❌ | ❌ | ❌ | ✅ |
 
 ### 4. Layered Architectural Breakdown
@@ -356,11 +363,12 @@ php artisan test
 ### Test Suite Summary:
 - **`AdminFeaturesTest`:** Company verification queue, verification approvals, rejection with notes, placement report filters, CSV export, and print preview.
 - **`NotificationTest`:** Notification delivery, unread counter badges, mark as read with redirect, mark all as read, delete single notification, and clear all.
+- **`PostStatusSecurityTest`:** Strict job post status authorization (companies cannot self-approve pending posts or manipulate post states).
 - **`ResumeManagementTest`:** Student profile PDF resume upload, browser preview, file deletion, and employer applicant resume preview.
 - **`UserManagementTest`:** Admin user index, Chart.js analytics dashboard metrics, student creation, company creation, user updates, soft-deletes, and RBAC guard tests.
 - **`ExampleTest`:** Application baseline and unit integrity.
 
-**Result:** `25 passed (88 assertions)`
+**Result:** `31 passed (118 assertions)`
 
 ---
 
@@ -479,15 +487,20 @@ npm run build      # (or 'npm run dev' for development)
 
 ---
 
+## 📱 LAN & Mobile Testing (Optional)
+
+To test the application across local network devices or mobile phones on the same Wi-Fi:
+
+```bash
+# Terminal 1: Serve Laravel on all local network interfaces
+php artisan serve --host=0.0.0.0 --port=8000
+
+# Terminal 2: Run Vite with host exposure
+npm run dev -- --host
+```
+
+---
+
 ## 📄 License
 
 This project is open-source software licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
-    server: {
-        watch: {
-            ignored: ['**/storage/framework/views/**'],
-        },
-    },
-
-php artisan serve --host=0.0.0.0 --port=8000
-npm run dev -- --host
