@@ -129,7 +129,6 @@
                 <div class="flex items-center justify-between gap-3 pb-3 border-b border-gray-100 shrink-0">
                     <div>
                         <h4 class="text-lg font-bold text-[#111827] tracking-tight flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie w-4 h-4 text-[#059669]"></i>
                             <span>Application Outcomes</span>
                         </h4>
                         <p class="text-xs text-gray-500 mt-0.5 font-medium">Status distribution across student applications</p>
