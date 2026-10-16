@@ -45,9 +45,25 @@
                                         <span class="text-[11px] text-slate-600 mt-1 block">Duration: {{ $post->duration_weeks }} weeks • Slots: {{ $post->slots }}</span>
                                     </td>
                                     <td class="py-4 px-4 text-slate-600">
-                                        <div class="font-bold text-slate-900">{{ $post->companyProfile->company_name }}</div>
-                                        <span>{{ $post->companyProfile->industry }}</span>
-                                        <span class="block text-[11px] text-slate-600">{{ $post->location }}</span>
+                                        @php
+                                            $postComp = $post->companyProfile;
+                                            $postLogo = $postComp->logo_url;
+                                            $postHasLogo = $postComp->has_logo;
+                                            $postInitials = $postComp->initials;
+                                        @endphp
+                                        <div class="flex items-center gap-2.5">
+                                            @if($postHasLogo && $postLogo)
+                                                <img src="{{ $postLogo }}" alt="{{ $postComp->company_name }}" class="w-8 h-8 rounded-lg object-cover shrink-0 border border-slate-200 shadow-xs">
+                                            @else
+                                                <div class="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                                    {{ $postInitials }}
+                                                </div>
+                                            @endif
+                                            <div class="min-w-0">
+                                                <div class="font-bold text-slate-900 truncate">{{ $postComp->company_name }}</div>
+                                                <span class="text-[11px] text-slate-500 block truncate">{{ $postComp->industry }} • {{ $post->location }}</span>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="py-4 px-4 text-slate-600">
                                         @if ($post->category)

@@ -50,15 +50,23 @@
                             @php
                                 $isActive = $activeConversation && $activeConversation->id === $convo->id;
                                 $unreadCount = $convo->unreadCountFor(Auth::user());
-                                $studentName = $convo->studentProfile->user->name ?? 'Candidate';
+                                $studentUser = $convo->studentProfile->user;
+                                $studentName = $studentUser?->name ?? 'Candidate';
+                                $studentAvatar = $studentUser?->avatar_url;
+                                $studentHasAvatar = $studentUser?->has_avatar;
+                                $studentInitials = $studentUser?->initials ?? 'ST';
                             @endphp
                             <a href="{{ route('company.messages.index', ['conversation_id' => $convo->id]) }}" 
                                data-convo-id="{{ $convo->id }}"
                                class="convo-item block p-4 transition-colors {{ $isActive ? 'bg-emerald-50/80 border-l-4 border-emerald-600' : 'hover:bg-slate-100/70' }}">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
-                                        {{ strtoupper(substr($studentName, 0, 2)) }}
-                                    </div>
+                                    @if($studentHasAvatar && $studentAvatar)
+                                        <img src="{{ $studentAvatar }}" alt="{{ $studentName }}" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                                    @else
+                                        <div class="w-10 h-10 rounded-xl bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                                            {{ $studentInitials }}
+                                        </div>
+                                    @endif
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between mb-1">
                                             <h4 class="text-xs font-bold text-slate-900 truncate">{{ $studentName }}</h4>
@@ -89,13 +97,20 @@
                     @if($activeConversation)
                         @php
                             $candidate = $activeConversation->studentProfile->user;
+                            $candidateAvatar = $candidate?->avatar_url;
+                            $candidateHasAvatar = $candidate?->has_avatar;
+                            $candidateInitials = $candidate?->initials ?? 'ST';
                         @endphp
                         <!-- Chat Header -->
                         <div class="p-4 border-b border-slate-200/80 flex items-center justify-between bg-white shrink-0">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                                    {{ strtoupper(substr($candidate->name ?? 'ST', 0, 2)) }}
-                                </div>
+                                @if($candidateHasAvatar && $candidateAvatar)
+                                    <img src="{{ $candidateAvatar }}" alt="{{ $candidate->name ?? 'Candidate' }}" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                                @else
+                                    <div class="w-10 h-10 rounded-xl bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                        {{ $candidateInitials }}
+                                    </div>
+                                @endif
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <h3 class="text-sm font-extrabold text-slate-900">{{ $candidate->name ?? 'Candidate' }}</h3>

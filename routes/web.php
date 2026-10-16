@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\CompanyVerificationController;
 use App\Http\Controllers\Admin\PostApprovalController;
 use App\Http\Controllers\Admin\ReportController;
@@ -121,6 +122,11 @@ Route::prefix('admin')->as('admin.')->middleware(['auth', 'role:admin'])->group(
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export-csv', [ReportController::class, 'exportCsv'])->name('reports.exportCsv');
     Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
+
+    // Admin Profile & Avatar Management
+    Route::get('/profile', [AdminProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [AdminProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password');
 });
 
 // Public storage route fallback (ensures public assets like logos work safely without symlinks)

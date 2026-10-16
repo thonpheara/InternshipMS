@@ -27,14 +27,28 @@
                         </span>
                     </div>
 
-                    <div>
-                        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                            {{ $post->title }}
-                        </h2>
-                        <p class="text-sm font-semibold text-slate-600 mt-1 flex items-center gap-1.5">
-                            <i class="fa-solid fa-city w-4 h-4 text-slate-400"></i>
-                            {{ $post->companyProfile->company_name }} • {{ $post->location }}
-                        </p>
+                    <div class="flex items-start gap-4">
+                        @php
+                            $compLogo = $post->companyProfile->logo_url;
+                            $compHasLogo = $post->companyProfile->has_logo;
+                            $compInitials = $post->companyProfile->initials;
+                        @endphp
+                        @if($compHasLogo && $compLogo)
+                            <img src="{{ $compLogo }}" alt="{{ $post->companyProfile->company_name }}" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                        @else
+                            <div class="w-14 h-14 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-bold text-lg shrink-0 shadow-xs">
+                                {{ $compInitials }}
+                            </div>
+                        @endif
+                        <div class="min-w-0 flex-1">
+                            <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                                {{ $post->title }}
+                            </h2>
+                            <p class="text-sm font-semibold text-slate-600 mt-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-city w-4 h-4 text-slate-400"></i>
+                                {{ $post->companyProfile->company_name }} • {{ $post->location }}
+                            </p>
+                        </div>
                     </div>
 
                     <!-- Meta Tags Row -->
@@ -191,9 +205,21 @@
                 </div>
 
                 <!-- Host Organization Profile Card -->
-                <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-3">
+                <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-4">
                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600">About the Host Organization</h4>
-                    <h5 class="text-sm font-extrabold text-slate-900">{{ $post->companyProfile->company_name }}</h5>
+                    <div class="flex items-center gap-3">
+                        @if($compHasLogo && $compLogo)
+                            <img src="{{ $compLogo }}" alt="{{ $post->companyProfile->company_name }}" class="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                        @else
+                            <div class="w-12 h-12 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+                                {{ $compInitials }}
+                            </div>
+                        @endif
+                        <div class="min-w-0 flex-1">
+                            <h5 class="text-sm font-extrabold text-slate-900 truncate">{{ $post->companyProfile->company_name }}</h5>
+                            <span class="text-xs text-slate-500 font-medium truncate block">{{ $post->companyProfile->industry }}</span>
+                        </div>
+                    </div>
                     <p class="text-xs text-slate-600 leading-relaxed">{{ $post->companyProfile->description }}</p>
                     <div class="pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-1">
                         <div>Industry: <strong class="text-slate-800">{{ $post->companyProfile->industry }}</strong></div>

@@ -29,14 +29,31 @@
                             @foreach ($applications as $app)
                                 <tr class="hover:bg-slate-50/60 transition-colors">
                                     <td class="py-3.5 px-6 min-w-0">
-                                        <div class="font-extrabold text-slate-900 text-sm truncate" title="{{ $app->internshipPost->title }}">{{ $app->internshipPost->title }}</div>
-                                        <div class="text-slate-600 font-semibold truncate">{{ $app->internshipPost->companyProfile->company_name }} • {{ $app->internshipPost->location }}</div>
+                                        @php
+                                            $appComp = $app->internshipPost->companyProfile;
+                                            $appLogo = $appComp->logo_url;
+                                            $appHasLogo = $appComp->has_logo;
+                                            $appInitials = $appComp->initials;
+                                        @endphp
+                                        <div class="flex items-center gap-3">
+                                            @if($appHasLogo && $appLogo)
+                                                <img src="{{ $appLogo }}" alt="{{ $appComp->company_name }}" class="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                                            @else
+                                                <div class="w-9 h-9 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                                    {{ $appInitials }}
+                                                </div>
+                                            @endif
+                                            <div class="min-w-0 flex-1">
+                                                <div class="font-extrabold text-slate-900 text-sm truncate" title="{{ $app->internshipPost->title }}">{{ $app->internshipPost->title }}</div>
+                                                <div class="text-slate-600 font-semibold truncate">{{ $appComp->company_name }} • {{ $app->internshipPost->location }}</div>
+                                            </div>
+                                        </div>
                                         @php
                                              $appResumePath = $app->getEffectiveResumePath();
                                              $resumeExists = $appResumePath && (Storage::disk('local')->exists($appResumePath) || Storage::disk('public')->exists($appResumePath));
                                         @endphp
                                         @if($resumeExists)
-                                            <div class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium mt-1 truncate">
+                                            <div class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium mt-1 ml-12 truncate">
                                                 <i class="fa-solid fa-file-circle-check text-[10px]"></i>
                                                 <span class="truncate">{{ basename($appResumePath) }} attached</span>
                                             </div>

@@ -144,6 +144,11 @@
                 <i class="fa-solid fa-file-invoice w-4.5 h-4.5"></i>
                 Reports
             </a>
+            <a href="{{ route('admin.profile') }}" 
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.profile*') ? $activeClass : $inactiveClass }}">
+                <i class="fa-solid fa-user-shield w-4.5 h-4.5"></i>
+                Admin Profile
+            </a>
         @endif
     </nav>
 
@@ -154,20 +159,18 @@
                 $profileRoute = match($role) {
                     'student' => route('student.profile'),
                     'company' => route('company.profile'),
+                    'admin'   => route('admin.profile'),
                     default => null,
                 };
-                $displayName = match($role) {
-                    'company' => $user->companyProfile?->company_name ?: $user->name,
-                    default => $user->name,
-                };
-                $avatarPath = $role === 'company' ? $user->companyProfile?->logo_path : $user->avatar_path;
-                $hasAvatar = $avatarPath && (\Illuminate\Support\Facades\Storage::disk('public')->exists($avatarPath) || file_exists(public_path('storage/' . ltrim($avatarPath, '/'))));
-                $initials = strtoupper(substr($displayName, 0, 2));
+                $displayName = $user->display_name;
+                $hasAvatar = $user->has_avatar;
+                $avatarUrl = $user->avatar_url;
+                $initials = $user->initials;
             @endphp
             @if($profileRoute)
                 <a href="{{ $profileRoute }}" title="View Profile" class="flex items-center gap-2.5 min-w-0 flex-1 hover:opacity-80 transition-opacity">
-                    @if($hasAvatar)
-                        <img src="{{ asset('storage/' . ltrim($avatarPath, '/')) }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
+                    @if($hasAvatar && $avatarUrl)
+                        <img src="{{ $avatarUrl }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
                     @else
                         <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                             {{ $initials }}
@@ -180,8 +183,8 @@
                 </a>
             @else
                 <div class="flex items-center gap-2.5 min-w-0">
-                    @if($hasAvatar)
-                        <img src="{{ asset('storage/' . ltrim($avatarPath, '/')) }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
+                    @if($hasAvatar && $avatarUrl)
+                        <img src="{{ $avatarUrl }}" alt="{{ $displayName }}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-slate-200 shadow-xs">
                     @else
                         <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
                             {{ $initials }}

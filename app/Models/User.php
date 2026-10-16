@@ -119,4 +119,72 @@ class User extends Authenticatable
 
         return 0;
     }
+
+    /**
+     * Get the resolved avatar public URL.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->avatar_path) {
+            return asset('storage/' . ltrim($this->avatar_path, '/'));
+        }
+
+        if ($this->isCompany() && $this->companyProfile?->logo_path) {
+            return asset('storage/' . ltrim($this->companyProfile->logo_path, '/'));
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if user has an uploaded avatar or company logo on disk.
+     */
+    public function getHasAvatarAttribute(): bool
+    {
+        $path = $this->avatar_path ?: ($this->isCompany() ? $this->companyProfile?->logo_path : null);
+        if (!$path) {
+            return false;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->exists($path)
+            || file_exists(public_path('storage/' . ltrim($path, '/')));
+    }
+
+    /**
+     * Get 2-letter uppercase initials for avatar badge fallback.
+     */
+    public function getInitialsAttribute(): string
+    {
+        $name = $this->display_name;
+        $parts = array_filter(explode(' ', trim($name)));
+        if (count($parts) >= 2) {
+            return strtoupper(substr($parts[0], 0, 1) . substr(end($parts), 0, 1));
+        }
+
+        return strtoupper(substr($name ?: 'US', 0, 2));
+    }
+
+    /**
+     * Get display name (company name for employers, name for students/admins).
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if ($this->isCompany() && $this->companyProfile?->company_name) {
+            return $this->companyProfile->company_name;
+        }
+
+        return $this->name;
+    }
+
+    /**
+     * Get human-readable role badge title.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return match($this->role) {
+            'admin' => 'University Admin',
+            'company' => 'Host Company',
+            default => 'Student Intern',
+        };
+    }
 }

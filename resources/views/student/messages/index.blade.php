@@ -51,14 +51,21 @@
                                 $isActive = $activeConversation && $activeConversation->id === $convo->id;
                                 $unreadCount = $convo->unreadCountFor(Auth::user());
                                 $companyName = $convo->companyProfile->company_name ?? 'Host Company';
+                                $compLogo = $convo->companyProfile->logo_url;
+                                $compHasLogo = $convo->companyProfile->has_logo;
+                                $compInitials = $convo->companyProfile->initials;
                             @endphp
                             <a href="{{ route('student.messages.index', ['conversation_id' => $convo->id]) }}" 
                                data-convo-id="{{ $convo->id }}"
                                class="convo-item block p-4 transition-colors {{ $isActive ? 'bg-emerald-50/80 border-l-4 border-emerald-600' : 'hover:bg-slate-100/70' }}">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
-                                        {{ strtoupper(substr($companyName, 0, 2)) }}
-                                    </div>
+                                    @if($compHasLogo && $compLogo)
+                                        <img src="{{ $compLogo }}" alt="{{ $companyName }}" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                                    @else
+                                        <div class="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                                            {{ $compInitials }}
+                                        </div>
+                                    @endif
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center justify-between mb-1">
                                             <h4 class="text-xs font-bold text-slate-900 truncate">{{ $companyName }}</h4>
@@ -87,12 +94,21 @@
                 <!-- Right Column: Active Chat Stream -->
                 <div class="lg:col-span-8 flex flex-col h-full min-h-0 bg-white overflow-hidden">
                     @if($activeConversation)
+                        @php
+                            $activeLogo = $activeConversation->companyProfile->logo_url;
+                            $activeHasLogo = $activeConversation->companyProfile->has_logo;
+                            $activeInitials = $activeConversation->companyProfile->initials;
+                        @endphp
                         <!-- Chat Header -->
                         <div class="p-4 border-b border-slate-200/80 flex items-center justify-between bg-white shrink-0">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                                    {{ strtoupper(substr($activeConversation->companyProfile->company_name ?? 'CO', 0, 2)) }}
-                                </div>
+                                @if($activeHasLogo && $activeLogo)
+                                    <img src="{{ $activeLogo }}" alt="{{ $activeConversation->companyProfile->company_name }}" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                                @else
+                                    <div class="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                                        {{ $activeInitials }}
+                                    </div>
+                                @endif
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <h3 class="text-sm font-extrabold text-slate-900">

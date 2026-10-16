@@ -113,13 +113,27 @@
                                 </span>
                             </div>
 
-                            <div>
-                                <h3 class="text-base font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
-                                    {{ $post->title }}
-                                </h3>
-                                <p class="text-xs font-semibold text-slate-600 mt-0.5">
-                                    {{ $post->companyProfile->company_name }}
-                                </p>
+                            <div class="flex items-center gap-3">
+                                @php
+                                    $compLogo = $post->companyProfile->logo_url;
+                                    $compHasLogo = $post->companyProfile->has_logo;
+                                    $compInitials = $post->companyProfile->initials;
+                                @endphp
+                                @if($compHasLogo && $compLogo)
+                                    <img src="{{ $compLogo }}" alt="{{ $post->companyProfile->company_name }}" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-200 shadow-xs">
+                                @else
+                                    <div class="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                                        {{ $compInitials }}
+                                    </div>
+                                @endif
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-base font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1">
+                                        {{ $post->title }}
+                                    </h3>
+                                    <p class="text-xs font-semibold text-slate-600 mt-0.5 truncate">
+                                        {{ $post->companyProfile->company_name }}
+                                    </p>
+                                </div>
                             </div>
 
                             <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">

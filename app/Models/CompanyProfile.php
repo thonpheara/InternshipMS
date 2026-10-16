@@ -52,4 +52,43 @@ class CompanyProfile extends Model
     {
         return $this->hasMany(Conversation::class);
     }
+
+    /**
+     * Get resolved logo public URL.
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if ($this->logo_path) {
+            return asset('storage/' . ltrim($this->logo_path, '/'));
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if company has an uploaded logo file on disk.
+     */
+    public function getHasLogoAttribute(): bool
+    {
+        if (!$this->logo_path) {
+            return false;
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->exists($this->logo_path)
+            || file_exists(public_path('storage/' . ltrim($this->logo_path, '/')));
+    }
+
+    /**
+     * Get 2-letter uppercase initials for company fallback avatar.
+     */
+    public function getInitialsAttribute(): string
+    {
+        $name = $this->company_name ?: ($this->user?->name ?: 'CO');
+        $parts = array_filter(explode(' ', trim($name)));
+        if (count($parts) >= 2) {
+            return strtoupper(substr($parts[0], 0, 1) . substr(end($parts), 0, 1));
+        }
+
+        return strtoupper(substr($name, 0, 2));
+    }
 }
