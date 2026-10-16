@@ -277,6 +277,12 @@ cd InternshipMS
    php artisan key:generate
    ```
 
+3. **Generate Real-Time WebSockets (Reverb) Keys:**
+   ```bash
+   php artisan reverb:install
+   ```
+   *This automatically creates unique `REVERB_APP_ID`, `REVERB_APP_KEY`, and `REVERB_APP_SECRET` and writes them into your `.env` file.*
+
 ---
 
 ### Step 4: Configure the Database
@@ -303,9 +309,9 @@ cd InternshipMS
 
    # Real-Time WebSockets (Laravel Reverb)
    BROADCAST_CONNECTION=reverb
-   REVERB_APP_ID=286776
-   REVERB_APP_KEY=8c7xqoel4jdfmceojiow
-   REVERB_APP_SECRET=re4dratvo0f6wlcgovko
+   REVERB_APP_ID=your-reverb-app-id
+   REVERB_APP_KEY=your-reverb-app-key
+   REVERB_APP_SECRET=your-reverb-app-secret
    REVERB_HOST="localhost"
    REVERB_PORT=8080
    REVERB_SCHEME=http
@@ -315,6 +321,9 @@ cd InternshipMS
    VITE_REVERB_PORT="${REVERB_PORT}"
    VITE_REVERB_SCHEME="${REVERB_SCHEME}"
    ```
+
+   > [!TIP]
+   > Run `php artisan reverb:install` to automatically generate your unique `REVERB_APP_ID`, `REVERB_APP_KEY`, and `REVERB_APP_SECRET` credentials directly into your local `.env` file.
 
 ---
 
