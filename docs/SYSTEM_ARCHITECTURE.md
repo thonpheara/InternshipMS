@@ -327,8 +327,9 @@ erDiagram
 
 - **Backend Runtime:** PHP 8.2+
 - **Application Framework:** Laravel 12.x
+- **Real-Time WebSockets:** Laravel Reverb (PHP WebSocket Server) & Laravel Echo (Pusher-js)
 - **ORM / Database Layer:** Eloquent ORM / MySQL 8.x or MariaDB 10.x
-- **Frontend Compiler:** Vite 5.x / 6.x
+- **Frontend Compiler:** Vite 6.x
 - **CSS Framework:** Tailwind CSS
 - **Interactivity & Charts:** Alpine.js, Chart.js
 - **Font & Icons:** Plus Jakarta Sans, FontAwesome 6

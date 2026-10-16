@@ -30,14 +30,12 @@
                     class="relative p-2 rounded-xl text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
                     title="Notifications">
                 <i class="fa-solid fa-bell w-4.5 h-4.5"></i>
-                @if($unreadCount > 0)
-                    <span class="absolute top-1.5 right-1.5 flex h-4 w-4">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                        <span class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-rose-600 text-[9px] font-bold text-white">
-                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                        </span>
+                <span id="notif-badge-wrapper" class="{{ $unreadCount > 0 ? '' : 'hidden' }} absolute top-1.5 right-1.5 flex h-4 w-4">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span id="notif-badge-count" class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-rose-600 text-[9px] font-bold text-white">
+                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                     </span>
-                @endif
+                </span>
             </button>
 
             <!-- Floating Notification Menu -->
@@ -56,11 +54,9 @@
                 <div class="p-3.5 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <h4 class="text-xs font-bold text-[#111827] uppercase tracking-wider">Notifications</h4>
-                        @if($unreadCount > 0)
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200">
-                                {{ $unreadCount }} new
-                            </span>
-                        @endif
+                        <span id="notif-header-badge" class="{{ $unreadCount > 0 ? '' : 'hidden' }} px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200">
+                            <span id="notif-header-count">{{ $unreadCount }}</span> new
+                        </span>
                     </div>
                     @if($unreadCount > 0)
                         <form action="{{ route('notifications.markAllRead') }}" method="POST">
@@ -73,7 +69,7 @@
                 </div>
 
                 <!-- Notifications List -->
-                <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                <div id="notif-list-container" class="max-h-80 overflow-y-auto divide-y divide-gray-100">
                     @forelse($notifications as $notif)
                         @php
                             $data = $notif->data;
@@ -86,7 +82,7 @@
                                 default => 'bg-emerald-50 text-[#059669]',
                             };
                         @endphp
-                        <div class="p-3 hover:bg-gray-50/80 transition-colors {{ $isUnread ? 'bg-emerald-50/20' : '' }}">
+                        <div class="notif-item p-3 hover:bg-gray-50/80 transition-colors {{ $isUnread ? 'bg-emerald-50/20' : '' }}">
                             <div class="flex items-start gap-3">
                                 <div class="w-8 h-8 rounded-xl {{ $iconColor }} flex items-center justify-center shrink-0 mt-0.5">
                                     <i class="{{ $data['icon'] ?? 'fa-solid fa-bell' }} text-xs"></i>
@@ -127,7 +123,7 @@
                             </div>
                         </div>
                     @empty
-                        <div class="py-8 text-center text-gray-400 text-xs space-y-2">
+                        <div id="notif-empty-state" class="py-8 text-center text-gray-400 text-xs space-y-2">
                             <i class="fa-regular fa-bell-slash text-2xl text-gray-300"></i>
                             <p>No notifications yet</p>
                         </div>
@@ -148,6 +144,140 @@
                 @endif
             </div>
         </div>
+
+        <!-- Real-Time Floating Toast Notification Box -->
+        <div id="realtime-toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const userIdMeta = document.querySelector('meta[name="user-id"]');
+                const userId = userIdMeta ? userIdMeta.content : null;
+
+                if (!userId || !window.Echo) return;
+
+                // Function to show toast alert
+                window.showRealtimeToast = function(title, message, actionUrl, icon = 'fa-solid fa-bell', color = 'emerald') {
+                    const container = document.getElementById('realtime-toast-container');
+                    if (!container) return;
+
+                    const toast = document.createElement('div');
+                    toast.className = 'pointer-events-auto flex items-start gap-3 p-3.5 bg-white/95 backdrop-blur-md rounded-2xl border border-emerald-100 shadow-xl shadow-emerald-950/5 transform transition-all duration-300 translate-y-3 opacity-0';
+
+                    const colorClass = color === 'rose' ? 'bg-rose-50 text-rose-600' : 
+                                      color === 'blue' ? 'bg-blue-50 text-blue-600' :
+                                      color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600';
+
+                    toast.innerHTML = `
+                        <div class="w-9 h-9 rounded-xl ${colorClass} flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="${icon} text-sm"></i>
+                        </div>
+                        <div class="flex-1 min-w-0 pr-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <h6 class="text-xs font-extrabold text-slate-900 truncate">${escapeHtml(title)}</h6>
+                                <span class="text-[10px] text-slate-400 font-semibold shrink-0">Just now</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 mt-0.5 line-clamp-2 leading-relaxed">${escapeHtml(message)}</p>
+                            ${actionUrl ? `
+                                <a href="${actionUrl}" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700 mt-2">
+                                    <span>View details</span>
+                                    <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                        <button type="button" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer shrink-0" onclick="this.closest('.pointer-events-auto').remove()">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    `;
+
+                    container.appendChild(toast);
+
+                    // Animate in
+                    requestAnimationFrame(() => {
+                        toast.classList.remove('translate-y-3', 'opacity-0');
+                    });
+
+                    // Auto dismiss after 6 seconds
+                    setTimeout(() => {
+                        toast.classList.add('opacity-0', 'translate-x-3');
+                        setTimeout(() => toast.remove(), 300);
+                    }, 6000);
+                };
+
+                function escapeHtml(str) {
+                    if (!str) return '';
+                    return str.replace(/[&<>'"]/g, 
+                        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+                    );
+                }
+
+                // Listen for Real-Time In-App Notifications
+                window.Echo.private(`App.Models.User.${userId}`)
+                    .notification((notif) => {
+                        const badgeWrapper = document.getElementById('notif-badge-wrapper');
+                        const badgeCount = document.getElementById('notif-badge-count');
+                        const headerBadge = document.getElementById('notif-header-badge');
+                        const headerCount = document.getElementById('notif-header-count');
+                        const listContainer = document.getElementById('notif-list-container');
+                        const emptyState = document.getElementById('notif-empty-state');
+
+                        // Increment badge count
+                        let currentCount = parseInt(headerCount?.textContent || '0', 10);
+                        currentCount++;
+
+                        if (badgeWrapper) badgeWrapper.classList.remove('hidden');
+                        if (badgeCount) badgeCount.textContent = currentCount > 9 ? '9+' : currentCount;
+                        if (headerBadge) headerBadge.classList.remove('hidden');
+                        if (headerCount) headerCount.textContent = currentCount;
+
+                        if (emptyState) emptyState.remove();
+
+                        // Prepend new item to list
+                        if (listContainer) {
+                            const iconColor = notif.color === 'rose' ? 'bg-rose-50 text-rose-600' :
+                                             notif.color === 'blue' ? 'bg-blue-50 text-blue-600' :
+                                             notif.color === 'amber' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-[#059669]';
+
+                            const item = document.createElement('div');
+                            item.className = 'notif-item p-3 hover:bg-gray-50/80 transition-colors bg-emerald-50/30 border-l-3 border-emerald-500';
+                            item.innerHTML = `
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-xl ${iconColor} flex items-center justify-center shrink-0 mt-0.5">
+                                        <i class="${escapeHtml(notif.icon || 'fa-solid fa-bell')} text-xs"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between gap-1">
+                                            <h5 class="text-xs font-black text-[#111827] truncate">
+                                                ${escapeHtml(notif.title || 'Notification')}
+                                            </h5>
+                                            <span class="text-[10px] text-gray-400 shrink-0 font-semibold">Just now</span>
+                                        </div>
+                                        <p class="text-[11px] text-gray-600 mt-0.5 line-clamp-2 leading-relaxed">
+                                            ${escapeHtml(notif.message || '')}
+                                        </p>
+                                        <div class="flex items-center justify-between mt-2 pt-1">
+                                            ${notif.action_url ? `
+                                                <a href="${notif.action_url}" class="text-[11px] font-bold text-[#059669] hover:underline inline-flex items-center gap-1">
+                                                    View details <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                                                </a>
+                                            ` : `<span class="text-[11px] text-gray-400">Mark as read</span>`}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            listContainer.prepend(item);
+                        }
+
+                        // Trigger toast notification
+                        window.showRealtimeToast(
+                            notif.title || 'New Notification',
+                            notif.message || '',
+                            notif.action_url,
+                            notif.icon || 'fa-solid fa-bell',
+                            notif.color || 'emerald'
+                        );
+                    });
+            });
+        </script>
 
         <!-- Role Status Indicator Pill -->
         <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[#F3F4F6] text-[#111827] text-xs font-medium border border-[#E5E7EB]">

@@ -2,14 +2,15 @@
 
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net)
+[![WebSockets](https://img.shields.io/badge/WebSockets-Laravel_Reverb-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/docs/reverb)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Alpine.js](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white)](https://alpinejs.dev)
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
-[![Tests](https://img.shields.io/badge/Tests-31%20Passed%20(118%20assertions)-success?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/thonpheara/InternshipMS)
+[![Tests](https://img.shields.io/badge/Tests-35%20Passed%20(134%20assertions)-success?style=for-the-badge&logo=checkmarx&logoColor=white)](https://github.com/thonpheara/InternshipMS)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Internship Management System** is a unified, enterprise-grade web application built with **Laravel 12**, **Tailwind CSS**, **Alpine.js**, **Chart.js**, and **Vite**. It bridges the gap between university students, host employers, and university administrators to streamline internship discovery, candidate applications, corporate verification, job post moderation, in-app messaging, placement reporting, and institutional analytics.
+**Internship Management System** is a unified, enterprise-grade web application built with **Laravel 12**, **Laravel Reverb WebSockets**, **Tailwind CSS**, **Alpine.js**, **Chart.js**, and **Vite**. It bridges the gap between university students, host employers, and university administrators to streamline internship discovery, candidate applications, corporate verification, job post moderation, real-time bidirectional messaging, instant in-app alerts, placement reporting, and institutional analytics.
 
 🔗 **GitHub Repository:** [https://github.com/thonpheara/InternshipMS.git](https://github.com/thonpheara/InternshipMS.git)
 
@@ -45,19 +46,19 @@
 - **Application Submission:** Apply with a customized cover letter and attached PDF resume.
 - **Dedicated Resume Management:** Upload and manage personal PDF resumes with direct browser-native previewing, downloading, and isolated file deletion (`storage/app/public/resumes/{student_id}/`).
 - **Application Pipeline Tracking:** Real-time visibility into application progress across all stages (*Applied*, *Under Review*, *Interviewed*, *Accepted*, *Rejected*).
-- **Direct Employer Messaging:** Communicate directly with hiring managers regarding active applications, interview schedules, and onboarding inquiries.
+- **⚡ Real-Time Direct Messaging (Laravel Reverb & Echo):** Instant peer-to-peer messaging with recruiters powered by WebSockets. Instant asynchronous sending (zero page reload), auto-scrolling, live message bubble streaming, and real-time conversation list updates.
 - **Profile Picture & Avatar Customization:** Upload, preview, and update student profile picture with instant live preview.
 - **Academic Profile Configuration:** Manage university student ID, major, department, cumulative GPA, key technical skills, and biographical details.
 - **Account Security & Password Management:** Dedicated "Security & Password" tab to change password securely with current password verification, confirmation checks, and eye toggle visibility.
-- **Instant In-App Alerts:** Real-time bell notifications whenever a company reviews an application, updates hiring status, or sends a direct message.
+- **⚡ Instant In-App Alerts & Toasts:** Real-time bell notifications and floating interactive toast popups whenever an employer reviews an application, advances status, or sends a message.
 
 ### 🏢 Host Company Portal
 - **Corporate Registration & Verification:** Self-service company onboarding with profile submission (industry, location, website, hiring contact person, logo) submitted for administrator verification.
 - **Internship Vacancy Publishing:** Create and edit job postings detailing descriptions, requirements, stipend disclosure, available positions, and application deadlines (held in a moderation queue for university approval).
 - **Applicant Review Pipeline Board:** Multi-stage applicant tracking board to inspect student candidates, read cover letters, view PDF resumes in-browser, and advance statuses (*Applied* ➔ *Under Review* ➔ *Shortlisted* ➔ *Interviewed* ➔ *Accepted* / *Rejected*).
-- **Direct Candidate Messaging:** Application-bound messaging channels with student applicants.
+- **⚡ Real-Time Candidate Chat (WebSockets):** Seamless live messaging channel with applicants featuring instant message dispatch, live incoming chat bubbles, and auto-updated unread counts.
 - **Company Security & Password Management:** Dedicated "Security & Password" tab for recruiter password changes with authentication validation and visibility toggles.
-- **Instant In-App Alerts:** Real-time notifications when students apply for open positions or when administrators verify accounts and approve job listings.
+- **⚡ Instant In-App Alerts:** Real-time WebSocket notifications when students submit applications or when administrators verify corporate accounts and approve job listings.
 
 ### 🛡️ University Administrator Portal
 - **Executive KPI Dashboard:** Real-time metrics overview displaying Total User Accounts, Active Student Interns, Registered Companies, Approved Listings, and Pending Moderation queues.
@@ -75,8 +76,10 @@
   - Dedicated **Print-Ready / Formal Academic Audit Report** (`/admin/reports/print`) optimized with `@media print` styling for university records, accreditation audits, and administrative reporting.
 - **Single-Screen UI (100vh Layout):** Viewport-optimized layout preventing unnecessary whole-page scrolling and providing clean data tables with internal scroll containers.
 
-### 🔔 Universal In-App Notification System
-- **Real-Time Notification Drawer:** Topbar notification bell with animated ping effect and dynamic unread counter badge.
+### 🔔 Universal Real-Time In-App Notification System
+- **WebSocket Push Engine (Laravel Reverb):** Instant notifications broadcasted via private user channels (`App.Models.User.{id}`) using `ShouldBroadcastNow`.
+- **Dynamic Bell Counter & Ping Animation:** Live badge counter increments (+1) with glowing ping animation without requiring page reloads.
+- **Interactive Floating Toast Alerts:** Sleek floating toast popups on the bottom-right corner of the screen containing title, message snippet, and direct action link.
 - **Deep-Linked Redirection:** Clicking any notification marks it as read and automatically navigates the user directly to the relevant resource (e.g. specific application, applicant pipeline, company verification page, or job post).
 - **Quick Notification Actions:** Single-click "Mark All as Read", individual notification deletion, and "Clear All Notifications".
 - **Cross-Workflow Event Triggers:**
@@ -86,6 +89,7 @@
   - *Admin Approves/Rejects Job Post* ➔ Company receives posting decision alert.
   - *Student Applies to Internship* ➔ Host Company receives application alert.
   - *Company Updates Candidate Status* ➔ Student receives application status alert.
+  - *Direct Message Sent* ➔ Recipient receives instant message notification alert.
 
 ---
 
@@ -208,8 +212,9 @@ sequenceDiagram
 | Layer | Technologies & Components | Primary Responsibility |
 | :--- | :--- | :--- |
 | **Presentation Tier** | Blade, Tailwind CSS, Alpine.js, Chart.js, FontAwesome 6, Vite | Responsive UI, interactive modal dialogs, PDF preview drawer, dynamic charts, notification badge. |
-| **Routing & Middleware** | Laravel Web Router (`routes/web.php`), RBAC Middleware | Request routing, session state validation, CSRF verification, and strict role guards (`role:student`, `role:company`, `role:admin`). |
-| **Application Tier** | PHP 8.2+, Laravel 12 Controllers | Request validation, business logic, notification dispatching, file uploads, CSV generation, and view rendering. |
+| **Real-Time WebSockets** | Laravel Reverb, Laravel Echo, Pusher-js, Private Channels | Instant peer-to-peer messaging, live chat bubbles, real-time unread badges, and instant notification toasts. |
+| **Routing & Middleware** | Laravel Web Router (`routes/web.php`), Channel Authorization (`routes/channels.php`), RBAC Middleware | Request routing, channel authentication, session state validation, CSRF verification, and strict role guards (`role:student`, `role:company`, `role:admin`). |
+| **Application Tier** | PHP 8.2+, Laravel 12 Controllers & Broadcast Events | Request validation, business logic, notification dispatching, WebSocket event broadcasting (`MessageSent`), file uploads, CSV generation, and view rendering. |
 | **Domain & Data Tier** | Eloquent ORM Models (`User`, `StudentProfile`, `CompanyProfile`, `InternshipPost`, `Application`, `Conversation`, `Message`) | Relationships, cascading constraints, soft deletes, timestamps, and database notifications. |
 | **Storage & Persistence** | MySQL 8.x / MariaDB, Filesystem (`storage/app/public`) | Relational transaction integrity, isolated student resume storage, and public streaming fallback route. |
 
@@ -281,7 +286,7 @@ cd InternshipMS
    ```sql
    CREATE DATABASE intern_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
-3. **Verify Database connection parameters in `.env`:**
+3. **Verify Database & WebSockets parameters in `.env`:**
    ```env
    APP_NAME="Internship Management System"
    APP_ENV=local
@@ -295,6 +300,20 @@ cd InternshipMS
    DB_DATABASE=intern_db
    DB_USERNAME=root
    DB_PASSWORD=
+
+   # Real-Time WebSockets (Laravel Reverb)
+   BROADCAST_CONNECTION=reverb
+   REVERB_APP_ID=286776
+   REVERB_APP_KEY=8c7xqoel4jdfmceojiow
+   REVERB_APP_SECRET=re4dratvo0f6wlcgovko
+   REVERB_HOST="localhost"
+   REVERB_PORT=8080
+   REVERB_SCHEME=http
+
+   VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+   VITE_REVERB_HOST="${REVERB_HOST}"
+   VITE_REVERB_PORT="${REVERB_PORT}"
+   VITE_REVERB_SCHEME="${REVERB_SCHEME}"
    ```
 
 ---
@@ -328,11 +347,26 @@ php artisan storage:link
 
 ## 🏃 Running the Application Locally
 
-During local development, run both the **Laravel backend** server and the **Vite asset compilation** server:
+### Option A: Single Command Launch (Recommended)
+You can start all required development services simultaneously with a single command:
 
-### Option A: Running in Two Separate Terminals (Recommended)
+```bash
+composer run dev
+```
 
-1. **Terminal 1 — Laravel Backend Server:**
+*This automatically launches all 4 processes concurrently (customized for Windows without `pcntl` issues):*
+- 🌐 **`server`**: Laravel Backend Server (`http://127.0.0.1:8000`)
+- ⚡ **`queue`**: Background Job Listener (`queue:listen`)
+- 🎨 **`vite`**: Vite Frontend Hot-Module Replacement
+- 📡 **`reverb`**: Real-Time WebSocket Server (`ws://localhost:8080`)
+
+---
+
+### Option B: Running in Separate Terminals
+
+If you prefer managing processes in separate terminal windows:
+
+1. **Terminal 1 — Laravel Web Server:**
    ```bash
    php artisan serve
    ```
@@ -343,12 +377,15 @@ During local development, run both the **Laravel backend** server and the **Vite
    npm run dev
    ```
 
----
+3. **Terminal 3 — Reverb WebSocket Server:**
+   ```bash
+   php artisan reverb:start --debug
+   ```
 
-### Option B: Single Command Launch
-```bash
-composer run dev
-```
+4. **Terminal 4 — Queue Worker (Optional):**
+   ```bash
+   php artisan queue:listen
+   ```
 
 ---
 
@@ -361,6 +398,7 @@ php artisan test
 ```
 
 ### Test Suite Summary:
+- **`RealtimeBroadcastingTest`:** Real-time WebSockets event broadcasting (`MessageSent`), instant AJAX transmission for Student & Company messaging, `AppNotification` broadcast verification (`ShouldBroadcastNow`), and channel participant authorization security.
 - **`AdminFeaturesTest`:** Company verification queue, verification approvals, rejection with notes, placement report filters, CSV export, and print preview.
 - **`NotificationTest`:** Notification delivery, unread counter badges, mark as read with redirect, mark all as read, delete single notification, and clear all.
 - **`PostStatusSecurityTest`:** Strict job post status authorization (companies cannot self-approve pending posts or manipulate post states).
@@ -368,7 +406,7 @@ php artisan test
 - **`UserManagementTest`:** Admin user index, Chart.js analytics dashboard metrics, student creation, company creation, user updates, soft-deletes, and RBAC guard tests.
 - **`ExampleTest`:** Application baseline and unit integrity.
 
-**Result:** `31 passed (118 assertions)`
+**Result:** `35 passed (134 assertions)`
 
 ---
 
@@ -393,6 +431,8 @@ php artisan test
 ```plaintext
 InternshipMS/
 ├── app/
+│   ├── Events/
+│   │   └── MessageSent.php                            # Real-time WebSocket broadcast event (ShouldBroadcastNow)
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── Admin/
@@ -406,10 +446,10 @@ InternshipMS/
 │   │   │   │   ├── CompanyDashboardController.php     # Company statistics
 │   │   │   │   ├── CompanyProfileController.php       # Corporate profile & logo
 │   │   │   │   ├── InternshipPostController.php       # Job posting CRUD
-│   │   │   │   └── MessageController.php              # Direct candidate messaging
+│   │   │   │   └── MessageController.php              # Real-time direct candidate messaging
 │   │   │   ├── Student/
 │   │   │   │   ├── InternshipBrowseController.php     # Job search, filters, apply
-│   │   │   │   ├── MessageController.php              # Direct company messaging
+│   │   │   │   ├── MessageController.php              # Real-time direct company messaging
 │   │   │   │   └── StudentDashboardController.php     # Profile & resume management
 │   │   │   ├── AuthController.php                     # Authentication & registration
 │   │   │   └── NotificationController.php             # In-app notifications handler
@@ -418,13 +458,16 @@ InternshipMS/
 │   ├── Models/
 │   │   ├── Application.php                            # Student job applications
 │   │   ├── CompanyProfile.php                         # Company details & verification
-│   │   ├── Conversation.php                           # Direct messaging threads
+│   │   ├── Conversation.php                           # Direct messaging threads & participant guards
 │   │   ├── InternshipPost.php                         # Job vacancies
 │   │   ├── Message.php                                # Chat messages
 │   │   ├── StudentProfile.php                         # Student details & resume paths
 │   │   └── User.php                                   # Base user accounts & roles
 │   └── Notifications/
-│       └── AppNotification.php                        # Universal database notification class
+│       └── AppNotification.php                        # Real-time broadcastable database notification class
+├── config/
+│   ├── broadcasting.php                               # Broadcast connections (Reverb, Pusher, etc.)
+│   └── reverb.php                                     # Laravel Reverb server configuration
 ├── database/
 │   ├── migrations/                                    # Database schema migrations
 │   └── seeders/
@@ -436,18 +479,20 @@ InternshipMS/
 │   ├── css/
 │   │   └── app.css                                    # Tailwind CSS setup
 │   ├── js/
-│   │   └── app.js                                     # Alpine.js & Chart.js scripts
+│   │   ├── app.js                                     # Core scripts bundle
+│   │   ├── bootstrap.js                               # Axios & Echo bootstrapper
+│   │   └── echo.js                                    # Laravel Echo & Pusher-js client configuration
 │   └── views/
 │       ├── Admin/                                     # Admin views (dashboard, reports, verification, users)
-│       ├── company/                                   # Company views (pipeline, posts, profile)
-│       ├── student/                                   # Student views (browse, apply, profile, resumes)
+│       ├── company/                                   # Company views (pipeline, posts, profile, chat)
+│       ├── student/                                   # Student views (browse, apply, profile, resumes, chat)
 │       ├── components/                                # Shared Blade components (topbar, sidebar, layout)
-│       ├── auth/                                      # Login & Registration views
-│       └── messages/                                  # Chat interfaces
+│       └── auth/                                      # Login & Registration views
 ├── routes/
+│   ├── channels.php                                   # WebSocket private channel authorization rules
 │   └── web.php                                        # Web routes & storage streaming fallback
 └── tests/
-    └── Feature/                                       # 25 automated feature & unit tests
+    └── Feature/                                       # 35 automated feature tests (134 assertions)
 ```
 
 ---

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Notifications\AppNotification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,7 +74,7 @@ class MessageController extends Controller
     /**
      * Send a new message within an existing conversation.
      */
-    public function store(Request $request, Conversation $conversation): RedirectResponse
+    public function store(Request $request, Conversation $conversation): RedirectResponse|JsonResponse
     {
         $student = Auth::user()->studentProfile;
         abort_if(!$student || $conversation->student_profile_id !== $student->id, 403, 'Unauthorized.');
@@ -81,7 +83,7 @@ class MessageController extends Controller
             'body' => ['required', 'string'],
         ]);
 
-        $conversation->messages()->create([
+        $message = $conversation->messages()->create([
             'sender_id' => Auth::id(),
             'body'      => trim($validated['body']),
             'is_read'   => false,
@@ -90,6 +92,9 @@ class MessageController extends Controller
         $conversation->update([
             'last_message_at' => now(),
         ]);
+
+        // Broadcast real-time message event to WebSocket channel
+        broadcast(new MessageSent($message))->toOthers();
 
         // Send In-App Notification to company recruiter
         $recipient = $conversation->getRecipientFor(Auth::user());
@@ -101,6 +106,23 @@ class MessageController extends Controller
                 icon: 'fa-solid fa-comments',
                 color: 'blue'
             ));
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => [
+                    'id'               => $message->id,
+                    'conversation_id'  => $conversation->id,
+                    'sender_id'        => $message->sender_id,
+                    'sender_name'      => Auth::user()->name,
+                    'body'             => $message->body,
+                    'is_read'          => false,
+                    'created_at_time'  => $message->created_at->format('h:i A'),
+                    'created_at_human' => 'Just now',
+                    'is_me'            => true,
+                ],
+            ]);
         }
 
         return redirect()->route('student.messages.index', ['conversation_id' => $conversation->id]);

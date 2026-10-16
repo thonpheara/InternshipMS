@@ -3,9 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
-class AppNotification extends Notification
+class AppNotification extends Notification implements ShouldBroadcastNow
 {
     use Queueable;
 
@@ -19,7 +21,7 @@ class AppNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toArray(object $notifiable): array
@@ -31,5 +33,18 @@ class AppNotification extends Notification
             'icon'       => $this->icon,
             'color'      => $this->color,
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage([
+            'id'               => $this->id,
+            'title'            => $this->title,
+            'message'          => $this->message,
+            'action_url'       => $this->actionUrl,
+            'icon'             => $this->icon,
+            'color'            => $this->color,
+            'created_at_human' => 'Just now',
+        ]);
     }
 }
