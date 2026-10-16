@@ -135,9 +135,9 @@
                 
                 <!-- Card 1: Administrator Information & Avatar Upload -->
                 <div x-show="tab === 'all' || tab === 'profile'" x-transition class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5">
-                    <div class="flex items-start gap-3.5 pb-2 border-b border-slate-100">
-                        <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-id-badge text-base"></i>
+                    <div class="flex items-start gap-3.5 pb-2">
+                        <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-user-shield w-5 h-5"></i>
                         </div>
                         <div>
                             <h3 class="text-base font-bold text-slate-900">Administrator Information &amp; Avatar</h3>
@@ -157,7 +157,7 @@
                                 @if ($hasAvatar && $avatarUrl)
                                     <img src="{{ $avatarUrl }}" alt="{{ $user->name }}" class="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-xs">
                                 @else
-                                    <div class="w-16 h-16 rounded-2xl bg-slate-800 text-white font-black text-xl flex items-center justify-center shadow-xs">
+                                    <div class="w-16 h-16 rounded-2xl bg-[#059669] text-white font-black text-xl flex items-center justify-center shadow-xs">
                                         {{ $initials }}
                                     </div>
                                 @endif
@@ -169,7 +169,7 @@
                                     <input type="file" 
                                            name="avatar" 
                                            accept="image/*"
-                                           class="block w-full sm:w-auto text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer">
+                                           class="block w-full sm:w-auto text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-semibold file:bg-[#059669] file:text-white hover:file:bg-[#047857] cursor-pointer">
                                     @if($hasAvatar)
                                         <button type="submit" 
                                                 name="delete_avatar" 
@@ -196,7 +196,7 @@
                                            name="name" 
                                            value="{{ old('name', $user->name) }}" 
                                            required
-                                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-800/20 focus:border-slate-800 transition-all font-medium">
+                                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
                                 </div>
                             </div>
 
@@ -212,30 +212,30 @@
                                            name="email" 
                                            value="{{ old('email', $user->email) }}" 
                                            required
-                                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-800/20 focus:border-slate-800 transition-all font-medium">
+                                           class="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="pt-2 flex justify-end">
-                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-xs transition-all cursor-pointer">
-                                <i class="fa-solid fa-check w-4 h-4"></i>
+                        <div class="pt-2">
+                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-semibold text-xs shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer">
+                                <i class="fa-solid fa-bookmark w-3.5 h-3.5"></i>
                                 <span>Save Changes</span>
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Card 2: Security & Password Update -->
-                <div x-show="tab === 'all' || tab === 'security'" x-transition class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5">
-                    <div class="flex items-start gap-3.5 pb-2 border-b border-slate-100">
-                        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-lock text-base"></i>
+                <!-- Card 2: Security & Password Update (Matching Screenshot) -->
+                <div x-show="tab === 'all' || tab === 'security'" x-transition class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-5" x-data="{ showCurrent: false, showNew: false, showConfirm: false }">
+                    <div class="flex items-start gap-3.5 pb-2">
+                        <div class="w-10 h-10 rounded-xl bg-[#D1FAE5] text-[#059669] flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-shield-halved w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-slate-900">Security &amp; Password</h3>
+                            <h3 class="text-base font-bold text-slate-900">Change Account Password</h3>
                             <p class="text-xs text-slate-500 mt-0.5">
-                                Ensure your university administrator account uses a strong, complex passphrase.
+                                Ensure your administrator account remains protected by updating your password regularly.
                             </p>
                         </div>
                     </div>
@@ -244,37 +244,87 @@
                         @csrf
                         @method('PUT')
 
-                        <div>
-                            <label for="current_password" class="block text-xs font-semibold text-slate-700 mb-1.5">Current Administrator Password</label>
-                            <input type="password" 
-                                   id="current_password" 
-                                   name="current_password" 
-                                   required 
-                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-800/20 focus:border-slate-800 transition-all font-medium">
+                        <div class="grid grid-cols-1 gap-4 max-w-xl">
+                            <!-- Current Password -->
+                            <div>
+                                <label for="admin_current_password" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Current Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-lock w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showCurrent ? 'text' : 'password'" 
+                                           id="admin_current_password" 
+                                           name="current_password" 
+                                           required
+                                           placeholder="Enter your current password"
+                                           class="w-full pl-10 pr-10 py-2.5 rounded-xl border {{ $errors->has('current_password') ? 'border-rose-300 ring-rose-200' : 'border-slate-200' }} bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
+                                    <button type="button" 
+                                            @click="showCurrent = !showCurrent" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                                        <i class="fa-solid text-xs" :class="showCurrent ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                                @error('current_password')
+                                    <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- New Password -->
+                            <div>
+                                <label for="admin_password" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    New Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-key w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showNew ? 'text' : 'password'" 
+                                           id="admin_password" 
+                                           name="password" 
+                                           required
+                                           minlength="8"
+                                           placeholder="Minimum 8 characters"
+                                           class="w-full pl-10 pr-10 py-2.5 rounded-xl border {{ $errors->has('password') ? 'border-rose-300 ring-rose-200' : 'border-slate-200' }} bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
+                                    <button type="button" 
+                                            @click="showNew = !showNew" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                                        <i class="fa-solid text-xs" :class="showNew ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                                @error('password')
+                                    <p class="text-[11px] text-rose-600 font-medium mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="admin_password_confirmation" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Confirm New Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-circle-check w-4 h-4"></i>
+                                    </div>
+                                    <input :type="showConfirm ? 'text' : 'password'" 
+                                           id="admin_password_confirmation" 
+                                           name="password_confirmation" 
+                                           required
+                                           placeholder="Re-type your new password"
+                                           class="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669]/20 focus:border-[#059669] transition-all font-medium">
+                                    <button type="button" 
+                                            @click="showConfirm = !showConfirm" 
+                                            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+                                        <i class="fa-solid text-xs" :class="showConfirm ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="password" class="block text-xs font-semibold text-slate-700 mb-1.5">New Password (Min 8 chars)</label>
-                                <input type="password" 
-                                       id="password" 
-                                       name="password" 
-                                       required 
-                                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-800/20 focus:border-slate-800 transition-all font-medium">
-                            </div>
-                            <div>
-                                <label for="password_confirmation" class="block text-xs font-semibold text-slate-700 mb-1.5">Confirm New Password</label>
-                                <input type="password" 
-                                       id="password_confirmation" 
-                                       name="password_confirmation" 
-                                       required 
-                                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-800/20 focus:border-slate-800 transition-all font-medium">
-                            </div>
-                        </div>
-
-                        <div class="pt-2 flex justify-end">
-                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs shadow-xs transition-all cursor-pointer">
-                                <i class="fa-solid fa-key w-4 h-4"></i>
+                        <div class="pt-2">
+                            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#059669] hover:bg-[#047857] text-white font-semibold text-xs shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer">
+                                <i class="fa-solid fa-lock w-3.5 h-3.5"></i>
                                 <span>Update Password</span>
                             </button>
                         </div>

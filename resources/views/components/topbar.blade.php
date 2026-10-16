@@ -366,6 +366,19 @@
 
                 <!-- Navigation Links -->
                 <div class="p-2 space-y-0.5 text-xs">
+                    @php
+                        $dashboardRoute = match($role) {
+                            'admin'   => route('admin.dashboard'),
+                            'company' => route('company.dashboard'),
+                            'student' => route('student.dashboard'),
+                            default   => url('/'),
+                        };
+                    @endphp
+                    <a href="{{ $dashboardRoute }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 font-medium transition-colors">
+                        <i class="fa-solid fa-house w-4 text-gray-400"></i>
+                        <span>Dashboard</span>
+                    </a>
+
                     @if($profileRoute)
                         <a href="{{ $profileRoute }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-gray-700 hover:text-emerald-700 hover:bg-emerald-50 font-medium transition-colors">
                             <i class="fa-solid fa-user-gear w-4 text-gray-400"></i>

@@ -49,7 +49,7 @@
             <!-- Student Navigation -->
             <a href="{{ route('student.dashboard') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('student.dashboard') ? $activeClass : $inactiveClass }}">
-                <i class="fa-solid fa-chart-pie w-4.5 h-4.5"></i>
+                <i class="fa-solid fa-house w-4.5 h-4.5"></i>
                 Dashboard
             </a>
             <a href="{{ route('student.posts.index') }}" 
@@ -85,7 +85,7 @@
             <!-- Company Navigation -->
             <a href="{{ route('company.dashboard') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('company.dashboard') ? $activeClass : $inactiveClass }}">
-                <i class="fa-solid fa-chart-pie w-4.5 h-4.5"></i>
+                <i class="fa-solid fa-house w-4.5 h-4.5"></i>
                 Dashboard
             </a>
             <a href="{{ route('company.posts.index') }}" 
@@ -121,7 +121,7 @@
             <!-- Admin Navigation -->
             <a href="{{ route('admin.dashboard') }}" 
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm {{ request()->routeIs('admin.dashboard') ? $activeClass : $inactiveClass }}">
-                <i class="fa-solid fa-gauge w-4.5 h-4.5"></i>
+                <i class="fa-solid fa-house w-4.5 h-4.5"></i>
                 Dashboard
             </a>
             <a href="{{ route('admin.companies.index') }}" 
