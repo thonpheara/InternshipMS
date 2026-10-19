@@ -61,6 +61,15 @@ class StudentProfile extends Model
         return ($value === '0' || $value === '' || $value === null) ? null : $value;
     }
 
+    protected $appends = [
+        'has_resume',
+    ];
+
+    public function getHasResumeAttribute(): bool
+    {
+        return !empty($this->resume_path);
+    }
+
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class);

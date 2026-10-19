@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\InternshipPost;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,27 +16,55 @@ use Illuminate\View\View;
 class StudentDashboardController extends Controller
 {
     /**
-     * Display student dashboard with stats.
+     * Display student dashboard with stats and recommendations.
      */
     public function index(): View
     {
         $user = Auth::user();
         $student = $user->studentProfile ?? $user->studentProfile()->create();
 
-        // Recent applications (show 3)
+        // Recent applications (show 5)
         $recentApplications = Application::with(['internshipPost.companyProfile'])
             ->where('student_profile_id', $student?->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Stats (4 comprehensive metrics)
+        $stats = [
+            'total_applications' => Application::where('student_profile_id', $student?->id)->count(),
+            'pending'            => Application::where('student_profile_id', $student?->id)
+                ->whereIn('status', ['pending', 'under_review'])
+                ->count(),
+            'shortlisted'        => Application::where('student_profile_id', $student?->id)
+                ->whereIn('status', ['shortlisted', 'interviewed'])
+                ->count(),
+            'accepted'           => Application::where('student_profile_id', $student?->id)
+                ->where('status', 'accepted')
+                ->count(),
+        ];
+
+        // Recommended / Available internship posts (posts the student hasn't applied to yet)
+        $recommendedPosts = InternshipPost::with('companyProfile')
+            ->approved()
+            ->whereDate('deadline', '>=', now()->toDateString())
+            ->whereDoesntHave('applications', function ($q) use ($student) {
+                $q->where('student_profile_id', $student?->id);
+            })
             ->latest()
             ->take(3)
             ->get();
 
-        // Stats
-        $stats = [
-            'total_applications' => Application::where('student_profile_id', $student?->id)->count(),
-            'shortlisted' => Application::where('student_profile_id', $student?->id)->where('status', 'shortlisted')->count(),
-        ];
+        if ($recommendedPosts->isEmpty()) {
+            $recommendedPosts = InternshipPost::with('companyProfile')
+                ->approved()
+                ->whereDate('deadline', '>=', now()->toDateString())
+                ->latest()
+                ->take(3)
+                ->get();
+        }
 
-        return view('student.dashboard', compact('student', 'recentApplications', 'stats'));
+        return view('student.dashboard', compact('student', 'recentApplications', 'stats', 'recommendedPosts'));
     }
 
     /**

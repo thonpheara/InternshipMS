@@ -28,6 +28,12 @@ class CompanyProfile extends Model
         'rejection_reason',
     ];
 
+    protected $appends = [
+        'logo_url',
+        'has_logo',
+        'initials',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

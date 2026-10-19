@@ -18,6 +18,13 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!Auth::check()) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated. Please provide a valid Bearer token.',
+                ], 401);
+            }
+
             return redirect()->route('login')->with('error', 'Please sign in to access this area.');
         }
 
@@ -25,6 +32,13 @@ class RoleMiddleware
 
         // Check if user has one of the allowed roles
         if (!in_array($user->role, $roles, true)) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Forbidden. You do not have permission to access this resource.',
+                ], 403);
+            }
+
             // Redirect to their respective dashboard instead of a blank 403 error for better UX
             return match ($user->role) {
                 'admin' => redirect()->route('admin.dashboard')->with('error', 'Access denied to that section.'),
