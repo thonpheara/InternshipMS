@@ -34,6 +34,9 @@
 </head>
 <body class="h-full antialiased text-[#111827] bg-[#F9FAFB] selection:bg-[#D1FAE5] selection:text-[#065F46]" x-data="{ sidebarOpen: false }">
 
+    <!-- Modern Toast Notifications -->
+    @include('components.toast')
+
     @auth
         <div class="min-h-screen flex bg-[#F9FAFB]">
             <!-- Mobile Sidebar Backdrop -->
@@ -56,35 +59,7 @@
                 <!-- Top Navbar -->
                 @include('components.topbar')
 
-                <!-- Flash Notifications -->
                 <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                    @if (session('success'))
-                        <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 flex items-center justify-between p-4 rounded-2xl bg-[#D1FAE5] border border-emerald-300 text-emerald-950 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-[#059669] text-white font-bold flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-check w-4 h-4"></i>
-                                </div>
-                                <p class="text-sm font-medium">{{ session('success') }}</p>
-                            </div>
-                            <button @click="show = false" class="text-emerald-800 hover:text-emerald-950 cursor-pointer">
-                                <i class="fa-solid fa-xmark w-4 h-4"></i>
-                            </button>
-                        </div>
-                    @endif
-
-                    @if (session('error'))
-                        <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 flex items-center justify-between p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0">
-                                    <i class="fa-solid fa-circle-exclamation w-4 h-4"></i>
-                                </div>
-                                <p class="text-sm font-medium">{{ session('error') }}</p>
-                            </div>
-                            <button @click="show = false" class="text-rose-600 hover:text-rose-800 cursor-pointer">
-                                <i class="fa-solid fa-xmark w-4 h-4"></i>
-                            </button>
-                        </div>
-                    @endif
 
                     @if ($errors->any())
                         <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 shadow-sm">

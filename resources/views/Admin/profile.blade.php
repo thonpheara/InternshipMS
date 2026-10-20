@@ -23,13 +23,6 @@
             </p>
         </div>
 
-        <!-- Success Alert -->
-        @if (session('success'))
-            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5 shadow-xs">
-                <i class="fa-solid fa-circle-check text-emerald-600 text-base shrink-0"></i>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
-        @endif
 
         <!-- Error Alerts -->
         @if ($errors->any())

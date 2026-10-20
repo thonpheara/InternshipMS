@@ -28,3 +28,21 @@ i[class*="fa-"] {
   line-height: 1;
   text-rendering: auto;
 }
+
+/* Toast Progress Animation */
+@keyframes toastProgress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-toast-progress {
+  animation: toastProgress 4.5s linear forwards;
+}
+
+.toast-card:hover .animate-toast-progress {
+  animation-play-state: paused;
+}
